@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Hormuz — India's AI Wealth Aggregator. Track equity, crypto, gold, forex and mutual funds across all brokers in one place.">
+<meta name="theme-color" content="#08404D">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hormuz — AI Wealth Aggregator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --tl:#0D5C6B;--tld:#08404D;--tll:#1A7D90;
+  --sf:#E88A2E;--go:#C9932A;
+  --cr:#F7F3EE;--iv:#FAFAF8;--wh:#FFFFFF;
+  --sl:#2C3E47;--mu:#6B7E85;--bd:#E2E8EA;
+  --ok:#1A9E6B;--er:#C0392B;--wn:#D4860C;
+  --sw:210px;--hh:54px;--ra:10px;
+  --sh:0 2px 12px rgba(13,92,107,.08);
+  --sh2:0 8px 32px rgba(13,92,107,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--iv);color:var(--sl);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.M{font-family:'IBM Plex Mono',monospace}
+.S{font-family:'Playfair Display',serif}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* ── AUTH SCREEN ── */
+.auth-outer{position:fixed;inset:0;z-index:900;display:flex;align-items:stretch;background:var(--tld);overflow:hidden}
+.auth-left{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#08404D 0%,#0D5C6B 50%,#1A7D90 100%)}
+.auth-left::after{content:'⬡';position:absolute;right:-60px;bottom:-60px;font-size:320px;opacity:.04;color:#fff;line-height:1}
+.auth-brand{position:relative;z-index:1;text-align:center;color:#fff}
+.auth-logo{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+.auth-logo span{color:var(--sf)}
+.auth-tagline{font-size:14px;opacity:.7;letter-spacing:2px;text-transform:uppercase;margin-bottom:48px;font-weight:600}
+.auth-features{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;max-width:320px;width:100%}
+.af{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.85);font-size:13px}
+.af-ic{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.auth-right{width:460px;background:var(--wh);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 44px;flex-shrink:0}
+.auth-form{width:100%}
+.auth-tabs{display:flex;background:var(--cr);border-radius:var(--ra);padding:4px;margin-bottom:28px}
+.auth-tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;border-radius:7px;transition:all .2s;color:var(--mu);border:none;background:transparent;font-family:'Nunito',sans-serif}
+.auth-tab.on{background:var(--wh);color:var(--tl);box-shadow:0 2px 8px rgba(13,92,107,.12)}
+.auth-inp{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;font-family:'Nunito',sans-serif;outline:none;background:var(--wh);transition:border .15s;margin-bottom:12px}
+.auth-inp:focus{border-color:var(--tl)}
+.auth-inp.error{border-color:var(--er)}
+.auth-inp-wrap{position:relative;margin-bottom:12px}
+.auth-inp-wrap .auth-inp{margin-bottom:0}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px}
+.auth-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--tl),var(--tll));color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;margin-top:4px}
+.auth-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 16px rgba(13,92,107,.3)}
+.auth-btn:disabled{background:var(--bd);color:var(--mu);cursor:not-allowed;transform:none;box-shadow:none}
+.auth-err{color:var(--er);font-size:12px;margin-bottom:8px;min-height:16px;text-align:center}
+.auth-ok{color:var(--ok);font-size:12px;margin-bottom:8px;min-height:16px;text-align:center}
+.auth-sep{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--mu);font-size:12px}
+.auth-sep::before,.auth-sep::after{content:'';flex:1;height:1px;background:var(--bd)}
+.auth-social{display:flex;gap:8px}
+.auth-social-btn{flex:1;padding:10px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);cursor:pointer;font-size:12px;font-weight:600;color:var(--sl);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;font-family:'Nunito',sans-serif}
+.auth-social-btn:hover{border-color:var(--tl);background:var(--cr)}
+.auth-label{display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.auth-footer{text-align:center;font-size:12px;color:var(--mu);margin-top:20px}
+.auth-link{color:var(--tl);font-weight:700;cursor:pointer;text-decoration:none}
+.auth-link:hover{text-decoration:underline}
+.auth-disclaimer{font-size:10px;color:var(--mu);text-align:center;margin-top:16px;line-height:1.6;padding:10px;background:var(--cr);border-radius:7px}
+/* OTP screen */
+.otp-dots{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.otp-d{width:48px;height:56px;border:2px solid var(--bd);border-radius:9px;text-align:center;font-size:22px;font-family:'IBM Plex Mono',monospace;font-weight:700;outline:none;background:var(--cr);transition:border .15s}
+.otp-d:focus{border-color:var(--tl);background:var(--wh)}
+.otp-d.filled{border-color:var(--tl)}
+/* Auth loading spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+/* User avatar in header */
+.u-chip{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 12px 4px 6px;cursor:pointer}
+.u-av{width:26px;height:26px;border-radius:50%;background:var(--sf);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:#fff}
+.u-name-hdr{font-size:11px;font-weight:700;color:#fff}
+
+/* HEADER */
+header{height:var(--hh);background:var(--tld);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;z-index:300}
+.logo{font-family:'Playfair Display',serif;color:#fff;font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.3px}
+.logo span{color:var(--sf)}
+.ticker-w{flex:1;overflow:hidden;position:relative}
+.ticker-w::before,.ticker-w::after{content:'';position:absolute;top:0;bottom:0;width:24px;z-index:1;pointer-events:none}
+.ticker-w::before{left:0;background:linear-gradient(to right,var(--tld),transparent)}
+.ticker-w::after{right:0;background:linear-gradient(to left,var(--tld),transparent)}
+.ticker-i{display:flex;white-space:nowrap;animation:tick 45s linear infinite}
+@keyframes tick{to{transform:translateX(-50%)}}
+.ti{display:inline-flex;align-items:center;gap:5px;padding:0 16px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:rgba(255,255,255,.75);border-right:1px solid rgba(255,255,255,.1)}
+.ti .sy{color:#fff;font-weight:600}
+.up{color:#4ade80!important}.dn{color:#f87171!important}
+.hb{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-family:'Nunito',sans-serif;font-weight:700;display:flex;align-items:center;gap:4px;transition:background .2s;white-space:nowrap}
+.hb:hover{background:rgba(255,255,255,.22)}
+.hb.ac{background:var(--sf)}.hb.ac:hover{background:#d47a25}
+
+/* LAYOUT */
+.body{display:flex;flex:1;overflow:hidden}
+aside{width:var(--sw);background:var(--wh);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;z-index:200}
+main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* NAV */
+.ng{padding:7px 7px 3px}
+.nl{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--mu);padding:7px 9px 3px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--mu);transition:all .15s;margin-bottom:1px;user-select:none;border:none;background:none;width:100%;text-align:left}
+.ni:hover{background:var(--cr);color:var(--tl)}
+.ni.on{background:var(--tl);color:#fff}
+.ni .ic{font-size:14px;width:17px;text-align:center;flex-shrink:0}
+.ni .nb{margin-left:auto;background:var(--sf);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700}
+.ni.on .nb{background:rgba(255,255,255,.3)}
+.ndv{height:1px;background:var(--bd);margin:5px 11px}
+.sbot{margin-top:auto;padding:9px 7px;border-top:1px solid var(--bd)}
+/* Sidebar user info */
+.sb-user{padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .14s}
+.sb-user:hover{background:var(--cr)}
+.sb-u-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--tl),var(--tll));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0}
+.sb-u-name{font-size:12px;font-weight:700;color:var(--sl)}
+.sb-u-email{font-size:10px;color:var(--mu)}
+
+/* PAGES */
+.page{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page.on{display:flex}
+.ps{flex:1;overflow-y:auto;padding:16px 18px}
+.ph{padding:12px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--wh);flex-shrink:0}
+.ph h2{font-family:'Playfair Display',serif;font-size:19px;color:var(--tld)}
+
+/* CARDS */
+.card{background:var(--wh);border-radius:var(--ra);border:1px solid var(--bd);padding:14px}
+.card.sh{box-shadow:var(--sh)}
+.ct{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* FLEX */
+.f{display:flex;align-items:center}
+.fsb{display:flex;align-items:center;justify-content:space-between}
+
+/* KPI */
+.kv{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:var(--tl)}
+.kl{font-size:11px;color:var(--mu);font-weight:600;margin-bottom:2px}
+.kc{font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:500}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
+.ttl{background:#E0F4F7;color:var(--tl)}
+.tsf{background:#FEF0DC;color:var(--go)}
+.tok{background:#D1F5E8;color:var(--ok)}
+.ter{background:#FDECEA;color:var(--er)}
+.twn{background:#FEF3D0;color:var(--wn)}
+.tmu{background:var(--cr);color:var(--mu)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.bp{background:var(--tl);color:#fff}.bp:hover{background:var(--tll)}
+.bs{background:var(--sf);color:#fff}.bs:hover{background:#d47a25}
+.bo{background:transparent;color:var(--tl);border:1.5px solid var(--tl)}.bo:hover{background:var(--tl);color:#fff}
+.bg{background:var(--cr);color:var(--sl)}.bg:hover{background:var(--bd)}
+.bsm{padding:5px 10px;font-size:12px}
+.bxs{padding:3px 8px;font-size:11px}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{text-align:left;padding:7px 11px;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);background:var(--cr)}
+.dt td{padding:8px 11px;border-bottom:1px solid var(--bd)}
+.dt tr:hover td{background:#F5F8FA}
+.dt tr:last-child td{border-bottom:none}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:11px}
+
+/* STAT ROW */
+.sr{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.sr:last-child{border-bottom:none}
+.sr .lb{color:var(--mu);font-weight:500}
+
+/* BAR */
+.bar{height:5px;background:var(--bd);border-radius:3px;overflow:hidden}
+.barf{height:100%;border-radius:3px;transition:width .5s}
+
+/* ALERTS */
+.al{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:8px;font-size:13px;margin-bottom:8px}
+.alw{background:#FEF3D0;border-left:3px solid var(--sf)}
+.ald{background:#FDECEA;border-left:3px solid var(--er)}
+.alo{background:#D1F5E8;border-left:3px solid var(--ok)}
+.ali{background:#E0F4F7;border-left:3px solid var(--tl)}
+
+/* TABS */
+.tbar{display:flex;border-bottom:2px solid var(--bd);overflow-x:auto}
+.tab{padding:8px 14px;font-size:13px;font-weight:700;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;flex-shrink:0;border:none;background:none;font-family:'Nunito',sans-serif}
+.tab.on{color:var(--tl);border-bottom-color:var(--tl)}
+.tc{display:none}.tc.on{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--tld),var(--tl) 60%,var(--tll));border-radius:11px;padding:22px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hkpis{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.15);padding-top:14px;margin-top:2px}
+.hk{padding-right:18px;border-right:1px solid rgba(255,255,255,.12)}
+.hk:first-child{padding-left:0}.hk:last-child{border-right:none}
+.hkv{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;margin-bottom:2px}
+.hkl{font-size:9px;opacity:.65;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.hkc{font-size:10px;font-family:'IBM Plex Mono',monospace;margin-top:2px}
+
+/* BROKER PILLS */
+.bpz{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;border:1.5px solid}
+.bz{background:#EFF5FF;color:#2563EB;border-color:#BFDBFE}
+.bgr{background:#F0FDF4;color:#16A34A;border-color:#BBF7D0}
+.ban{background:#FFF7ED;color:#D97706;border-color:#FDE68A}
+.bup{background:#FDF4FF;color:#9333EA;border-color:#E9D5FF}
+
+/* TRADE TERMINAL */
+.terminal{display:grid;grid-template-columns:185px 1fr 280px;height:calc(100vh - var(--hh));overflow:hidden}
+.tl,.tr{background:var(--wh);display:flex;flex-direction:column;overflow:hidden}
+.tl{border-right:1px solid var(--bd)}
+.tr{border-left:1px solid var(--bd)}
+.tc2{display:flex;flex-direction:column;overflow:hidden}
+.tsec{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mu);padding:8px 10px 4px;flex-shrink:0}
+.wli{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:pointer;border-bottom:1px solid var(--bd);transition:background .1s;flex-shrink:0}
+.wli:hover{background:var(--cr)}
+.wli.on{background:#EBF5F7;border-left:3px solid var(--tl)}
+.wls{font-weight:700;font-size:12px}
+.wlp{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600}
+.wlc{font-family:'IBM Plex Mono',monospace;font-size:10px}
+.wl-scroll{overflow-y:auto;flex:1}
+.chdr{padding:9px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+.csym{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--tl)}
+.cpri{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600}
+.tf{padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);border-radius:4px;background:transparent;color:var(--mu);font-family:'Nunito',sans-serif;transition:all .15s}
+.tf.on,.tf:hover{background:var(--tl);color:#fff;border-color:var(--tl)}
+.ca{flex:1;position:relative;overflow:hidden;min-height:120px}
+.ca canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.ohlcv{padding:5px 12px;background:var(--cr);border-top:1px solid var(--bd);display:flex;gap:16px;font-size:10px;flex-wrap:wrap;flex-shrink:0}
+.odock{border-top:1px solid var(--bd);padding:10px;flex-shrink:0;background:var(--cr)}
+.stabs{display:flex;border-radius:7px;overflow:hidden;border:1.5px solid var(--tl);margin-bottom:8px}
+.st{flex:1;padding:5px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--tl);border:none;font-family:'Nunito',sans-serif;transition:all .15s}
+.st.buy.on{background:var(--ok);color:#fff}
+.st.sell.on{background:var(--er);color:#fff}
+.bac{flex:1;border:1.5px solid var(--bd);border-radius:8px;padding:7px 8px;cursor:pointer;transition:all .15s;background:var(--wh);min-width:0}
+.bac:hover{border-color:var(--tl);background:#F0F9FB}
+.bac.on{border-color:var(--tl);background:#EBF5F7;box-shadow:0 0 0 2px rgba(13,92,107,.15)}
+.bac.warn{border-color:var(--wn);background:#FFFBEB}
+.ofields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:6px}
+.of label{display:block;font-size:9px;font-weight:700;color:var(--mu);margin-bottom:2px;text-transform:uppercase;letter-spacing:.4px}
+.of select,.of input{width:100%;border:1.5px solid var(--bd);border-radius:5px;padding:4px 7px;font-size:12px;font-family:'IBM Plex Mono',monospace;background:var(--wh);color:var(--sl);outline:none}
+.of select:focus,.of input:focus{border-color:var(--tl)}
+.pbtn{width:100%;padding:8px;border-radius:7px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+.pbuy{background:var(--ok);color:#fff}.pbuy:hover{background:#15896C}
+.psell{background:var(--er);color:#fff}.psell:hover{background:#a32d22}
+.ttabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0}
+.ttab{flex:1;padding:7px 3px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border:none;background:none;font-family:'Nunito',sans-serif}
+.ttab.on{color:var(--tl);border-bottom-color:var(--tl)}
+.tpane{display:none;overflow-y:auto;flex:1;padding:9px}.tpane.on{display:block}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px}
+.srow:last-child{border-bottom:none}
+
+/* FUND CARD */
+.fcard{border:1px solid var(--bd);border-radius:10px;padding:13px;background:var(--wh);margin-bottom:9px}
+.fcard.pick{border-color:var(--sf);border-width:1.5px}
+.pbdg{background:var(--sf);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.pbar{height:4px;border-radius:2px;background:var(--bd);margin-top:4px;overflow:hidden}
+.pbarf{height:100%;border-radius:2px}
+
+/* FAMILY */
+.fmem{border:1.5px solid var(--bd);border-radius:10px;padding:13px;display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.mavt{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;flex-shrink:0}
+
+/* VAULT */
+.vcard{border:1.5px solid var(--bd);border-radius:10px;padding:15px;background:var(--wh);margin-bottom:10px}
+.vcard.ok{border-color:var(--ok);background:#F0FDF8}
+.vcard.wn{border-color:var(--wn);background:#FFFBEB}
+.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cdot.ok{background:var(--ok);box-shadow:0 0 0 3px rgba(26,158,107,.2)}
+.cdot.off{background:var(--bd)}
+.cdot.wn{background:var(--wn);box-shadow:0 0 0 3px rgba(212,134,12,.2)}
+.vi{width:100%;border:1.5px solid var(--bd);border-radius:6px;padding:7px 10px;font-size:12px;font-family:'IBM Plex Mono',monospace;outline:none;background:var(--wh);letter-spacing:1px;transition:border .15s}
+.vi:focus{border-color:var(--tl)}
+
+/* PCARD */
+.pcard{border:1px solid var(--bd);border-radius:10px;padding:13px;background:var(--wh);margin-bottom:9px}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(8,64,77,.58);z-index:600;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.on{display:flex}
+.mbox{background:var(--wh);border-radius:13px;padding:26px;box-shadow:var(--sh2)}
+
+/* FLOATING AI */
+#aifab{position:fixed;bottom:22px;right:22px;z-index:999;width:52px;height:52px;border-radius:50%;background:var(--tl);color:#fff;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;border:none;box-shadow:0 4px 20px rgba(13,92,107,.4);transition:all .2s}
+#aifab:hover{transform:scale(1.08);background:var(--tll)}
+#aifab .pulse{position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--sf);animation:pulse 2.5s ease-in-out infinite;pointer-events:none}
+@keyframes pulse{0%,100%{opacity:0;transform:scale(.9)}50%{opacity:.5;transform:scale(1.1)}}
+
+/* AI PANEL */
+#aip{position:fixed;bottom:86px;right:22px;width:350px;max-height:66vh;background:var(--wh);border-radius:13px;box-shadow:var(--sh2);z-index:998;display:none;flex-direction:column;border:1px solid var(--bd);overflow:hidden}
+#aip.on{display:flex}
+.aihdr{background:var(--tld);color:#fff;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.aihdr h3{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.aihdr h3::before{content:'✦';color:var(--sf)}
+.aimsg{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.am{padding:9px 11px;border-radius:9px;font-size:12px;line-height:1.5;max-width:94%}
+.am.u{background:var(--tl);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.am.b{background:var(--cr);color:var(--sl);align-self:flex-start;border-bottom-left-radius:3px}
+.aiqk{padding:0 12px 8px;display:flex;flex-wrap:wrap;gap:5px}
+.aiqk button{background:var(--cr);border:1px solid var(--bd);border-radius:14px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif;color:var(--sl);transition:all .15s}
+.aiqk button:hover{background:var(--tl);color:#fff;border-color:var(--tl)}
+.airow{padding:8px 10px;border-top:1px solid var(--bd);display:flex;gap:6px;flex-shrink:0}
+.aiinp{flex:1;border:1.5px solid var(--bd);border-radius:6px;padding:6px 10px;font-size:12px;font-family:'Nunito',sans-serif;outline:none;background:var(--cr)}
+.aiinp:focus{border-color:var(--tl)}
+.aisend{background:var(--tl);color:#fff;border:none;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:13px}
+
+/* MPIN */
+.mpins{display:flex;gap:7px;justify-content:center;margin:12px 0}
+.mpd{width:42px;height:50px;border:2px solid var(--bd);border-radius:8px;text-align:center;font-size:20px;font-family:'IBM Plex Mono',monospace;font-weight:700;outline:none;background:var(--cr);transition:border .15s}
+.mpd:focus{border-color:var(--tl);background:var(--wh)}
+.mpd.filled{border-color:var(--tl);background:#EBF5F7}
+
+/* TOAST */
+#toast{position:fixed;top:62px;right:16px;z-index:9999;background:var(--tld);color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;max-width:320px;border-left:3px solid var(--sf)}
+#toast.on{opacity:1;transform:translateY(0)}
+
+/* DONUT + RING */
+.donut{position:relative;display:inline-block}
+.dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.dc .db{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--tl)}
+.dc .ds{font-size:9px;color:var(--mu);font-weight:600}
+.ring{position:relative;display:inline-block}
+.ring svg{transform:rotate(-90deg)}
+.rv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--tl)}
+
+/* HOLDINGS MAP */
+.hmc{display:flex;gap:4px;flex-wrap:wrap}
+.hchip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid;transition:opacity .15s}
+.hchip:hover{opacity:.75}
+
+/* API */
+.acard{border:1.5px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px}
+.acard.ok{border-color:var(--ok);background:#F0FDF8}
+.acard.wn{border-color:var(--wn);background:#FFFBEB}
+.ep{background:rgba(0,0,0,.07);padding:2px 7px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;display:inline-block;margin:2px}
+pre{white-space:pre-wrap;word-break:break-word}
+
+/* FI input */
+.fi{width:100%;border:1.5px solid var(--bd);border-radius:7px;padding:8px 12px;font-size:13px;font-family:'Nunito',sans-serif;outline:none;background:var(--wh);transition:border .15px}
+.fi:focus{border-color:var(--tl)}
+.fisq{padding:5px 8px;font-size:12px}
+
+/* Donut animation */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.auth-right > *{animation:fadeIn .35s ease both}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- ════════════ AUTH SCREEN ════════════ -->
+<div id="auth-screen" class="auth-outer">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-logo">Hormuz</div>
+      <div class="auth-tagline">AI Wealth Aggregator</div>
+    </div>
+    <div class="auth-features">
+      <div class="af"><div class="af-ic">⬡</div><div><strong>All brokers, one view</strong><br><span style="opacity:.7;font-size:11px">Zerodha · Groww · Angel One · Upstox + more</span></div></div>
+      <div class="af"><div class="af-ic">✦</div><div><strong>AI Wealth Analyst</strong><br><span style="opacity:.7;font-size:11px">Claude-powered · In Hindi + English</span></div></div>
+      <div class="af"><div class="af-ic">◈</div><div><strong>Every asset class</strong><br><span style="opacity:.7;font-size:11px">Equity · MF · Crypto · Gold · Forex · Bonds</span></div></div>
+      <div class="af"><div class="af-ic">🛡️</div><div><strong>SEBI AA compliant</strong><br><span style="opacity:.7;font-size:11px">AES-256 encrypted · CDSL + NSDL</span></div></div>
+      <div class="af"><div class="af-ic">💸</div><div><strong>Tax optimisation</strong><br><span style="opacity:.7;font-size:11px">Cross-broker P&L · Tax harvest alerts</span></div></div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <!-- Sign In / Sign Up Tabs -->
+    <div style="width:100%;text-align:center;margin-bottom:24px">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--tld)">Welcome to Hormuz</div>
+      <div style="font-size:12px;color:var(--mu);margin-top:4px">India's AI Wealth Aggregator</div>
+    </div>
+    <div class="auth-tabs" style="width:100%">
+      <button class="auth-tab on" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- SIGN IN FORM -->
+    <div id="form-signin" class="auth-form">
+      <label class="auth-label">Email Address</label>
+      <input type="email" class="auth-inp" id="si-email" placeholder="you@example.com" autocomplete="email" oninput="clearAuthErr()"/>
+      <label class="auth-label">Password</label>
+      <div class="auth-inp-wrap">
+        <input type="password" class="auth-inp" id="si-pw" placeholder="Enter your password" autocomplete="current-password" oninput="clearAuthErr()" onkeydown="if(event.key==='Enter')doSignIn()"/>
+        <button class="pw-toggle" type="button" onclick="togglePw('si-pw',this)">👁</button>
+      </div>
+      <div style="text-align:right;margin-bottom:12px"><span class="auth-link" onclick="showForgot()" style="font-size:12px">Forgot password?</span></div>
+      <div class="auth-err" id="si-err"></div>
+      <button class="auth-btn" id="si-btn" onclick="doSignIn()">Sign In →</button>
+      <div class="auth-sep">or continue with</div>
+      <div class="auth-social">
+        <button class="auth-social-btn" onclick="doGoogleSignIn()">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
+        </button>
+        <button class="auth-social-btn" onclick="doAppleSignIn()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Apple
+        </button>
+      </div>
+      <div class="auth-disclaimer">By signing in you agree to Hormuz's <span class="auth-link">Terms of Service</span> and <span class="auth-link">Privacy Policy</span>. Hormuz is not a SEBI-registered investment advisor. All content is for informational purposes only.</div>
+    </div>
+
+    <!-- SIGN UP FORM -->
+    <div id="form-signup" class="auth-form" style="display:none">
+      <div class="g2" style="gap:8px">
+        <div>
+          <label class="auth-label">First Name</label>
+          <input type="text" class="auth-inp" id="su-fname" placeholder="Rahul" style="margin-bottom:0"/>
+        </div>
+        <div>
+          <label class="auth-label">Last Name</label>
+          <input type="text" class="auth-inp" id="su-lname" placeholder="Sharma" style="margin-bottom:0"/>
+        </div>
+      </div>
+      <div style="height:12px"></div>
+      <label class="auth-label">Email Address</label>
+      <input type="email" class="auth-inp" id="su-email" placeholder="you@example.com" autocomplete="email" oninput="clearAuthErr()"/>
+      <label class="auth-label">Password <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--mu)">(min 8 characters)</span></label>
+      <div class="auth-inp-wrap">
+        <input type="password" class="auth-inp" id="su-pw" placeholder="Create a strong password" oninput="checkPwStrength();clearAuthErr()"/>
+        <button class="pw-toggle" type="button" onclick="togglePw('su-pw',this)">👁</button>
+      </div>
+      <!-- Password strength bar -->
+      <div style="height:4px;background:var(--bd);border-radius:2px;margin-bottom:10px;overflow:hidden">
+        <div id="pw-strength-bar" style="height:100%;width:0%;border-radius:2px;transition:all .3s;background:var(--er)"></div>
+      </div>
+      <label class="auth-label">Confirm Password</label>
+      <input type="password" class="auth-inp" id="su-pw2" placeholder="Repeat password" oninput="clearAuthErr()" onkeydown="if(event.key==='Enter')doSignUp()"/>
+      <div class="auth-err" id="su-err"></div>
+      <button class="auth-btn" id="su-btn" onclick="doSignUp()">Create Account →</button>
+      <div class="auth-disclaimer" style="margin-top:14px">By creating an account you agree to Hormuz's <span class="auth-link">Terms of Service</span> and <span class="auth-link">Privacy Policy</span>. Hormuz is not a SEBI-registered investment advisor. All content is for informational purposes only.</div>
+    </div>
+
+    <!-- FORGOT PASSWORD FORM -->
+    <div id="form-forgot" class="auth-form" style="display:none">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:36px;margin-bottom:8px">🔑</div>
+        <div style="font-size:15px;font-weight:700;color:var(--tld)">Reset Password</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:4px">Enter your email and we'll send a reset link</div>
+      </div>
+      <label class="auth-label">Email Address</label>
+      <input type="email" class="auth-inp" id="fp-email" placeholder="you@example.com"/>
+      <div class="auth-ok" id="fp-ok"></div>
+      <div class="auth-err" id="fp-err"></div>
+      <button class="auth-btn" onclick="doForgot()">Send Reset Link →</button>
+      <div style="text-align:center;margin-top:14px"><span class="auth-link" onclick="switchTab('signin')">← Back to Sign In</span></div>
+    </div>
+
+    <!-- OTP VERIFY FORM -->
+    <div id="form-otp" class="auth-form" style="display:none">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:36px;margin-bottom:8px">📧</div>
+        <div style="font-size:15px;font-weight:700;color:var(--tld)">Verify your email</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:4px">Enter the 6-digit code sent to <strong id="otp-email-display"></strong></div>
+      </div>
+      <div class="otp-dots" id="otp-inputs">
+        <input class="otp-d" maxlength="1" id="otp0" oninput="otpIn(this,0)" onkeydown="otpBack(event,0)">
+        <input class="otp-d" maxlength="1" id="otp1" oninput="otpIn(this,1)" onkeydown="otpBack(event,1)">
+        <input class="otp-d" maxlength="1" id="otp2" oninput="otpIn(this,2)" onkeydown="otpBack(event,2)">
+        <input class="otp-d" maxlength="1" id="otp3" oninput="otpIn(this,3)" onkeydown="otpBack(event,3)">
+        <input class="otp-d" maxlength="1" id="otp4" oninput="otpIn(this,4)" onkeydown="otpBack(event,4)">
+        <input class="otp-d" maxlength="1" id="otp5" oninput="otpIn(this,5)" onkeydown="otpBack(event,5)">
+      </div>
+      <div class="auth-err" id="otp-err"></div>
+      <button class="auth-btn" onclick="doVerifyOTP()">Verify & Enter →</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--mu)">Didn't get it? <span class="auth-link" onclick="resendOTP()">Resend code</span> · <span id="otp-timer" style="font-family:'IBM Plex Mono',monospace">0:59</span></div>
+      <div style="text-align:center;margin-top:6px"><span class="auth-link" style="font-size:12px" onclick="switchTab('signin')">← Use different email</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MPIN MODAL -->
+<div class="overlay" id="mpin-ov">
+  <div class="mbox" style="width:340px;text-align:center">
+    <div style="font-size:30px;margin-bottom:7px" id="mp-icon">🔑</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:17px;color:var(--tld);margin-bottom:4px" id="mp-title">Confirm Order</h3>
+    <div style="background:var(--cr);border-radius:8px;padding:10px 13px;margin:10px 0;text-align:left;font-size:12px" id="mp-detail"></div>
+    <div style="font-size:11px;color:var(--mu);margin-bottom:4px">Enter 6-digit MPIN for <strong id="mp-broker">Zerodha</strong></div>
+    <div class="mpins" id="mp-digits">
+      <input class="mpd" maxlength="1" type="password" id="mp0" oninput="mpIn(this,0)">
+      <input class="mpd" maxlength="1" type="password" id="mp1" oninput="mpIn(this,1)">
+      <input class="mpd" maxlength="1" type="password" id="mp2" oninput="mpIn(this,2)">
+      <input class="mpd" maxlength="1" type="password" id="mp3" oninput="mpIn(this,3)">
+      <input class="mpd" maxlength="1" type="password" id="mp4" oninput="mpIn(this,4)">
+      <input class="mpd" maxlength="1" type="password" id="mp5" oninput="mpIn(this,5)">
+    </div>
+    <div id="mp-err" style="color:var(--er);font-size:12px;min-height:16px;margin-bottom:8px"></div>
+    <button class="btn bp" id="mp-btn" style="width:100%;justify-content:center;margin-bottom:7px" onclick="submitMPIN()">Confirm Order</button>
+    <button class="btn bg" style="width:100%;justify-content:center" onclick="closeMPIN()">Cancel</button>
+    <div style="margin-top:10px;font-size:11px;color:var(--mu)">Demo MPIN: <strong class="M">1 2 3 4 5 6</strong></div>
+  </div>
+</div>
+
+<!-- VAULT UNLOCK MODAL -->
+<div class="overlay" id="vault-ov">
+  <div class="mbox" style="width:360px;text-align:center">
+    <div style="font-size:44px;margin-bottom:10px">🔒</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--tld);margin-bottom:6px">Unlock Broker Vault</h3>
+    <p style="font-size:13px;color:var(--mu);margin-bottom:16px">Enter your 6-digit Master PIN to access saved credentials</p>
+    <div class="mpins" id="vpin-digits">
+      <input class="mpd" maxlength="1" type="password" id="vp0" oninput="vpIn(this,0)">
+      <input class="mpd" maxlength="1" type="password" id="vp1" oninput="vpIn(this,1)">
+      <input class="mpd" maxlength="1" type="password" id="vp2" oninput="vpIn(this,2)">
+      <input class="mpd" maxlength="1" type="password" id="vp3" oninput="vpIn(this,3)">
+      <input class="mpd" maxlength="1" type="password" id="vp4" oninput="vpIn(this,4)">
+      <input class="mpd" maxlength="1" type="password" id="vp5" oninput="vpIn(this,5)">
+    </div>
+    <div id="vp-err" style="color:var(--er);font-size:12px;min-height:16px;margin-bottom:10px"></div>
+    <button class="btn bp" style="width:100%;justify-content:center;margin-bottom:7px" onclick="doUnlockVault()">Unlock Vault</button>
+    <button class="btn bg" style="width:100%;justify-content:center" onclick="document.getElementById('vault-ov').classList.remove('on')">Cancel</button>
+    <div style="margin-top:10px;font-size:11px;color:var(--mu)">Demo PIN: <strong class="M">1 2 3 4 5 6</strong></div>
+  </div>
+</div>
+
+<!-- HEADER (hidden until logged in) -->
+<header id="main-header" style="display:none">
+  <div class="logo">Hormuz</div>
+  <div class="ticker-w"><div class="ticker-i" id="ticker"></div></div>
+  <div class="f" style="gap:8px;flex-shrink:0">
+    <button class="hb" onclick="toast('📬 4 alerts: RELIANCE duplication, KYC renewal, tax harvest ₹2,730, Energy overweight')">🔔 <span style="width:6px;height:6px;background:#f87171;border-radius:50%;display:inline-block"></span></button>
+    <button class="hb ac" onclick="openAI()">✦ AI Analyst</button>
+    <div class="u-chip" onclick="nav('settings')" id="hdr-user-chip">
+      <div class="u-av" id="hdr-av">RK</div>
+      <span class="u-name-hdr" id="hdr-name">Rahul</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN APP BODY (hidden until logged in) -->
+<div class="body" id="main-body" style="display:none">
+<aside>
+  <div class="sb-user" onclick="nav('settings')">
+    <div class="sb-u-av" id="sb-av">RK</div>
+    <div>
+      <div class="sb-u-name" id="sb-uname">Rahul Kumar</div>
+      <div class="sb-u-email" id="sb-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4e3c2f263b220e2b362f233e222b602d2123">[email&#160;protected]</a></div>
+    </div>
+  </div>
+  <div class="ng">
+    <div class="nl">Overview</div>
+    <button class="ni on" id="ni-dashboard" onclick="nav('dashboard')"><span class="ic">🏠</span>Dashboard</button>
+    <button class="ni" id="ni-portfolio" onclick="nav('portfolio')"><span class="ic">📊</span>Holdings<span class="nb">4</span></button>
+    <button class="ni" id="ni-family" onclick="nav('family')"><span class="ic">👨‍👩‍👧</span>Family View</button>
+  </div>
+  <div class="ndv"></div>
+  <div class="ng">
+    <div class="nl">Trade</div>
+    <button class="ni" id="ni-trade" onclick="nav('trade')"><span class="ic">⚡</span>Terminal</button>
+    <button class="ni" id="ni-orders" onclick="nav('orders')"><span class="ic">📋</span>Orders</button>
+  </div>
+  <div class="ndv"></div>
+  <div class="ng">
+    <div class="nl">Invest</div>
+    <button class="ni" id="ni-mf" onclick="nav('mf')"><span class="ic">📈</span>Mutual Funds</button>
+    <button class="ni" id="ni-bonds" onclick="nav('bonds')"><span class="ic">🏛️</span>Bonds & FD</button>
+    <button class="ni" id="ni-insurance" onclick="nav('insurance')"><span class="ic">🛡️</span>Insurance</button>
+    <button class="ni" id="ni-premium" onclick="nav('premium')"><span class="ic">💎</span>AIFs / PMS</button>
+    <button class="ni" id="ni-forex" onclick="nav('forex')"><span class="ic">💱</span>Forex</button>
+    <button class="ni" id="ni-crypto" onclick="nav('crypto')"><span class="ic">₿</span>Crypto</button>
+    <button class="ni" id="ni-bullion" onclick="nav('bullion')"><span class="ic">🥇</span>Bullions</button>
+  </div>
+  <div class="ndv"></div>
+  <div class="ng">
+    <div class="nl">Manage</div>
+    <button class="ni" id="ni-vault" onclick="nav('vault')"><span class="ic">🔐</span>Broker Vault</button>
+    <button class="ni" id="ni-hmap" onclick="nav('hmap')"><span class="ic">🗂️</span>Holdings Map</button>
+    <button class="ni" id="ni-api" onclick="nav('api')"><span class="ic">🔌</span>API Hub</button>
+    <button class="ni" id="ni-tax" onclick="nav('tax')"><span class="ic">🧾</span>Tax & Reports</button>
+    <button class="ni" id="ni-brokers" onclick="nav('brokers')"><span class="ic">🏦</span>Open Account</button>
+  </div>
+  <div class="sbot">
+    <button class="ni" id="ni-settings" onclick="nav('settings')"><span class="ic">⚙️</span>Settings</button>
+    <button class="ni" onclick="doSignOut()" style="color:var(--er);margin-top:4px"><span class="ic">↩</span>Sign Out</button>
+  </div>
+</aside>
+
+<main>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="page on" id="pg-dashboard">
+ <div class="ps">
+  <div class="hero">
+    <div style="font-size:12px;opacity:.75;margin-bottom:2px">Good morning ☀️ &nbsp;·&nbsp; <span id="dash-time"></span></div>
+    <div style="font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:14px">Welcome back, <span id="dash-uname">Rahul</span> — AI Score: <span style="color:var(--sf)">82/100</span></div>
+    <div class="hkpis">
+      <div class="hk"><div class="hkv">₹25.30L</div><div class="hkl">Total Net Worth</div><div class="hkc up">▲ ₹58,240 today</div></div>
+      <div class="hk" style="padding-left:18px"><div class="hkv">₹6.84L</div><div class="hkl">Unrealised Gain</div><div class="hkc up">▲ 37.1% on invested</div></div>
+      <div class="hk" style="padding-left:18px"><div class="hkv">₹18,240</div><div class="hkl">Today's P&L</div><div class="hkc up">▲ 0.72% overall</div></div>
+      <div class="hk" style="padding-left:18px"><div class="hkv">7</div><div class="hkl">Asset Classes</div><div class="hkc" style="color:rgba(255,255,255,.55)">EQ·MF·Bond·Gold·Crypto·Forex·AIF</div></div>
+    </div>
+  </div>
+
+  <div class="al alw" style="margin-bottom:12px"><span>⚡</span><div><strong>5 Action Items</strong> — RELIANCE duplication · Tax harvest ₹2,730 · Energy 38% overweight · Crypto 20.6% (high) · KYC renewal due<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn bg bxs" onclick="nav('hmap')">Fix Duplication</button><button class="btn bg bxs" onclick="nav('tax')">Harvest Tax</button><button class="btn bg bxs" onclick="nav('crypto')">Review Crypto</button><button class="btn bg bxs" onclick="openAI()">✦ Ask AI</button></div></div></div>
+
+  <div style="margin-bottom:14px">
+    <div class="fsb" style="margin-bottom:8px"><div class="ct" style="margin:0">Complete Portfolio — All Asset Classes</div><button class="btn bg bxs" onclick="nav('portfolio')">View All →</button></div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">
+      <div class="card sh" style="padding:10px;border-top:3px solid #0D5C6B;cursor:pointer" onclick="nav('portfolio')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">📊</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">EQUITY</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--tl);text-align:center">₹13.52L</div>
+        <div style="font-size:10px;text-align:center;color:var(--ok);font-family:'IBM Plex Mono',monospace">+₹1.44L</div>
+        <div style="font-size:9px;color:var(--mu);text-align:center;margin-top:3px">53.5%</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:54%;background:#0D5C6B"></div></div>
+      </div>
+      <div class="card sh" style="padding:10px;border-top:3px solid #E88A2E;cursor:pointer" onclick="nav('mf')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">📈</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">MUT. FUNDS</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--tl);text-align:center">₹3.21L</div>
+        <div style="font-size:10px;text-align:center;color:var(--ok);font-family:'IBM Plex Mono',monospace">+₹70K</div>
+        <div style="font-size:9px;color:var(--mu);text-align:center;margin-top:3px">12.7%</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:13%;background:#E88A2E"></div></div>
+      </div>
+      <div class="card sh" style="padding:10px;border-top:3px solid #6366f1;cursor:pointer" onclick="nav('bonds')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">🏛️</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">BONDS/FD</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--tl);text-align:center">₹1.23L</div>
+        <div style="font-size:10px;text-align:center;color:var(--ok);font-family:'IBM Plex Mono',monospace">+₹14.6K</div>
+        <div style="font-size:9px;color:var(--mu);text-align:center;margin-top:3px">4.9%</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:5%;background:#6366f1"></div></div>
+      </div>
+      <div class="card sh" style="padding:10px;border-top:3px solid #D4AF37;cursor:pointer" onclick="nav('bullion')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">🥇</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">BULLION</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--tl);text-align:center">₹2.14L</div>
+        <div style="font-size:10px;text-align:center;color:var(--ok);font-family:'IBM Plex Mono',monospace">+₹41.6K</div>
+        <div style="font-size:9px;color:var(--mu);text-align:center;margin-top:3px">8.5%</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:9%;background:#D4AF37"></div></div>
+      </div>
+      <div class="card sh" style="padding:10px;border-top:3px solid #F7931A;cursor:pointer" onclick="nav('crypto')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">₿</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">CRYPTO</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--tl);text-align:center">₹5.20L</div>
+        <div style="font-size:10px;text-align:center;color:var(--ok);font-family:'IBM Plex Mono',monospace">+₹88.4K</div>
+        <div style="font-size:9px;color:var(--mu);text-align:center;margin-top:3px">20.6%</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:21%;background:#F7931A"></div></div>
+      </div>
+      <div class="card sh" style="padding:10px;border-top:3px solid #0EA5E9;cursor:pointer" onclick="nav('forex')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">💱</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">FOREX</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--tl);text-align:center">₹0</div>
+        <div style="font-size:10px;text-align:center;color:var(--mu);font-family:'IBM Plex Mono',monospace">Hedge only</div>
+        <div style="font-size:9px;color:var(--mu);text-align:center;margin-top:3px">—</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:1%;background:#0EA5E9"></div></div>
+      </div>
+      <div class="card sh" style="padding:10px;border-top:3px solid #7C3AED;cursor:pointer" onclick="nav('premium')">
+        <div style="font-size:18px;text-align:center;margin-bottom:5px">💎</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-align:center;margin-bottom:4px">AIF / PMS</div>
+        <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--mu);text-align:center">₹0</div>
+        <div style="font-size:9px;text-align:center;color:var(--wn);margin-top:2px">Min ₹1Cr</div>
+        <div class="bar" style="margin-top:5px"><div class="barf" style="width:0%;background:#7C3AED"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card sh"><div class="fsb" style="margin-bottom:10px"><div class="ct" style="margin:0">Portfolio vs Nifty 50</div><div style="display:flex;gap:4px"><button class="tf on" onclick="setDashTF(this,30)">1M</button><button class="tf" onclick="setDashTF(this,90)">3M</button><button class="tf" onclick="setDashTF(this,180)">6M</button><button class="tf" onclick="setDashTF(this,365)">1Y</button></div></div><canvas id="perf-c" height="110"></canvas></div>
+    <div class="card sh">
+      <div class="fsb" style="margin-bottom:10px"><div class="ct" style="margin:0">Asset Allocation</div><button class="btn bg bxs" onclick="openAI();aiQ('My asset allocation: Equity 53%, MF 13%, Bonds 5%, Bullion 8%, Crypto 21%. Is this right for moderate risk?')">✦ Review</button></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="donut" style="flex-shrink:0"><canvas id="donut-c" width="100" height="100"></canvas><div class="dc"><div class="db">₹25L</div><div class="ds">NET WORTH</div></div></div>
+        <div style="flex:1;font-size:11px">
+          <div class="sr"><span class="lb" style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#0D5C6B;display:inline-block"></span>Equity</span><span class="M">₹13.52L · 53.5%</span></div>
+          <div class="sr"><span class="lb" style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#E88A2E;display:inline-block"></span>Mutual Funds</span><span class="M">₹3.21L · 12.7%</span></div>
+          <div class="sr"><span class="lb" style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#F7931A;display:inline-block"></span>Crypto ⚠</span><span class="M" style="color:var(--wn)">₹5.20L · 20.6%</span></div>
+          <div class="sr"><span class="lb" style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#D4AF37;display:inline-block"></span>Bullion</span><span class="M">₹2.14L · 8.5%</span></div>
+          <div class="sr"><span class="lb" style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#6366f1;display:inline-block"></span>Bonds/FD</span><span class="M">₹1.23L · 4.9%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-bottom:12px">
+    <div class="card sh">
+      <div class="ct">By Platform / Exchange</div>
+      <div class="sr" style="font-size:12px"><span><span class="bpz bz">Zerodha</span></span><div style="text-align:right"><div class="M">₹8.20L</div><div style="font-size:9px;color:var(--mu)">EQ · MF · SGB</div></div></div>
+      <div class="bar" style="margin:-3px 0 7px"><div class="barf" style="width:32%;background:#0D5C6B"></div></div>
+      <div class="sr" style="font-size:12px"><span><span class="bpz bgr">Groww</span></span><div style="text-align:right"><div class="M">₹5.90L</div><div style="font-size:9px;color:var(--mu)">EQ · MF</div></div></div>
+      <div class="bar" style="margin:-3px 0 7px"><div class="barf" style="width:23%;background:#16A34A"></div></div>
+      <div class="sr" style="font-size:12px"><span><span class="bpz ban">Angel One</span></span><div style="text-align:right"><div class="M">₹4.30L</div><div style="font-size:9px;color:var(--mu)">EQ · F&O</div></div></div>
+      <div class="bar" style="margin:-3px 0 7px"><div class="barf" style="width:17%;background:#D97706"></div></div>
+      <div class="sr" style="font-size:12px"><span style="display:flex;align-items:center;gap:5px"><span>₿</span><strong>CoinDCX</strong></span><div style="text-align:right"><div class="M">₹5.20L</div><div style="font-size:9px;color:var(--mu)">BTC · ETH</div></div></div>
+      <div class="bar" style="margin:-3px 0 7px"><div class="barf" style="width:21%;background:#F7931A"></div></div>
+    </div>
+    <div class="card sh">
+      <div class="ct">Top Movers — All Markets</div>
+      <table class="dt" style="font-size:12px">
+        <thead><tr><th>Asset</th><th>Class</th><th>Chg</th><th>P&L</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BTC</strong></td><td><span style="font-size:9px;color:#92400E;background:#FEF3C7;padding:1px 5px;border-radius:8px;font-weight:700">CRYPTO</span></td><td class="M up">+2.14%</td><td class="M up">+₹7,530</td></tr>
+          <tr><td><strong>RELIANCE</strong></td><td><span style="font-size:9px;color:#1e3a8a;background:#dbeafe;padding:1px 5px;border-radius:8px;font-weight:700">EQUITY</span></td><td class="M up">+1.19%</td><td class="M up">+₹4,200</td></tr>
+          <tr><td><strong>GOLD MCX</strong></td><td><span style="font-size:9px;color:#78350f;background:#fef3c7;padding:1px 5px;border-radius:8px;font-weight:700">BULLION</span></td><td class="M up">+0.29%</td><td class="M up">+₹620</td></tr>
+          <tr><td><strong>WIPRO</strong></td><td><span style="font-size:9px;color:#1e3a8a;background:#dbeafe;padding:1px 5px;border-radius:8px;font-weight:700">EQUITY</span></td><td class="M dn">−1.40%</td><td class="M dn">−₹1,820</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card sh">
+      <div class="ct">AI Portfolio Score</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="ring" style="flex-shrink:0"><svg width="72" height="72" viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="var(--bd)" stroke-width="7"/><circle cx="42" cy="42" r="34" fill="none" stroke="var(--tl)" stroke-width="7" stroke-dasharray="213.6" stroke-dashoffset="43" stroke-linecap="round"/></svg><div class="rv" style="font-size:17px">82</div></div>
+        <div style="font-size:11px;flex:1">
+          <div class="sr" style="font-size:11px"><span class="lb">Diversification</span><span style="color:var(--ok);font-size:10px">✓ 7 classes</span></div>
+          <div class="sr" style="font-size:11px"><span class="lb">Crypto exposure</span><span style="color:var(--er);font-size:10px">✗ 20.6%</span></div>
+          <div class="sr" style="font-size:11px"><span class="lb">Duplication</span><span style="color:var(--er);font-size:10px">✗ RELIANCE ×2</span></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+        <button class="btn bo bxs" style="justify-content:center;flex-direction:column;gap:2px;padding:7px;font-size:11px" onclick="nav('trade')"><span>⚡</span>Equity</button>
+        <button class="btn bo bxs" style="justify-content:center;flex-direction:column;gap:2px;padding:7px;font-size:11px" onclick="nav('crypto')"><span>₿</span>Crypto</button>
+        <button class="btn bo bxs" style="justify-content:center;flex-direction:column;gap:2px;padding:7px;font-size:11px" onclick="openAI()"><span>✦</span>AI</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sh" style="margin-bottom:12px">
+    <div class="fsb" style="margin-bottom:10px"><div class="ct" style="margin:0">Live Market Pulse</div><span style="font-size:11px;color:var(--ok)">● Live</span></div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;font-size:12px;text-align:center">
+      <div><div style="font-size:9px;color:var(--mu);font-weight:700;margin-bottom:3px">BTC/INR</div><div class="M" style="font-weight:700;color:var(--tl)" id="ls-btc">₹71.2L</div><div class="M" id="ls-btc-c" style="font-size:10px;color:var(--ok)">+2.14%</div></div>
+      <div><div style="font-size:9px;color:var(--mu);font-weight:700;margin-bottom:3px">ETH/INR</div><div class="M" style="font-weight:700;color:var(--tl)" id="ls-eth">₹3.28L</div><div class="M" id="ls-eth-c" style="font-size:10px;color:var(--er)">−0.82%</div></div>
+      <div><div style="font-size:9px;color:var(--mu);font-weight:700;margin-bottom:3px">SOL/INR</div><div class="M" style="font-weight:700;color:var(--tl)" id="ls-sol">₹12,840</div><div class="M" id="ls-sol-c" style="font-size:10px;color:var(--ok)">+3.42%</div></div>
+      <div style="border-left:1px solid var(--bd)"><div style="font-size:9px;color:var(--mu);font-weight:700;margin-bottom:3px">GOLD/10g</div><div class="M" style="font-weight:700;color:var(--tl)" id="ls-gold">₹71,480</div><div class="M" id="ls-gold-c" style="font-size:10px;color:var(--ok)">+0.29%</div></div>
+      <div><div style="font-size:9px;color:var(--mu);font-weight:700;margin-bottom:3px">SILVER/kg</div><div class="M" style="font-weight:700;color:var(--tl)" id="ls-silver">₹85,240</div><div class="M" id="ls-silver-c" style="font-size:10px;color:var(--er)">−0.37%</div></div>
+      <div style="border-left:1px solid var(--bd)"><div style="font-size:9px;color:var(--mu);font-weight:700;margin-bottom:3px">USD/INR</div><div class="M" style="font-weight:700;color:var(--tl)" id="ls-usd">₹83.42</div><div class="M" id="ls-usd-c" style="font-size:10px;color:var(--ok)">+0.14%</div></div>
+    </div>
+  </div>
+ </div>
+</div>
+
+<!-- ══════════ PORTFOLIO ══════════ -->
+<div class="page" id="pg-portfolio">
+  <div class="ph"><h2>All Holdings</h2><div style="display:flex;gap:7px"><select class="fi fisq" style="width:auto" id="pf-broker" onchange="filterHoldings()"><option value="all">All Brokers</option><option value="Z">Zerodha</option><option value="G">Groww</option><option value="A">Angel One</option></select><button class="btn bs bsm" onclick="openAI()">✦ AI Analysis</button></div></div>
+  <div class="ps">
+    <div class="al ald" style="margin-bottom:11px">⚠️ <strong>Duplication:</strong> RELIANCE in Zerodha (50) AND Groww (30). <button class="btn bg bxs" style="margin-left:8px" onclick="nav('hmap')">View Holdings Map →</button></div>
+    <div class="card sh"><table class="dt" id="portfolio-table"><thead><tr><th>Name</th><th>Broker</th><th>Type</th><th>Qty</th><th>Avg</th><th>LTP</th><th>Value</th><th>P&L</th><th></th></tr></thead><tbody id="portfolio-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════ TRADE ══════════ -->
+<div class="page" id="pg-trade">
+ <div class="terminal">
+  <div class="tl">
+    <div class="tsec">Watchlist</div>
+    <div class="wl-scroll" id="wl-items"></div>
+    <div style="padding:7px 10px;border-top:1px solid var(--bd)">
+      <div class="tsec" style="padding:5px 0 4px">Positions</div>
+      <div class="fsb" style="font-size:11px;margin-bottom:4px"><span>RELIANCE×50</span><span class="M" style="color:var(--ok)">+₹1,200</span></div>
+      <div class="fsb" style="font-size:11px;margin-bottom:4px"><span>INFY×100</span><span class="M" style="color:var(--ok)">+₹840</span></div>
+      <div class="fsb" style="font-size:11px;margin-bottom:7px"><span>WIPRO×200</span><span class="M" style="color:var(--er)">−₹620</span></div>
+      <div class="fsb" style="border-top:1px solid var(--bd);padding-top:6px"><span style="font-weight:700;font-size:11px">Net P&L</span><span style="color:var(--ok);font-weight:700" class="M">+₹1,420</span></div>
+    </div>
+  </div>
+  <div class="tc2">
+    <div class="chdr">
+      <div><div class="csym" id="t-sym">RELIANCE</div><div style="font-size:10px;color:var(--mu)">NSE · Large Cap</div></div>
+      <div><div class="cpri" id="t-pri">₹2,847</div><div id="t-chg" style="font-size:11px;color:var(--ok);font-family:'IBM Plex Mono',monospace">▲ 33.50 (+1.19%)</div></div>
+      <div style="display:flex;gap:3px"><button class="tf" onclick="setTradeTF(this)">1D</button><button class="tf on" onclick="setTradeTF(this)">1W</button><button class="tf" onclick="setTradeTF(this)">1M</button></div>
+    </div>
+    <div class="ca"><canvas id="trade-c"></canvas></div>
+    <div class="ohlcv"><span><span class="M" style="color:var(--mu)">O:</span><span class="M">2,815</span></span><span><span class="M" style="color:var(--mu)">H:</span><span class="M up">2,862</span></span><span><span class="M" style="color:var(--mu)">L:</span><span class="M dn">2,808</span></span><span><span class="M" style="color:var(--mu)">Vol:</span><span class="M">14.2M</span></span></div>
+    <div class="odock">
+      <div class="stabs"><button class="st buy on" id="buy-t" onclick="setSide('buy')">▲ BUY</button><button class="st sell" id="sell-t" onclick="setSide('sell')">▼ SELL</button></div>
+      <div style="margin-bottom:7px">
+        <div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Select Broker Account</div>
+        <div style="display:flex;gap:4px" id="bac-row">
+          <div class="bac on" id="bac0" onclick="selBroker(0)"><div class="fsb" style="margin-bottom:2px"><span class="bpz bz" style="font-size:10px">Zerodha</span></div><div class="M" style="font-size:11px;font-weight:700;color:var(--tl)" id="bm0">₹2,14,500</div><div style="font-size:9px;color:var(--mu)">Free Margin</div></div>
+          <div class="bac" id="bac1" onclick="selBroker(1)"><div class="fsb" style="margin-bottom:2px"><span class="bpz bgr" style="font-size:10px">Groww</span></div><div class="M" style="font-size:11px;font-weight:700;color:var(--tl)" id="bm1">₹87,200</div><div style="font-size:9px;color:var(--mu)">Free Margin</div></div>
+          <div class="bac wn" id="bac2" onclick="selBroker(2)"><div class="fsb" style="margin-bottom:2px"><span class="bpz ban" style="font-size:10px">Angel</span></div><div class="M" style="font-size:11px;font-weight:700;color:var(--wn)" id="bm2">Session Expired</div><div style="font-size:9px;color:var(--wn)">Re-auth needed</div></div>
+        </div>
+      </div>
+      <div id="pos-strip" style="background:#EBF5F7;border-radius:6px;padding:5px 9px;margin-bottom:6px;font-size:11px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0"></div>
+      <div class="ofields">
+        <div class="of"><label>Product</label><select id="o-prod" onchange="calcOrd()"><option value="CNC">CNC (Delivery)</option><option value="MIS">MIS (Intraday)</option></select></div>
+        <div class="of"><label>Order Type</label><select id="o-type" onchange="togglePrice()"><option value="Limit">Limit</option><option value="Market">Market</option><option value="SL">Stop Loss</option></select></div>
+        <div class="of"><label>Validity</label><select id="o-val2"><option>DAY</option><option>IOC</option></select></div>
+        <div class="of"><label>Quantity</label><input type="number" id="o-qty" value="10" min="1" oninput="calcOrd()"></div>
+        <div class="of" id="price-f"><label>Price ₹</label><input type="number" id="o-price" value="2847" oninput="calcOrd()"></div>
+        <div class="of"><label>Stop Loss ₹</label><input type="number" id="o-sl" value="2790" oninput="calcRR()"></div>
+        <div class="of"><label>Target ₹</label><input type="number" id="o-tgt" value="2950" oninput="calcRR()"></div>
+        <div class="of"><label>Risk:Reward</label><input type="text" id="o-rr" readonly value="1:1.8" style="background:var(--cr);font-weight:700;color:var(--ok)"></div>
+        <div class="of"><label>SEBI Check</label><input type="text" id="sebi-inp" readonly value="✓ 1.5% OK" style="background:#EBF5F7;color:var(--tl);font-weight:700;font-size:11px"></div>
+      </div>
+      <div style="background:var(--cr);border-radius:6px;padding:6px 9px;margin-bottom:5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;font-size:11px">
+        <span>Value: <strong class="M" id="o-val" style="color:var(--tl)">₹28,470</strong></span>
+        <span>Brokerage: <strong class="M" id="o-brok">₹0</strong></span>
+        <span id="o-mok" style="color:var(--ok);font-weight:700">✓ OK</span>
+      </div>
+      <button class="pbtn pbuy" id="place-b" onclick="placeOrder()">PLACE BUY ORDER — ₹28,470 via Zerodha</button>
+    </div>
+  </div>
+  <div class="tr">
+    <div class="ttabs">
+      <button class="ttab on" onclick="setTT(this,'tp-ai')">AI</button>
+      <button class="ttab" onclick="setTT(this,'tp-depth')">Depth</button>
+      <button class="ttab" onclick="setTT(this,'tp-orders')">Orders</button>
+      <button class="ttab" onclick="setTT(this,'tp-screen')">Screen</button>
+      <button class="ttab" onclick="setTT(this,'tp-news')">News</button>
+    </div>
+    <div class="tpane on" id="tp-ai">
+      <div style="background:var(--cr);border-radius:7px;padding:9px;margin-bottom:9px;font-size:12px"><div style="font-weight:700;color:var(--tl);margin-bottom:3px">✦ AI Signal — RELIANCE</div><div style="line-height:1.5">Bullish consolidation near support. FII buying ↑8.2% WoW. Target ₹3,050 in 3M. SL: ₹2,770.</div></div>
+      <div class="srow"><span><strong>RELIANCE</strong> <span class="tag tok" style="margin-left:3px">BUY</span></span><span class="M" style="font-size:11px">78%</span></div>
+      <div class="srow"><span><strong>INFY</strong> <span class="tag ttl" style="margin-left:3px">HOLD</span></span><span class="M" style="font-size:11px">65%</span></div>
+      <div class="srow"><span><strong>WIPRO</strong> <span class="tag ter" style="margin-left:3px">SELL</span></span><span class="M" style="font-size:11px">71%</span></div>
+      <div style="font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;margin:9px 0 5px">Indicators</div>
+      <div class="srow" style="font-size:11px"><span class="lb">RSI (14)</span><span class="M" style="color:var(--ok)">58.4 Bull</span></div>
+      <div class="srow" style="font-size:11px"><span class="lb">MACD</span><span class="M" style="color:var(--ok)">+12.4 Cross</span></div>
+      <div class="srow" style="font-size:11px"><span class="lb">ADX</span><span class="M" style="color:var(--ok)">28.1 Strong</span></div>
+    </div>
+    <div class="tpane" id="tp-depth"><div id="depth-rows"></div></div>
+    <div class="tpane" id="tp-orders">
+      <div class="pcard" style="padding:9px;margin-bottom:6px"><div class="fsb" style="margin-bottom:3px"><span class="tag tok">EXECUTED</span><span class="M" style="font-size:10px">09:20 AM</span></div><div style="font-weight:700;font-size:12px">RELIANCE BUY 50 @ ₹2,815</div><div style="font-size:11px;color:var(--mu)">CNC · Zerodha · ₹1,40,750</div></div>
+    </div>
+    <div class="tpane" id="tp-screen">
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px">
+        <button class="btn bg bxs" onclick="runScr('momentum')">Momentum</button>
+        <button class="btn bg bxs" onclick="runScr('breakout')">Breakout</button>
+        <button class="btn bg bxs" onclick="runScr('value')">Value</button>
+        <button class="btn bg bxs" onclick="runScr('fii')">FII Buy</button>
+      </div>
+      <div id="scr-results"><div style="color:var(--mu);font-size:12px;text-align:center;padding:18px">Select a screener</div></div>
+    </div>
+    <div class="tpane" id="tp-news" id="news-pane"></div>
+    <div style="border-top:1px solid var(--bd);padding:8px;flex-shrink:0">
+      <div style="display:flex;gap:5px"><input class="fi fisq" id="t-ai-q" placeholder="Ask AI about this stock..." style="flex:1" onkeydown="if(event.key==='Enter')tradeAI()"><button class="btn bp bsm" onclick="tradeAI()">→</button></div>
+    </div>
+  </div>
+ </div>
+</div>
+
+<!-- ══════════ ORDERS ══════════ -->
+<div class="page" id="pg-orders">
+  <div class="ph"><h2>Orders & Positions</h2></div>
+  <div class="ps">
+    <div class="tbar"><button class="tab on" data-tc="or-pos" onclick="swTab(this)">Open Positions (3)</button><button class="tab" data-tc="or-today" onclick="swTab(this)">Today's Orders (2)</button><button class="tab" data-tc="or-hist" onclick="swTab(this)">History</button></div>
+    <div class="tc on" id="or-pos"><div class="card sh"><table class="dt"><thead><tr><th>Symbol</th><th>Broker</th><th>Qty</th><th>Avg</th><th>LTP</th><th>P&L</th><th></th></tr></thead><tbody><tr><td><strong>RELIANCE</strong></td><td><span class="bpz bz">Z</span></td><td class="M">50</td><td class="M">2,815</td><td class="M">2,847</td><td class="M" style="color:var(--ok)">+₹1,600</td><td><button class="btn bg bxs" onclick="nav('trade')">Exit</button></td></tr><tr><td><strong>WIPRO</strong></td><td><span class="bpz bgr">G</span></td><td class="M">200</td><td class="M">569</td><td class="M">478</td><td class="M" style="color:var(--er)">−₹18,200</td><td><button class="btn bxs" style="background:var(--sf);color:#fff;border-radius:5px" onclick="nav('tax')">Harvest</button></td></tr></tbody></table></div></div>
+    <div class="tc" id="or-today"><div class="card sh"><table class="dt"><thead><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Qty</th><th>Price</th><th>Status</th></tr></thead><tbody><tr><td class="M">09:20</td><td><strong>RELIANCE</strong></td><td><span class="tag tok">BUY</span></td><td class="M">50</td><td class="M">2,815</td><td><span class="tag tok">Executed</span></td></tr></tbody></table></div></div>
+    <div class="tc" id="or-hist"><div style="color:var(--mu);text-align:center;padding:40px">Select date range to load history</div></div>
+  </div>
+</div>
+
+<!-- ══════════ MF ══════════ -->
+<div class="page" id="pg-mf">
+  <div class="ph"><h2>Mutual Funds</h2><button class="btn bs bsm" onclick="toast('Starting SIP flow...')">+ Start SIP</button></div>
+  <div class="ps">
+    <div class="g3" style="margin-bottom:12px"><div class="card sh"><div class="kl">MF Value</div><div class="kv">₹3,20,560</div><div class="kc up">▲ ₹69K gain</div></div><div class="card sh"><div class="kl">Active SIPs</div><div class="kv">3</div><div class="kc" style="color:var(--mu)">₹15,000/m</div></div><div class="card sh"><div class="kl">XIRR</div><div class="kv">18.4%</div><div class="kc up">▲ vs Nifty 15.2%</div></div></div>
+    <div class="al ali" style="margin-bottom:12px">✦ <strong>AI:</strong> Add ₹5,000/month to Parag Parikh Flexi Cap for international diversification (currently 0%).</div>
+    <div class="fcard pick"><div class="fsb" style="margin-bottom:8px"><div><div style="font-weight:700;font-size:14px">HDFC Flexicap Fund</div><div style="font-size:11px;color:var(--mu)">Flexi Cap · ⭐5 · 0.51% exp</div></div><span class="pbdg">✦ AI PICK</span></div><div class="g3" style="font-size:12px;margin-bottom:7px"><div><div style="color:var(--mu)">1Y</div><div class="M" style="color:var(--ok);font-weight:700">+24.8%</div></div><div><div style="color:var(--mu)">3Y</div><div class="M" style="color:var(--ok);font-weight:700">+18.2%</div></div><div><div style="color:var(--mu)">5Y</div><div class="M" style="color:var(--ok);font-weight:700">+16.4%</div></div></div><div class="pbar"><div class="pbarf" style="width:72%;background:var(--ok)"></div></div><div class="fsb" style="margin-top:9px"><div><span class="tag tok">SIP ₹5k/m</span> <span class="tag tsf" style="margin-left:3px">+₹48,200</span></div><button class="btn bo bsm" onclick="toast('Modify HDFC Flexicap SIP')">Modify SIP</button></div></div>
+    <div class="fcard"><div class="fsb" style="margin-bottom:8px"><div><div style="font-weight:700;font-size:14px">Mirae ELSS Tax Saver</div><div style="font-size:11px;color:var(--mu)">ELSS · 80C eligible</div></div><span class="tag ttl">TAX SAVING</span></div><div class="g3" style="font-size:12px;margin-bottom:7px"><div><div style="color:var(--mu)">1Y</div><div class="M" style="color:var(--ok);font-weight:700">+21.4%</div></div><div><div style="color:var(--mu)">3Y</div><div class="M" style="color:var(--ok);font-weight:700">+17.8%</div></div><div><div style="color:var(--mu)">5Y</div><div class="M" style="color:var(--ok);font-weight:700">+15.9%</div></div></div><div class="pbar"><div class="pbarf" style="width:65%;background:var(--tl)"></div></div><div class="fsb" style="margin-top:9px"><div><span class="tag tok">SIP ₹5k/m</span></div><button class="btn bo bsm" onclick="toast('Manage Mirae ELSS')">Manage</button></div></div>
+    <!-- SIP Calculator -->
+    <div class="card sh" style="margin-top:6px"><div class="ct">SIP Projection Calculator</div><div class="g3" style="margin-bottom:11px"><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Monthly ₹</label><input type="range" min="500" max="50000" value="10000" id="sip-a" style="width:100%"><div class="M" id="sip-av" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">₹10,000</div></div><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Years</label><input type="range" min="1" max="30" value="10" id="sip-y" style="width:100%"><div class="M" id="sip-yv" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">10 years</div></div><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Return %</label><input type="range" min="6" max="20" value="12" id="sip-r" style="width:100%"><div class="M" id="sip-rv" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">12% p.a.</div></div></div><div class="g3"><div class="card" style="background:var(--cr);padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">Invested</div><div class="kv" id="sip-inv" style="font-size:17px">₹12.0L</div></div><div class="card" style="background:var(--cr);padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">Returns</div><div class="kv" id="sip-ret" style="font-size:17px;color:var(--ok)">₹11.6L</div></div><div class="card" style="background:var(--tl);padding:11px"><div style="font-size:10px;color:rgba(255,255,255,.7);margin-bottom:3px">Maturity</div><div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff" id="sip-mat">₹23.6L</div></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════ BONDS ══════════ -->
+<div class="page" id="pg-bonds">
+  <div class="ph"><h2>Bonds, FD & Govt Schemes</h2></div>
+  <div class="ps">
+    <div class="tbar"><button class="tab on" data-tc="bd-hold" onclick="swTab(this)">My Holdings</button><button class="tab" data-tc="bd-mkt" onclick="swTab(this)">Bond Market</button><button class="tab" data-tc="bd-fd" onclick="swTab(this)">FD Rates</button><button class="tab" data-tc="bd-gov" onclick="swTab(this)">Govt Schemes</button></div>
+    <div class="tc on" id="bd-hold"><div class="g2"><div class="pcard"><div class="fsb" style="margin-bottom:7px"><strong>SGB 2028 Series VII</strong><span class="tag ttl">SOVEREIGN</span></div><div class="sr"><span class="lb">Qty</span><span class="M">10 grams</span></div><div class="sr"><span class="lb">Gain</span><span class="M" style="color:var(--ok)">+₹11,680</span></div></div><div class="pcard"><div class="fsb" style="margin-bottom:7px"><strong>SBI Fixed Deposit</strong><span class="tag tsf">FD</span></div><div class="sr"><span class="lb">Amount</span><span class="M">₹1,00,000</span></div><div class="sr"><span class="lb">Rate</span><span>7.1% p.a.</span></div></div></div></div>
+    <div class="tc" id="bd-mkt"><div class="card sh"><table class="dt"><thead><tr><th>Bond</th><th>Rating</th><th>Yield</th><th>Min</th><th></th></tr></thead><tbody><tr><td><strong>NHAI Series XII</strong></td><td><span class="tag tok">AAA</span></td><td class="M">7.8%</td><td class="M">₹10,000</td><td><button class="btn bo bxs" onclick="toast('Investing in NHAI Bond')">Invest</button></td></tr><tr><td><strong>Tata Capital NCD</strong></td><td><span class="tag tok">AA+</span></td><td class="M">9.2%</td><td class="M">₹10,000</td><td><button class="btn bo bxs" onclick="toast('Investing in Tata NCD')">Invest</button></td></tr></tbody></table></div></div>
+    <div class="tc" id="bd-fd"><div class="card sh"><table class="dt"><thead><tr><th>Bank</th><th>1Y</th><th>3Y</th><th></th></tr></thead><tbody><tr><td><strong>Unity SFB</strong> <span class="tag tsf">BEST</span></td><td class="M">9.0%</td><td class="M">9.0%</td><td><button class="btn bs bxs" onclick="toast('Booking Unity SFB FD')">Book</button></td></tr><tr><td><strong>HDFC Bank</strong></td><td class="M">7.1%</td><td class="M">7.0%</td><td><button class="btn bo bxs" onclick="toast('Booking HDFC FD')">Book</button></td></tr><tr><td><strong>SBI</strong></td><td class="M">6.8%</td><td class="M">7.1%</td><td><button class="btn bo bxs" onclick="toast('Booking SBI FD')">Book</button></td></tr></tbody></table></div></div>
+    <div class="tc" id="bd-gov"><div class="g2"><div class="pcard"><div class="fsb" style="margin-bottom:6px"><strong>PPF</strong><span class="tag tok">EEE Exempt</span></div><div class="sr"><span class="lb">Rate</span><span>7.1% p.a.</span></div><div class="sr"><span class="lb">Max/yr</span><span>₹1.5L</span></div><button class="btn bo bsm" style="width:100%;justify-content:center;margin-top:7px" onclick="toast('Opening PPF')">Open PPF</button></div><div class="pcard"><div class="fsb" style="margin-bottom:6px"><strong>SCSS</strong><span class="tag tsf">Quarterly Payout</span></div><div class="sr"><span class="lb">Rate</span><span>8.2% p.a.</span></div><div class="sr"><span class="lb">Eligibility</span><span>60+ years</span></div></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════ INSURANCE ══════════ -->
+<div class="page" id="pg-insurance">
+  <div class="ph"><h2>Insurance</h2><button class="btn bs bsm" onclick="openAI()">✦ AI Audit</button></div>
+  <div class="ps">
+    <div class="al ali" style="margin-bottom:12px">✦ <strong>AI Audit:</strong> Underinsured on Health. Recommended: ₹1Cr family floater. Current: ₹5L self only.</div>
+    <div class="g2"><div class="pcard"><div class="fsb" style="margin-bottom:9px"><div><div style="font-weight:700">HDFC Life Term Plan</div><div style="font-size:11px;color:var(--mu)">Term Insurance</div></div><span class="tag tok">ACTIVE</span></div><div class="sr"><span class="lb">Sum Assured</span><span class="M">₹1 Crore</span></div><div class="sr"><span class="lb">Premium</span><span class="M">₹12,400/yr</span></div><div class="sr"><span class="lb">Claim Ratio</span><span style="color:var(--ok)">98.4% ✓</span></div></div><div class="pcard"><div class="fsb" style="margin-bottom:9px"><div><div style="font-weight:700">Star Health Family Floater</div><div style="font-size:11px;color:var(--mu)">Mediclaim</div></div><span class="tag twn">UPGRADE NEEDED</span></div><div class="sr"><span class="lb">Sum Insured</span><span class="M" style="color:var(--wn)">₹5L ⚠</span></div><div class="sr"><span class="lb">Premium</span><span class="M">₹14,200/yr</span></div><button class="btn bs bsm" style="width:100%;justify-content:center;margin-top:7px" onclick="toast('Comparing upgrade plans...')">Upgrade Cover →</button></div></div>
+  </div>
+</div>
+
+<!-- ══════════ PREMIUM ══════════ -->
+<div class="page" id="pg-premium">
+  <div class="ph"><h2>AIFs, PMS & Structured Products</h2></div>
+  <div class="ps">
+    <div class="al ali" style="margin-bottom:11px">ℹ️ AIFs: ₹1Cr min · PMS: ₹50L min. AI will alert when you're eligible.</div>
+    <div class="tbar"><button class="tab on" data-tc="pr-aif" onclick="swTab(this)">AIFs</button><button class="tab" data-tc="pr-pms" onclick="swTab(this)">PMS</button></div>
+    <div class="tc on" id="pr-aif"><div class="fcard pick" style="border-color:var(--sf)"><div class="fsb" style="margin-bottom:8px"><div><div style="font-weight:700;font-size:14px">Brighter Mind Inevitable Fortune Fund</div><div style="font-size:11px;color:var(--mu)">Category III AIF · Long-Short Equity</div></div><span class="pbdg" style="background:var(--sf)">✦ FEATURED</span></div><div style="background:var(--tld);color:#fff;border-radius:7px;padding:9px 12px;font-size:12px;line-height:1.6;margin-bottom:10px"><strong style="color:var(--sf)">Philosophy — </strong>Identifies "Inevitable Fortunes" — businesses with durable competitive moats not yet fully priced by market.</div><div class="g3" style="font-size:12px;margin-bottom:8px"><div><div style="color:var(--mu)">Min Invest</div><div style="font-weight:700">₹1 Crore</div></div><div><div style="color:var(--mu)">Target IRR</div><div style="color:var(--ok);font-weight:700">20–25%</div></div><div><div style="color:var(--mu)">Lock-in</div><div style="font-weight:700">3 Years</div></div></div><div style="display:flex;gap:7px"><button class="btn bs bsm" onclick="toast('Term sheet requested. RM will contact within 24hrs.')">Request Term Sheet →</button><button class="btn bo bsm" onclick="openAI();aiQ('Tell me more about Brighter Mind Inevitable Fortune Fund — eligibility, risks, lock-in?')">✦ Ask AI</button></div></div></div>
+    <div class="tc" id="pr-pms"><div class="fcard pick"><div class="fsb" style="margin-bottom:7px"><div><div style="font-weight:700">Motilal Oswal NTDOP</div><div style="font-size:11px;color:var(--mu)">Multi Cap · SEBI: INP000000670</div></div><span class="pbdg">✦ AI PICK</span></div><div class="g3" style="font-size:12px;margin-bottom:7px"><div><div style="color:var(--mu)">1Y</div><div class="M" style="color:var(--ok);font-weight:700">+31.4%</div></div><div><div style="color:var(--mu)">3Y CAGR</div><div class="M" style="color:var(--ok);font-weight:700">+28.3%</div></div><div><div style="color:var(--mu)">Min</div><div style="font-weight:700">₹50L</div></div></div><button class="btn bo bsm" style="width:100%;justify-content:center;margin-top:7px" onclick="toast('Requesting Motilal fact sheet')">Get Fact Sheet</button></div></div>
+  </div>
+</div>
+
+<!-- ══════════ FAMILY ══════════ -->
+<div class="page" id="pg-family">
+  <div class="ph"><h2>Family Wealth View</h2><button class="btn bo bsm" onclick="toast('Invite sent — member must consent with own PAN+Aadhaar')">+ Invite Member</button></div>
+  <div class="ps">
+    <div class="g3" style="margin-bottom:12px"><div class="card sh"><div class="kl">Family Net Worth</div><div class="kv">₹38.4L</div></div><div class="card sh"><div class="kl">Members</div><div class="kv">3</div></div><div class="card sh"><div class="kl">Tax Savings</div><div class="kv">₹1.8L</div></div></div>
+    <div class="fmem"><div class="mavt" style="background:var(--tl)">RK</div><div style="flex:1"><div class="fsb" style="margin-bottom:3px"><strong id="fam-self-name">You</strong><span class="tag tok">Full Access</span></div><div style="font-size:12px;color:var(--mu)">Zerodha + Groww + Angel One</div></div><div style="text-align:right"><div class="M" style="font-size:15px;font-weight:700;color:var(--tl)">₹18.4L</div></div></div>
+    <div class="fmem"><div class="mavt" style="background:var(--sf)">PK</div><div style="flex:1"><div class="fsb" style="margin-bottom:3px"><strong>Priya Kumar (Spouse)</strong><span class="tag ttl">Totals Only</span></div><div style="font-size:12px;color:var(--mu)">Zerodha + HDFC Securities</div></div><div style="text-align:right"><div class="M" style="font-size:15px;font-weight:700;color:var(--tl)">₹12.6L</div></div></div>
+    <div class="card sh"><div class="ct">Combined Family Sectors</div><canvas id="fam-c" height="65"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════ VAULT ══════════ -->
+<div class="page" id="pg-vault">
+  <div class="ph"><h2>🔐 Broker Vault</h2><div style="display:flex;gap:7px;align-items:center"><span id="vault-status" style="font-size:12px;color:var(--mu)">Locked</span><button class="btn bg bsm" onclick="lockVault()">🔒 Lock</button><button class="btn bs bsm" onclick="openVaultUnlock()">🔓 Unlock</button></div></div>
+  <div class="ps">
+    <div id="vault-locked-msg" class="al ali">🔒 Vault locked. Click <strong>"Unlock"</strong> to access credentials. Demo PIN: <strong class="M">1 2 3 4 5 6</strong></div>
+    <div id="vault-content" style="display:none">
+      <div class="al alo" style="margin-bottom:10px">🔓 Vault unlocked — AES-256 encrypted · Session only</div>
+      <div class="vcard ok"><div class="fsb" style="margin-bottom:9px"><div class="f" style="gap:9px"><div class="cdot ok"></div><span class="bpz bz">Zerodha</span></div><div class="f" style="gap:6px"><span class="tag tok">● Connected</span><button class="btn bg bxs" onclick="toast('✓ Zerodha — Live')">Test</button></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px"><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Client ID</div><input class="vi" value="ZK123456" readonly></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Password</div><div style="position:relative"><input class="vi" id="v0p" value="••••••••" type="password" readonly style="padding-right:28px"><button onclick="showHide('v0p','Zerodha@2024!')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button></div></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">MPIN</div><div style="position:relative"><input class="vi" id="v0m" value="••••••" type="password" readonly style="padding-right:28px"><button onclick="showHide('v0m','284736')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button></div></div></div></div>
+      <div class="vcard ok"><div class="fsb" style="margin-bottom:9px"><div class="f" style="gap:9px"><div class="cdot ok"></div><span class="bpz bgr">Groww</span></div><span class="tag tok">● Connected</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px"><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Client ID</div><input class="vi" value="GW567890" readonly></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Password</div><div style="position:relative"><input class="vi" id="v1p" value="••••••••" type="password" readonly style="padding-right:28px"><button onclick="showHide('v1p','Groww#123')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button></div></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">MPIN</div><div style="position:relative"><input class="vi" id="v1m" value="••••••" type="password" readonly style="padding-right:28px"><button onclick="showHide('v1m','591847')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ HOLDINGS MAP ══════════ -->
+<div class="page" id="pg-hmap">
+  <div class="ph"><h2>🗂️ Holdings Map</h2><button class="btn bs bsm" onclick="openAI()">✦ Consolidate Advice</button></div>
+  <div class="ps">
+    <div class="al ald" style="margin-bottom:12px">⚠️ <strong>Duplication:</strong> RELIANCE in Zerodha (50) AND Groww (30). <button class="btn bs bxs" style="margin-left:7px" onclick="nav('trade')">Consolidate →</button></div>
+    <div class="g3" style="margin-bottom:12px">
+      <div class="card sh" style="background:var(--tl);color:#fff"><div style="font-size:10px;opacity:.7;font-weight:700;margin-bottom:3px">Zerodha · DX1234</div><div style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700">₹8,20,440</div><div style="margin-top:7px;display:flex;gap:4px;flex-wrap:wrap"><span style="background:rgba(255,255,255,.15);border-radius:8px;padding:2px 7px;font-size:11px">RELIANCE 50</span><span style="background:rgba(255,255,255,.15);border-radius:8px;padding:2px 7px;font-size:11px">INFY 100</span></div></div>
+      <div class="card sh" style="background:#16A34A;color:#fff"><div style="font-size:10px;opacity:.7;font-weight:700;margin-bottom:3px">Groww · GW5678</div><div style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700">₹5,90,210</div><div style="margin-top:7px;display:flex;gap:4px;flex-wrap:wrap"><span style="background:rgba(255,255,255,.15);border-radius:8px;padding:2px 7px;font-size:11px">RELIANCE 30 ⚠</span><span style="background:rgba(255,255,255,.15);border-radius:8px;padding:2px 7px;font-size:11px">WIPRO 200</span></div></div>
+      <div class="card sh" style="background:#D97706;color:#fff"><div style="font-size:10px;opacity:.7;font-weight:700;margin-bottom:3px">Angel One · AN9012</div><div style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700">₹4,30,200</div><div style="margin-top:7px;display:flex;gap:4px"><span style="background:rgba(255,255,255,.15);border-radius:8px;padding:2px 7px;font-size:11px">TCS 25</span></div></div>
+    </div>
+    <div class="card sh"><div class="ct">✦ AI Recommendations</div><div class="srow"><span>1. Sell RELIANCE 30 from Groww — consolidate to Zerodha</span><button class="btn bs bxs" onclick="nav('trade')">Execute →</button></div><div class="srow"><span>2. Harvest WIPRO loss — save ₹2,730 tax</span><button class="btn bo bxs" onclick="nav('tax')">View →</button></div><div class="srow"><span>3. Re-auth Angel One — session expired</span><button class="btn bo bxs" onclick="nav('vault')">Vault →</button></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TAX ══════════ -->
+<div class="page" id="pg-tax">
+  <div class="ph"><h2>Tax & Reports</h2><button class="btn bs bsm" onclick="toast('Downloading FY26 Tax Report PDF...')">Download Report</button></div>
+  <div class="ps">
+    <div class="g3" style="margin-bottom:12px"><div class="card sh"><div class="kl">STCG (15% tax)</div><div class="kv">₹24,800</div><div class="kc" style="color:var(--mu)">Tax: ₹3,720</div></div><div class="card sh"><div class="kl">LTCG (10% above ₹1L)</div><div class="kv">₹1,18,200</div></div><div class="card sh" style="border-color:var(--sf)"><div class="kl">Harvestable Loss</div><div class="kv" style="color:var(--sf)">₹18,200</div><div class="kc" style="color:var(--ok)">Saves ₹2,730</div></div></div>
+    <div class="al alo" style="margin-bottom:12px">✅ <strong>Tax Harvest:</strong> WIPRO at −₹18,200 unrealised loss. Book before Mar 31 to save ₹2,730 in STCG tax.<div style="margin-top:7px"><button class="btn bs bsm" onclick="nav('trade');toast('Pre-loaded: SELL WIPRO in Groww')">Execute Harvest →</button></div></div>
+    <div class="card sh"><div class="ct">Cross-Broker P&L</div><table class="dt"><thead><tr><th>Asset</th><th>Broker</th><th>Cost</th><th>P&L</th><th>Type</th></tr></thead><tbody><tr><td>RELIANCE (80)</td><td><span class="bpz bz">Z</span>+<span class="bpz bgr">G</span></td><td class="M">₹1,90,350</td><td class="M" style="color:var(--ok)">+₹37,410</td><td>Mixed</td></tr><tr><td>WIPRO (200)</td><td><span class="bpz bgr">G</span></td><td class="M">₹1,13,800</td><td class="M" style="color:var(--er)">−₹18,200</td><td>STCG loss</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════ API HUB ══════════ -->
+<div class="page" id="pg-api">
+  <div class="ph"><h2>🔌 API Hub</h2></div>
+  <div class="ps">
+    <div class="g4" style="margin-bottom:12px">
+      <div class="card sh" style="border-left:3px solid var(--ok)"><div class="f" style="gap:6px;margin-bottom:5px"><div class="cdot ok"></div><span class="bpz bz">Zerodha</span></div><div style="font-size:11px;color:var(--ok);font-weight:700">● Live · 12ms</div></div>
+      <div class="card sh" style="border-left:3px solid var(--ok)"><div class="f" style="gap:6px;margin-bottom:5px"><div class="cdot ok"></div><span class="bpz bgr">Groww</span></div><div style="font-size:11px;color:var(--ok);font-weight:700">● Live · 18ms</div></div>
+      <div class="card sh" style="border-left:3px solid var(--wn)"><div class="f" style="gap:6px;margin-bottom:5px"><div class="cdot wn"></div><span class="bpz ban">Angel One</span></div><div style="font-size:11px;color:var(--wn);font-weight:700">⚠ Session Expired</div></div>
+      <div class="card sh"><div class="f" style="gap:6px;margin-bottom:5px"><div class="cdot off"></div><span style="font-size:12px;font-weight:700;color:var(--mu)">+ Add Broker</span></div><button class="btn bp bxs" style="margin-top:4px" onclick="nav('vault')">Connect →</button></div>
+    </div>
+    <div class="card sh"><div class="ct">Live API Console</div><div style="display:flex;gap:7px;margin-bottom:7px"><select class="fi fisq" id="con-broker" style="flex:1"><option value="z">Zerodha Kite</option><option value="g">Groww</option></select><select class="fi fisq" id="con-ep" style="flex:2"><option value="holdings">GET /portfolio/holdings</option><option value="orders">GET /orders</option><option value="margins">GET /margins</option></select><button class="btn bp bsm" onclick="runCon()">▶ Run</button></div><div id="con-resp" style="background:#0D1117;color:#8ee18e;border-radius:6px;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;min-height:120px;white-space:pre">// Click ▶ Run to execute</div></div>
+  </div>
+</div>
+
+<!-- ══════════ BROKERS ══════════ -->
+<div class="page" id="pg-brokers">
+  <div class="ph"><h2>Open Demat Account</h2></div>
+  <div class="ps">
+    <div class="al ali" style="margin-bottom:12px">✦ <strong>AI Match:</strong> For your trading style — Zerodha is best fit. Add Fyers as second broker for lower F&O brokerage.</div>
+    <div class="g3"><div class="fcard pick"><div class="fsb" style="margin-bottom:7px"><strong style="font-size:14px">Zerodha</strong><span class="pbdg">✦ BEST MATCH</span></div><div class="sr"><span class="lb">Delivery</span><span class="M">₹0</span></div><div class="sr"><span class="lb">Intraday/F&O</span><span class="M">₹20 flat</span></div><button class="btn bs" style="width:100%;justify-content:center;margin-top:9px" onclick="toast('Redirecting to zerodha.com')">Open Account →</button></div><div class="fcard"><div class="fsb" style="margin-bottom:7px"><strong style="font-size:14px">Angel One</strong><span class="tag tsf">FULL SERVICE</span></div><div class="sr"><span class="lb">API</span><span class="M">Free SmartAPI</span></div><div class="sr"><span class="lb">MCX</span><span style="color:var(--ok)">Yes</span></div><button class="btn bo" style="width:100%;justify-content:center;margin-top:9px" onclick="toast('Redirecting to angelone.in')">Open Account →</button></div><div class="fcard"><div class="fsb" style="margin-bottom:7px"><strong style="font-size:14px">Groww</strong><span class="tag tok">BEGINNER</span></div><div class="sr"><span class="lb">AMC</span><span>₹0</span></div><div class="sr"><span class="lb">US Stocks</span><span style="color:var(--ok)">Yes</span></div><button class="btn bo" style="width:100%;justify-content:center;margin-top:9px" onclick="toast('Redirecting to groww.in')">Open Account →</button></div></div>
+  </div>
+</div>
+
+<!-- ══════════ FOREX ══════════ -->
+<div class="page" id="pg-forex">
+  <div class="ph"><h2>💱 Forex — Currency Exchange</h2><button class="btn bg bsm" onclick="refreshFx()">↻ Refresh</button></div>
+  <div class="ps">
+    <div class="al ali" style="margin-bottom:12px">ℹ️ Only INR pairs (USD/INR, EUR/INR, GBP/INR, JPY/INR) permitted on Indian exchanges (NSE/BSE).</div>
+    <div class="g4" style="margin-bottom:14px">
+      <div class="card sh"><div class="kl">USD / INR</div><div class="kv" id="fx-usdinr">₹83.42</div><div class="kc up" id="fx-usdinr-c">▲ +0.14%</div></div>
+      <div class="card sh"><div class="kl">EUR / INR</div><div class="kv" id="fx-eurinr">₹90.18</div><div class="kc up" id="fx-eurinr-c">▲ +0.27%</div></div>
+      <div class="card sh"><div class="kl">GBP / INR</div><div class="kv" id="fx-gbpinr">₹105.64</div><div class="kc dn" id="fx-gbpinr-c">▼ −0.17%</div></div>
+      <div class="card sh"><div class="kl">USD/INR Converter</div>
+        <div style="display:flex;gap:5px;margin-top:5px"><input type="number" id="fx-amt" value="1000" class="fi fisq" oninput="calcFx()" style="width:80px"><span style="padding:5px;font-size:11px;color:var(--mu)">USD =</span><span class="M" id="fx-result" style="font-size:14px;font-weight:700;color:var(--tl);padding:5px">₹83,420</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CRYPTO ══════════ -->
+<div class="page" id="pg-crypto">
+  <div class="ph"><h2>₿ Crypto</h2><button class="btn bg bsm" onclick="refreshCrypto()">↻ Refresh</button></div>
+  <div class="ps">
+    <div class="al alw" style="margin-bottom:12px">⚠️ Gains taxed at flat 30% + 1% TDS under Section 115BBH. Losses cannot offset other income.</div>
+    <div class="g4" style="margin-bottom:14px">
+      <div class="card sh" style="border-left:3px solid #F7931A"><div class="kl">Bitcoin (BTC)</div><div class="kv" style="color:#92400E" id="cr-btc">₹71,24,800</div><div class="kc up" id="cr-btc-c">▲ 2.14%</div></div>
+      <div class="card sh" style="border-left:3px solid #627EEA"><div class="kl">Ethereum (ETH)</div><div class="kv" style="color:#1E3A8A" id="cr-eth">₹3,28,400</div><div class="kc dn" id="cr-eth-c">▼ 0.82%</div></div>
+      <div class="card sh" style="border-left:3px solid #E84142"><div class="kl">Solana (SOL)</div><div class="kv" id="cr-sol">₹12,840</div><div class="kc up" id="cr-sol-c">▲ 3.42%</div></div>
+      <div class="card sh"><div class="kl">My Holdings</div><div class="kv">₹5,20,440</div><div class="kc up">+₹88,440 total</div></div>
+    </div>
+    <div class="card sh"><div class="ct">My Crypto Holdings</div><table class="dt"><thead><tr><th>Asset</th><th>Qty</th><th>Avg (₹)</th><th>Current (₹)</th><th>Value</th><th>P&L</th></tr></thead><tbody><tr><td><strong>BTC</strong></td><td class="M">0.05</td><td class="M">58,40,000</td><td class="M" id="cr-btc-ltp">71,24,800</td><td class="M">₹3,56,240</td><td class="M up">+₹64,240</td></tr><tr><td><strong>ETH</strong></td><td class="M">0.5</td><td class="M">2,80,000</td><td class="M">3,28,400</td><td class="M">₹1,64,200</td><td class="M up">+₹24,200</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════ BULLION ══════════ -->
+<div class="page" id="pg-bullion">
+  <div class="ph"><h2>🥇 Bullions</h2><button class="btn bg bsm" onclick="refreshBullion()">↻ Refresh</button></div>
+  <div class="ps">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="card sh" style="border-left:3px solid #D4AF37"><div class="kl">Gold (MCX)</div><div class="kv" style="color:#92400E" id="bl-gold">₹71,480</div><div class="kc up" id="bl-gold-c">▲ +0.29%</div></div>
+      <div class="card sh" style="border-left:3px solid #C0C0C0"><div class="kl">Silver (MCX)</div><div class="kv" id="bl-silver">₹85,240</div><div class="kc dn" id="bl-silver-c">▼ −0.37%</div></div>
+      <div class="card sh"><div class="kl">My SGB Holdings</div><div class="kv up">₹71,480</div><div class="kc up">+₹15,060 gain</div></div>
+      <div class="card sh"><div class="kl">GOLDBEES ETF (20u)</div><div class="kv up">₹1,42,960</div><div class="kc up">+₹26,560</div></div>
+    </div>
+    <div class="card sh"><div class="ct">Purity Calculator</div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input type="number" id="pu-wt" value="10" class="fi fisq" oninput="calcPurity()" style="width:80px"><span style="font-size:12px;color:var(--mu)">grams</span><div style="display:flex;gap:5px"><button class="btn bg bxs pu-k" data-k="24" onclick="setPurity(this,24)">24K</button><button class="btn bp bxs pu-k" data-k="22" onclick="setPurity(this,22)">22K</button><button class="btn bg bxs pu-k" data-k="18" onclick="setPurity(this,18)">18K</button></div><span class="M" id="pu-total" style="font-size:16px;font-weight:700;color:var(--tl)">₹65,559</span></div></div>
+  </div>
+</div>
+
+<!-- ══════════ SETTINGS ══════════ -->
+<div class="page" id="pg-settings">
+  <div class="ph"><h2>Settings & Profile</h2></div>
+  <div class="ps"><div class="g2">
+    <div class="card sh">
+      <div class="ct">Your Profile</div>
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px">
+        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--tl),var(--tll));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff" id="profile-av">RK</div>
+        <div>
+          <div style="font-weight:700;font-size:15px" id="profile-name">Rahul Kumar</div>
+          <div style="font-size:12px;color:var(--mu)" id="profile-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0c7e6d6479604c69746d617c6069226f6361">[email&#160;protected]</a></div>
+          <div style="font-size:11px;color:var(--tl);font-weight:600;margin-top:2px">Account verified ✓</div>
+        </div>
+      </div>
+      <div class="sr"><span class="lb">Risk Profile</span><span><span class="tag tsf">Moderate</span></span></div>
+      <div class="sr"><span class="lb">Member since</span><span id="member-since">April 2026</span></div>
+      <div style="margin-top:12px;display:flex;gap:7px">
+        <button class="btn bo bsm" onclick="toast('Edit profile coming soon')">Edit Profile</button>
+        <button class="btn bg bsm" style="color:var(--er)" onclick="doSignOut()">Sign Out</button>
+      </div>
+    </div>
+    <div class="card sh">
+      <div class="ct">Security</div>
+      <div class="sr"><span>Email verified</span><span class="tag tok">✓ Yes</span></div>
+      <div class="sr"><span>Password</span><button class="btn bg bxs" onclick="toast('Password change email sent')">Change</button></div>
+      <div class="sr"><span>Session</span><span style="font-size:11px;color:var(--ok)">● Active</span></div>
+      <div class="sr"><span>Data Privacy (DPDP 2023)</span><span class="tag ttl">Compliant</span></div>
+      <div style="margin-top:12px"><button class="btn bg bsm" onclick="toast('All other devices signed out')">Sign out all devices</button></div>
+    </div>
+    <div class="card sh">
+      <div class="ct">Notifications</div>
+      <div class="sr"><span>Price Alerts</span><input type="checkbox" checked></div>
+      <div class="sr"><span>AI Trade Signals</span><input type="checkbox" checked></div>
+      <div class="sr"><span>Tax Harvest Alerts</span><input type="checkbox" checked></div>
+      <div class="sr"><span>SIP Reminders</span><input type="checkbox" checked></div>
+      <div class="sr"><span>WhatsApp Alerts</span><input type="checkbox"></div>
+    </div>
+    <div class="card sh">
+      <div class="ct">Disclaimer</div>
+      <div style="font-size:11px;color:var(--mu);line-height:1.7">Hormuz is an AI-powered wealth aggregation platform. We are <strong>not a SEBI-registered investment advisor</strong>. All information provided is for educational and informational purposes only and does not constitute investment advice. Please consult a SEBI-registered financial advisor before making investment decisions. Past performance is not indicative of future results. Investments are subject to market risk.</div>
+    </div>
+  </div></div>
+</div>
+
+</main>
+</div><!-- main-body -->
+
+<!-- FLOATING AI -->
+<button id="aifab" onclick="toggleAI()" style="display:none"><div class="pulse"></div>✦</button>
+<div id="aip">
+  <div class="aihdr"><h3>AI Analyst — Hormuz</h3><button style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:17px" onclick="toggleAI()">✕</button></div>
+  <div class="aimsg" id="ai-msgs"><div class="am b">Namaste! 🙏 Portfolio at <strong>₹18.4L</strong> across 3 brokers. Found <strong>4 action items</strong> — RELIANCE duplication, tax harvest ₹2,730, Energy 38% overweight, KYC renewal. What would you like to explore?</div></div>
+  <div class="aiqk">
+    <button onclick="aiQ('Portfolio health score and what to fix first?')">Portfolio Health</button>
+    <button onclick="aiQ('Should I harvest WIPRO loss before March 31?')">Tax Harvest</button>
+    <button onclick="aiQ('Energy sector at 38% — should I rebalance?')">Rebalance</button>
+    <button onclick="aiQ('Best SIP for my moderate risk profile?')">SIP Suggestion</button>
+  </div>
+  <div class="airow">
+    <input class="aiinp" id="ai-in" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="aisend" onclick="sendAI()">→</button>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════════════════════
+//  HORMUZ — JAVASCRIPT ENGINE
+// ══════════════════════════════════════════════
+
+// ── AUTH STATE ──────────────────────────────────
+let AUTH = {
+  user: null,
+  // Simple localStorage-based user store for demo
+  users: JSON.parse(localStorage.getItem('hormuz_users') || '{}'),
+  otpCode: null,
+  pendingEmail: null,
+  pendingName: null,
+};
+
+// Load existing session
+function loadSession(){
+  const saved = localStorage.getItem('hormuz_session');
+  if(saved){
+    try { AUTH.user = JSON.parse(saved); showApp(); } catch(e){}
+  }
+}
+
+// ── AUTH TABS ───────────────────────────────────
+function switchTab(tab){
+  document.getElementById('tab-signin').classList.toggle('on', tab==='signin');
+  document.getElementById('tab-signup').classList.toggle('on', tab==='signup');
+  document.getElementById('form-signin').style.display = tab==='signin'?'block':'none';
+  document.getElementById('form-signup').style.display = tab==='signup'?'block':'none';
+  document.getElementById('form-forgot').style.display = 'none';
+  document.getElementById('form-otp').style.display = 'none';
+}
+function showForgot(){
+  document.getElementById('form-signin').style.display='none';
+  document.getElementById('form-signup').style.display='none';
+  document.getElementById('form-forgot').style.display='block';
+}
+function clearAuthErr(){
+  ['si-err','su-err','otp-err','fp-err','fp-ok'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='';
+  });
+}
+
+// ── SIGN IN ─────────────────────────────────────
+function doSignIn(){
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('si-pw').value;
+  const errEl = document.getElementById('si-err');
+  if(!email || !pw){ errEl.textContent='Please enter email and password'; return; }
+  if(!isValidEmail(email)){ errEl.textContent='Please enter a valid email address'; return; }
+  
+  const btn = document.getElementById('si-btn');
+  btn.innerHTML='<span class="spinner"></span>Signing in…';
+  btn.disabled=true;
+
+  setTimeout(()=>{
+    // Check stored users or accept any for demo
+    const stored = AUTH.users[email];
+    if(stored && stored.pw !== pw){
+      btn.innerHTML='Sign In →'; btn.disabled=false;
+      errEl.textContent='Incorrect password. Try again.';
+      return;
+    }
+    // Accept sign-in (create user if first time with this email)
+    const name = stored?.name || email.split('@')[0].replace(/[^a-zA-Z]/g,' ').trim() || 'User';
+    loginUser(email, name);
+    btn.innerHTML='Sign In →'; btn.disabled=false;
+  }, 900);
+}
+
+// ── SIGN UP ─────────────────────────────────────
+function doSignUp(){
+  const fname = document.getElementById('su-fname').value.trim();
+  const lname = document.getElementById('su-lname').value.trim();
+  const email = document.getElementById('su-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('su-pw').value;
+  const pw2   = document.getElementById('su-pw2').value;
+  const errEl = document.getElementById('su-err');
+
+  if(!fname || !email || !pw){ errEl.textContent='Please fill in all required fields'; return; }
+  if(!isValidEmail(email)){ errEl.textContent='Please enter a valid email address'; return; }
+  if(pw.length<8){ errEl.textContent='Password must be at least 8 characters'; return; }
+  if(pw!==pw2){ errEl.textContent='Passwords do not match'; return; }
+  if(AUTH.users[email]){ errEl.textContent='An account with this email already exists. Sign in instead.'; return; }
+
+  const btn = document.getElementById('su-btn');
+  btn.innerHTML='<span class="spinner"></span>Creating account…';
+  btn.disabled=true;
+
+  setTimeout(()=>{
+    // Show OTP screen
+    AUTH.pendingEmail = email;
+    AUTH.pendingName  = (fname+' '+lname).trim();
+    AUTH.otpCode      = String(Math.floor(100000+Math.random()*900000));
+    
+    // In production: send real email. For demo: show code in toast
+    console.log('[DEMO OTP]', AUTH.otpCode);
+    
+    document.getElementById('otp-email-display').textContent = email;
+    document.getElementById('form-signup').style.display='none';
+    document.getElementById('form-otp').style.display='block';
+    for(let i=0;i<6;i++){ const el=document.getElementById('otp'+i); el.value=''; el.classList.remove('filled'); }
+    setTimeout(()=>document.getElementById('otp0').focus(), 100);
+    startOTPTimer();
+    // Show code in toast for demo
+    toast('Demo: Your OTP is ' + AUTH.otpCode + ' (in production, sent by email)');
+    btn.innerHTML='Create Account →'; btn.disabled=false;
+  }, 900);
+}
+
+function otpIn(el,idx){
+  if(el.value.length===1){
+    el.classList.add('filled');
+    if(idx<5) document.getElementById('otp'+(idx+1)).focus();
+    else doVerifyOTP();
+  } else el.classList.remove('filled');
+}
+function otpBack(e,idx){
+  if(e.key==='Backspace' && !document.getElementById('otp'+idx).value && idx>0){
+    document.getElementById('otp'+(idx-1)).focus();
+  }
+}
+
+let otpTimerInt=null;
+function startOTPTimer(){
+  let sec=59;
+  clearInterval(otpTimerInt);
+  otpTimerInt=setInterval(()=>{
+    const el=document.getElementById('otp-timer');
+    if(el) el.textContent='0:'+(sec<10?'0':'')+sec;
+    sec--;
+    if(sec<0){ clearInterval(otpTimerInt); if(el) el.textContent='Expired'; }
+  },1000);
+}
+function resendOTP(){
+  AUTH.otpCode = String(Math.floor(100000+Math.random()*900000));
+  startOTPTimer();
+  toast('New OTP: '+AUTH.otpCode+' (demo — sent to '+AUTH.pendingEmail+')');
+}
+
+function doVerifyOTP(){
+  const entered = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
+  const errEl = document.getElementById('otp-err');
+  if(entered.length<6){ errEl.textContent='Enter all 6 digits'; return; }
+  if(entered !== AUTH.otpCode){ errEl.textContent='Incorrect code. Try again.'; return; }
+  // Create user
+  AUTH.users[AUTH.pendingEmail] = { name: AUTH.pendingName, pw: document.getElementById('su-pw').value, created: Date.now() };
+  localStorage.setItem('hormuz_users', JSON.stringify(AUTH.users));
+  loginUser(AUTH.pendingEmail, AUTH.pendingName);
+}
+
+// ── FORGOT PASSWORD ──────────────────────────────
+function doForgot(){
+  const email = document.getElementById('fp-email').value.trim().toLowerCase();
+  const errEl = document.getElementById('fp-err');
+  const okEl  = document.getElementById('fp-ok');
+  if(!email || !isValidEmail(email)){ errEl.textContent='Enter a valid email address'; return; }
+  // Simulate sending reset email
+  setTimeout(()=>{ okEl.textContent='✓ Password reset link sent to '+email+' (check inbox & spam)'; errEl.textContent=''; }, 600);
+}
+
+// ── SOCIAL AUTH (demo) ────────────────────────────
+function doGoogleSignIn(){
+  toast('Google Sign-In: In production, opens Google OAuth popup. For demo, signing you in as demo@gmail.com');
+  setTimeout(()=>loginUser('demo@gmail.com','Demo User'), 800);
+}
+function doAppleSignIn(){
+  toast('Apple Sign-In: In production, opens Apple OAuth. For demo, signing you in.');
+  setTimeout(()=>loginUser('demo@icloud.com','Demo User'), 800);
+}
+
+// ── CORE LOGIN / LOGOUT ──────────────────────────
+function loginUser(email, name){
+  AUTH.user = { email, name, loginTime: Date.now() };
+  localStorage.setItem('hormuz_session', JSON.stringify(AUTH.user));
+  showApp();
+}
+function doSignOut(){
+  AUTH.user = null;
+  localStorage.removeItem('hormuz_session');
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('main-header').style.display='none';
+  document.getElementById('main-body').style.display='none';
+  document.getElementById('aifab').style.display='none';
+  document.getElementById('aip').classList.remove('on');
+  switchTab('signin');
+  document.getElementById('si-email').value='';
+  document.getElementById('si-pw').value='';
+  clearAuthErr();
+  toast('Signed out successfully');
+}
+
+function showApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('main-header').style.display='flex';
+  document.getElementById('main-body').style.display='flex';
+  document.getElementById('aifab').style.display='flex';
+  
+  const user = AUTH.user;
+  const name = user.name || user.email.split('@')[0];
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const firstName = name.split(' ')[0];
+
+  // Update all name displays
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('dash-uname', firstName);
+  set('hdr-name', firstName);
+  set('hdr-av', initials);
+  set('sb-av', initials);
+  set('sb-uname', name);
+  set('sb-email', user.email);
+  set('profile-av', initials);
+  set('profile-name', name);
+  set('profile-email', user.email);
+  set('fam-self-name', firstName+' (You)');
+  set('member-since', new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'}));
+
+  // Init app
+  buildTicker();
+  renderPortfolio();
+  calcSIP();
+  calcOrd();
+  calcRR();
+  calcPurity();
+  setTimeout(initDash, 50);
+  setTimeout(startLiveFeeds, 800);
+}
+
+// ── UTILS ────────────────────────────────────────
+function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function togglePw(id,btn){
+  const el=document.getElementById(id);
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
+}
+function checkPwStrength(){
+  const pw=document.getElementById('su-pw').value;
+  const bar=document.getElementById('pw-strength-bar');
+  const s=pw.length<6?20:pw.length<8?40:/[A-Z]/.test(pw)&&/[0-9]/.test(pw)&&pw.length>=12?100:/[A-Z]/.test(pw)||/[0-9]/.test(pw)?70:55;
+  bar.style.width=s+'%';
+  bar.style.background=s<40?'var(--er)':s<70?'var(--wn)':'var(--ok)';
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),3500);
+}
+function fmtInr(v){return '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');}
+function genPrices(base,n){const a=[base];for(let i=1;i<n;i++)a.push(Math.max(a[i-1]*(1+(Math.random()-.47)*.013),base*.88));return a;}
+function ema(d,p){const k=2/(p+1);const e=[d[0]];for(let i=1;i<d.length;i++)e.push(d[i]*k+e[i-1]*(1-k));return e;}
+
+// ── NAV ─────────────────────────────────────────
+function nav(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const page=document.getElementById('pg-'+pg);
+  const ni=document.getElementById('ni-'+pg);
+  if(page) page.classList.add('on');
+  if(ni) ni.classList.add('on');
+  if(pg==='dashboard') setTimeout(initDash,50);
+  if(pg==='trade'&&!tradeReady){ tradeReady=true; setTimeout(initTrade,50); }
+  if(pg==='family') setTimeout(initFamily,50);
+}
+
+// ── TICKER ───────────────────────────────────────
+const TICKERS=[
+  {s:'NIFTY 50',p:'22,847',c:'+0.64%',u:true},{s:'SENSEX',p:'75,420',c:'+0.58%',u:true},
+  {s:'RELIANCE',p:'2,847',c:'+1.19%',u:true},{s:'INFY',p:'1,456',c:'+0.80%',u:true},
+  {s:'TCS',p:'3,912',c:'+0.40%',u:true},{s:'WIPRO',p:'478',c:'−1.40%',u:false},
+  {s:'GOLD',p:'71,480',c:'+0.30%',u:true},{s:'USD/INR',p:'83.42',c:'+0.10%',u:true}
+];
+function buildTicker(){
+  const el=document.getElementById('ticker');
+  el.innerHTML=[...TICKERS,...TICKERS].map(t=>`<span class="ti"><span class="sy">${t.s}</span>${t.p}<span class="${t.u?'up':'dn'}">${t.c}</span></span>`).join('');
+}
+
+// ── DASHBOARD ────────────────────────────────────
+let perfChart=null, donutChart=null, famChart=null;
+function initDash(){
+  const tick=()=>{const el=document.getElementById('dash-time');if(el)el.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});};
+  tick(); setInterval(tick,1000);
+  const pc=document.getElementById('perf-c');
+  if(pc&&!pc._done){
+    pc._done=true;
+    if(perfChart){perfChart.destroy();perfChart=null;}
+    const n=30,lb=Array.from({length:n},(_,i)=>`D${i+1}`);
+    const port=genPrices(2530000,n),nif=genPrices(2400000,n);
+    perfChart=new Chart(pc,{type:'line',data:{labels:lb,datasets:[
+      {label:'Portfolio',data:port,borderColor:'#0D5C6B',backgroundColor:'rgba(13,92,107,.07)',borderWidth:2,tension:.4,pointRadius:0,fill:true},
+      {label:'Nifty 50',data:nif,borderColor:'#E88A2E',borderWidth:1.5,tension:.4,pointRadius:0,borderDash:[5,3],fill:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Nunito',size:11},boxWidth:10}}},scales:{x:{display:false},y:{ticks:{callback:v=>'₹'+(v/100000).toFixed(1)+'L',font:{family:'IBM Plex Mono',size:10}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+  }
+  const dc=document.getElementById('donut-c');
+  if(dc&&!dc._done){
+    dc._done=true;
+    if(donutChart){donutChart.destroy();donutChart=null;}
+    donutChart=new Chart(dc,{type:'doughnut',data:{labels:['Equity','MF','Crypto','Bullion','Bonds'],datasets:[{data:[53.5,12.7,20.6,8.5,4.9],backgroundColor:['#0D5C6B','#E88A2E','#F7931A','#D4AF37','#6366f1'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:false,cutout:'70%',plugins:{legend:{display:false}}}});
+  }
+}
+function setDashTF(btn,n){
+  document.querySelectorAll('#pg-dashboard .tf').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(!perfChart)return;
+  perfChart.data.labels=Array.from({length:n},(_,i)=>`${i+1}`);
+  perfChart.data.datasets[0].data=genPrices(1000000,n);
+  perfChart.data.datasets[1].data=genPrices(980000,n);
+  perfChart.update();
+}
+
+// ── PORTFOLIO ────────────────────────────────────
+const PORTFOLIO=[
+  {nm:'RELIANCE',br:'Z',t:'eq',q:50,a:2310,l:2847,pnl:26850},
+  {nm:'RELIANCE',br:'G',t:'eq',q:30,a:2480,l:2847,pnl:11010,dup:true},
+  {nm:'INFY',br:'Z',t:'eq',q:100,a:1210,l:1456,pnl:24600},
+  {nm:'TCS',br:'A',t:'eq',q:25,a:3650,l:3912,pnl:6550},
+  {nm:'WIPRO',br:'G',t:'eq',q:200,a:569,l:478,pnl:-18200},
+  {nm:'HDFC Flexicap MF',br:'G',t:'mf',q:1840,a:92.4,l:118.6,pnl:48200},
+  {nm:'SGB 2028',br:'Z',t:'bond',q:10,a:5642,l:6810,pnl:11680},
+];
+const brMap={Z:'<span class="bpz bz">Z</span>',G:'<span class="bpz bgr">G</span>',A:'<span class="bpz ban">A</span>'};
+const tMap={eq:'<span class="tag ttl">EQ</span>',mf:'<span class="tag tsf">MF</span>',bond:'<span class="tag tmu">Bond</span>'};
+function renderPortfolio(){
+  const body=document.getElementById('portfolio-body'); if(!body) return;
+  body.innerHTML=PORTFOLIO.map(r=>`<tr><td><strong>${r.nm}</strong>${r.dup?'<span class="tag twn" style="margin-left:4px">DUP</span>':''}</td><td>${brMap[r.br]||r.br}</td><td>${tMap[r.t]}</td><td class="M">${r.q}</td><td class="M">${r.a.toLocaleString('en-IN')}</td><td class="M">${r.l.toLocaleString('en-IN')}</td><td class="M">${fmtInr(r.q*r.l)}</td><td class="M" style="color:${r.pnl>=0?'var(--ok)':'var(--er)'}">${r.pnl>=0?'+':''}${fmtInr(r.pnl)}</td><td>${r.pnl<0&&r.t==='eq'?`<button class="btn bxs" style="background:var(--sf);color:#fff;border-radius:5px" onclick="nav('tax')">Harvest</button>`:`<button class="btn bg bxs" onclick="nav('trade')">Trade</button>`}</td></tr>`).join('');
+}
+function filterHoldings(){renderPortfolio();}
+
+// ── TRADE TERMINAL ───────────────────────────────
+let curSym='RELIANCE', tradeSide='buy', activeBroker=0;
+let tradeChart=null, tradeReady=false;
+const WL=[
+  {s:'RELIANCE',p:'2,847',c:'+1.19%',u:true,ch:'+33.50'},{s:'INFY',p:'1,456',c:'+0.80%',u:true,ch:'+11.50'},
+  {s:'TCS',p:'3,912',c:'+0.40%',u:true,ch:'+15.40'},{s:'WIPRO',p:'478',c:'−1.40%',u:false,ch:'−6.80'},
+  {s:'HDFCBANK',p:'1,614',c:'+0.70%',u:true,ch:'+11.20'},{s:'AXISBANK',p:'1,124',c:'+1.10%',u:true,ch:'+12.30'},
+  {s:'SUNPHARMA',p:'1,680',c:'+2.10%',u:true,ch:'+34.60'},{s:'TATAMOTORS',p:'932',c:'−0.60%',u:false,ch:'−5.60'},
+];
+const BROKERS=[
+  {nm:'Zerodha',id:'DX1234',cls:'bz',margin:214500,h:{'RELIANCE':{q:50,a:2310},'INFY':{q:100,a:1210}}},
+  {nm:'Groww',  id:'GW5678',cls:'bgr',margin:87200, h:{'RELIANCE':{q:30,a:2480},'WIPRO':{q:200,a:569}}},
+  {nm:'Angel',  id:'AN9012',cls:'ban',margin:132000,expired:true,h:{'TCS':{q:25,a:3650}}},
+];
+function buildWL(){
+  const el=document.getElementById('wl-items'); if(!el) return;
+  el.innerHTML=WL.map(w=>`<div class="wli${w.s===curSym?' on':''}" onclick="pickSym('${w.s}',this)"><div><div class="wls">${w.s}</div><div class="wlc ${w.u?'up':'dn'}">${w.c}</div></div><div class="wlp ${w.u?'up':'dn'}">₹${w.p}</div></div>`).join('');
+}
+function pickSym(s,el){
+  curSym=s;
+  document.querySelectorAll('.wli').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  const w=WL.find(x=>x.s===s)||WL[0];
+  document.getElementById('t-sym').textContent=s;
+  document.getElementById('t-pri').textContent='₹'+w.p;
+  const chEl=document.getElementById('t-chg');
+  chEl.textContent=(w.u?'▲':'▼')+' '+w.ch+' ('+w.c+')';
+  chEl.style.color=w.u?'var(--ok)':'var(--er)';
+  document.getElementById('o-price').value=w.p.replace(/,/g,'');
+  if(tradeChart){const base=parseFloat(w.p.replace(/,/g,''));const prices=genPrices(base*.95,80);tradeChart.data.datasets[0].data=prices;tradeChart.data.datasets[1].data=ema(prices,20);tradeChart.update('none');}
+  updateBrokerPos();calcOrd();
+}
+function initTrade(){
+  buildWL(); buildDepth(); buildNews(); selBroker(0,true);
+  const c=document.getElementById('trade-c'); if(!c) return;
+  if(tradeChart){tradeChart.destroy();tradeChart=null;}
+  const prices=genPrices(2800,80),em=ema(prices,20);
+  tradeChart=new Chart(c,{type:'line',data:{labels:prices.map((_,i)=>i),datasets:[
+    {data:prices,borderColor:'#0D5C6B',backgroundColor:'rgba(13,92,107,.07)',borderWidth:2,tension:.3,pointRadius:0,fill:true},
+    {data:em,borderColor:'#E88A2E',borderWidth:1.5,tension:.3,pointRadius:0,borderDash:[4,3],fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{position:'right',ticks:{callback:v=>'₹'+Math.round(v),font:{family:'IBM Plex Mono',size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+}
+function setTradeTF(btn){document.querySelectorAll('.chdr .tf').forEach(b=>b.classList.remove('on'));btn.classList.add('on');if(tradeChart){const p=genPrices(2700,80);tradeChart.data.datasets[0].data=p;tradeChart.data.datasets[1].data=ema(p,20);tradeChart.update('none');}}
+function selBroker(idx,silent){
+  if(BROKERS[idx]?.expired&&!silent){toast('⚠ '+BROKERS[idx].nm+' session expired. Re-authenticate in Vault.');return;}
+  activeBroker=idx;
+  document.querySelectorAll('.bac').forEach((c,i)=>c.classList.toggle('on',i===idx));
+  updateBrokerPos(); calcOrd();
+}
+function updateBrokerPos(){
+  const br=BROKERS[activeBroker]; const el=document.getElementById('pos-strip'); if(!el) return;
+  const h=br.h[curSym];
+  if(h){const w=WL.find(x=>x.s===curSym)||{p:'0'};const ltp=parseFloat(w.p.replace(/,/g,''))||0;const pnl=(ltp-h.a)*h.q;el.style.background=pnl>=0?'#EBF5F7':'#FEF3D0';el.innerHTML=`<span style="color:var(--tl)">📦 <b>${br.nm}:</b> ${curSym} ${h.q} qty @ ₹${h.a}</span><span class="M" style="color:${pnl>=0?'var(--ok)':'var(--er)'};font-weight:700">${pnl>=0?'+':''}${fmtInr(pnl)}</span>`;}
+  else{el.style.background='var(--cr)';el.innerHTML=`<span style="color:var(--mu)">📭 No position in <b>${curSym}</b> in <b>${br.nm}</b></span>`;}
+}
+function setSide(s){
+  tradeSide=s;
+  document.getElementById('buy-t').classList.toggle('on',s==='buy');
+  document.getElementById('sell-t').classList.toggle('on',s==='sell');
+  calcOrd();
+}
+function togglePrice(){const t=document.getElementById('o-type').value;const dis=t==='Market';document.getElementById('o-price').disabled=dis;document.getElementById('price-f').style.opacity=dis?.4:1;}
+function calcOrd(){
+  const qty=parseFloat(document.getElementById('o-qty')?.value)||0;
+  const price=parseFloat(document.getElementById('o-price')?.value)||0;
+  const prod=document.getElementById('o-prod')?.value||'CNC';
+  const val=qty*price;
+  const br=BROKERS[activeBroker]||BROKERS[0];
+  document.getElementById('o-val').textContent='₹'+val.toLocaleString('en-IN');
+  document.getElementById('o-brok').textContent=prod==='CNC'?'₹0 (Free)':'₹20';
+  const mok=document.getElementById('o-mok');
+  if(val<=br.margin){mok.textContent='✓ Margin OK';mok.style.color='var(--ok)';}
+  else{mok.textContent='✗ Insufficient margin';mok.style.color='var(--er)';}
+  const pct=((val/1843250)*100).toFixed(1);
+  const si=document.getElementById('sebi-inp');
+  if(si){si.value='SEBI: '+pct+'% '+( parseFloat(pct)>15?'⚠ HIGH!': parseFloat(pct)>10?'⚠ Near limit':'✓ OK');si.style.color=parseFloat(pct)>15?'var(--er)':parseFloat(pct)>10?'var(--wn)':'var(--tl)';}
+  const btn=document.getElementById('place-b');
+  if(btn){btn.className='pbtn '+(tradeSide==='buy'?'pbuy':'psell');btn.textContent='PLACE '+tradeSide.toUpperCase()+' ORDER — ₹'+val.toLocaleString('en-IN')+' via '+br.nm;}
+}
+function calcRR(){
+  const e=parseFloat(document.getElementById('o-price')?.value)||0;
+  const sl=parseFloat(document.getElementById('o-sl')?.value)||0;
+  const tgt=parseFloat(document.getElementById('o-tgt')?.value)||0;
+  const risk=Math.abs(e-sl),reward=Math.abs(tgt-e);
+  const rr=risk>0?(reward/risk).toFixed(1):'—';
+  const el=document.getElementById('o-rr');
+  if(el){el.value='1:'+rr;el.style.color=parseFloat(rr)>=1.5?'var(--ok)':parseFloat(rr)>=1?'var(--wn)':'var(--er)';}
+}
+function buildDepth(){
+  const el=document.getElementById('depth-rows'); if(!el) return;
+  el.innerHTML=Array.from({length:5},(_,i)=>{
+    const bid=(2847-(i+1)*.5).toFixed(1),ask=(2847+(i+1)*.5).toFixed(1);
+    const bq=Math.floor(Math.random()*7000+2000),aq=Math.floor(Math.random()*5500+1500);
+    return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--bd);font-size:11px"><span class="M up">${bq.toLocaleString()}</span><span class="M up">${bid}</span><span class="M dn">${ask}</span><span class="M dn">${aq.toLocaleString()}</span></div>`;
+  }).join('');
+}
+function buildNews(){
+  const el=document.getElementById('tp-news'); if(!el) return;
+  [{h:'Reliance Q3 PAT up 11.8% YoY; Jio subs beat estimates',t:'2h',pos:true},{h:'FII Net Buyers ₹3,420Cr; Banking & IT lead',t:'3h',pos:true},{h:'WIPRO Q4 guidance cut; BFSI slowdown cited',t:'4h',pos:false},{h:'RBI holds repo rate at 6.5%; CPI at 4.2%',t:'5h',pos:null}].forEach(n=>{
+    const d=document.createElement('div');d.style.cssText='padding:7px 0;border-bottom:1px solid var(--bd)';
+    d.innerHTML=`<div style="font-size:9px;color:${n.pos===true?'var(--ok)':n.pos===false?'var(--er)':'var(--mu)'};font-weight:700;margin-bottom:3px">${n.t} ago</div><div style="font-size:11px;line-height:1.45">${n.h}</div>`;
+    el.appendChild(d);
+  });
+}
+function placeOrder(){
+  const br=BROKERS[activeBroker]||BROKERS[0];
+  if(br.expired){toast('⚠ '+br.nm+' session expired. Re-authenticate in Broker Vault first.');return;}
+  // Show MPIN
+  const qty=document.getElementById('o-qty')?.value||'0',price=document.getElementById('o-price')?.value||'0';
+  const val=Math.round(qty*price).toLocaleString('en-IN');
+  document.getElementById('mp-title').textContent='Confirm '+tradeSide.toUpperCase()+' Order';
+  document.getElementById('mp-broker').textContent=br.nm;
+  document.getElementById('mp-icon').textContent=activeBroker===0?'🟦':activeBroker===1?'🟩':'🟧';
+  document.getElementById('mp-detail').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--mu)">Symbol</span><strong>${curSym}</strong></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--mu)">Side</span><strong style="color:${tradeSide==='buy'?'var(--ok)':'var(--er)'}">${tradeSide.toUpperCase()}</strong></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--mu)">Broker</span><strong>${br.nm} · ${br.id}</strong></div><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Value</span><strong style="color:var(--tl)">₹${val}</strong></div>`;
+  for(let i=0;i<6;i++){const e=document.getElementById('mp'+i);e.value='';e.classList.remove('filled');}
+  document.getElementById('mp-err').textContent='';
+  document.getElementById('mp-btn').style.background=tradeSide==='buy'?'var(--ok)':'var(--er)';
+  document.getElementById('mp-btn').textContent='Confirm '+tradeSide.toUpperCase()+' — ₹'+val;
+  document.getElementById('mpin-ov').classList.add('on');
+  setTimeout(()=>document.getElementById('mp0').focus(),100);
+}
+function mpIn(el,idx){if(el.value.length===1){el.classList.add('filled');if(idx<5)document.getElementById('mp'+(idx+1)).focus();else submitMPIN();}else el.classList.remove('filled');}
+const MPINS=['123456','123456','123456'];
+function submitMPIN(){
+  const entered=[0,1,2,3,4,5].map(i=>document.getElementById('mp'+i).value).join('');
+  if(entered===MPINS[activeBroker]){closeMPIN();const qty=document.getElementById('o-qty')?.value;const px=document.getElementById('o-price')?.value;const br=BROKERS[activeBroker];toast('✓ '+tradeSide.toUpperCase()+' order confirmed: '+qty+'×'+curSym+' @ ₹'+px+' via '+br.nm);}
+  else{document.getElementById('mp-err').textContent='✗ Incorrect MPIN. Demo: 1 2 3 4 5 6';for(let i=0;i<6;i++){const e=document.getElementById('mp'+i);e.value='';e.classList.remove('filled');}document.getElementById('mp0').focus();}
+}
+function closeMPIN(){document.getElementById('mpin-ov').classList.remove('on');}
+function setTT(el,id){document.querySelectorAll('.ttab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));el.classList.add('on');const p=document.getElementById(id);if(p)p.classList.add('on');}
+const SCR_DATA={momentum:[{s:'SUNPHARMA',sc:94,n:'RSI 72, MACD bull cross'},{s:'AXISBANK',sc:88,n:'BO above 1100'}],breakout:[{s:'HCLTECH',sc:91,n:'BO above 1650, vol 2x'},{s:'MARUTI',sc:86,n:'Flag resolved'}],value:[{s:'WIPRO',sc:85,n:'P/E 19x vs avg 24x'},{s:'NTPC',sc:81,n:'Div yield 5.2%'}],fii:[{s:'INFY',sc:90,n:'FII +2.4% QoQ'},{s:'ICICIBANK',sc:87,n:'FII ₹840Cr net buy'}]};
+function runScr(type){const d=SCR_DATA[type]||[];document.getElementById('scr-results').innerHTML=d.map(r=>`<div class="srow"><div><div style="font-weight:700;font-size:12px">${r.s}</div><div style="font-size:10px;color:var(--mu)">${r.n}</div></div><div style="display:flex;gap:5px;align-items:center"><span class="tag tok">${r.sc}/100</span><button class="btn bg bxs" onclick="toast('Loading ${r.s}')">Trade</button></div></div>`).join('');}
+function tradeAI(){const q=document.getElementById('t-ai-q').value.trim();if(!q)return;openAI();aiQ(curSym+': '+q);document.getElementById('t-ai-q').value='';}
+
+// ── TAB SWITCH ────────────────────────────────────
+function swTab(el){
+  const targetId=el.dataset.tc; if(!targetId) return;
+  const bar=el.parentElement;
+  bar.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  const container=bar.parentElement;
+  container.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));
+  const target=document.getElementById(targetId);
+  if(target) target.classList.add('on');
+}
+
+// ── SIP CALC ──────────────────────────────────────
+function calcSIP(){
+  const amt=parseFloat(document.getElementById('sip-a')?.value)||10000;
+  const yr=parseFloat(document.getElementById('sip-y')?.value)||10;
+  const rate=parseFloat(document.getElementById('sip-r')?.value)||12;
+  const r=rate/100/12,n=yr*12;
+  const mat=amt*(((Math.pow(1+r,n)-1)/r)*(1+r)),inv=amt*n;
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('sip-av','₹'+amt.toLocaleString('en-IN'));s('sip-yv',yr+' years');s('sip-rv',rate+'% p.a.');
+  s('sip-inv','₹'+(inv/100000).toFixed(1)+'L');s('sip-ret','₹'+((mat-inv)/100000).toFixed(1)+'L');s('sip-mat','₹'+(mat/100000).toFixed(1)+'L');
+}
+
+// ── VAULT ─────────────────────────────────────────
+let vaultUnlocked=false;
+function openVaultUnlock(){
+  for(let i=0;i<6;i++){const e=document.getElementById('vp'+i);e.value='';e.classList.remove('filled');}
+  document.getElementById('vp-err').textContent='';
+  document.getElementById('vault-ov').classList.add('on');
+  setTimeout(()=>document.getElementById('vp0').focus(),100);
+}
+function vpIn(el,idx){if(el.value.length===1){el.classList.add('filled');if(idx<5)document.getElementById('vp'+(idx+1)).focus();else doUnlockVault();}else el.classList.remove('filled');}
+function doUnlockVault(){
+  const entered=[0,1,2,3,4,5].map(i=>document.getElementById('vp'+i).value).join('');
+  if(entered==='123456'){vaultUnlocked=true;document.getElementById('vault-ov').classList.remove('on');document.getElementById('vault-locked-msg').style.display='none';document.getElementById('vault-content').style.display='block';document.getElementById('vault-status').textContent='🔓 Unlocked';document.getElementById('vault-status').style.color='var(--ok)';toast('✓ Vault unlocked.');}
+  else{document.getElementById('vp-err').textContent='✗ Incorrect PIN. Try: 1 2 3 4 5 6';for(let i=0;i<6;i++){const e=document.getElementById('vp'+i);e.value='';e.classList.remove('filled');}document.getElementById('vp0').focus();}
+}
+function lockVault(){vaultUnlocked=false;document.getElementById('vault-locked-msg').style.display='flex';document.getElementById('vault-content').style.display='none';document.getElementById('vault-status').textContent='Locked';document.getElementById('vault-status').style.color='var(--mu)';toast('🔒 Vault locked.');}
+function showHide(id,val){const el=document.getElementById(id);if(el.type==='password'){el.type='text';el.value=val;}else{el.type='password';el.value='••••••••';}}
+
+// ── FAMILY CHART ─────────────────────────────────
+function initFamily(){
+  const c=document.getElementById('fam-c'); if(!c||c._done) return; c._done=true;
+  new Chart(c,{type:'bar',data:{labels:['Energy','IT','Banking','FMCG','Health'],datasets:[{label:'You',data:[38,24,18,8,6],backgroundColor:'rgba(13,92,107,.75)'},{label:'Spouse',data:[12,30,28,14,10],backgroundColor:'rgba(232,138,46,.75)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Nunito',size:11},boxWidth:9}}},scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>v+'%'}}}}});
+}
+
+// ── API CONSOLE ───────────────────────────────────
+const CON_RESP={holdings:'{\n  "status": "success",\n  "data": [\n    {"tradingsymbol":"RELIANCE","quantity":50,"pnl":26850},\n    {"tradingsymbol":"INFY","quantity":100,"pnl":24600}\n  ]\n}',orders:'{\n  "status": "success",\n  "data": [\n    {"order_id":"250328000123456","tradingsymbol":"RELIANCE","status":"COMPLETE"}\n  ]\n}',margins:'{\n  "status": "success",\n  "data": {"equity": {"net": 214500}}\n}'};
+function runCon(){
+  const e=document.getElementById('con-ep')?.value;
+  setTimeout(()=>{document.getElementById('con-resp').textContent=CON_RESP[e]||'{"status":"success","data":{}}';document.getElementById('con-resp').style.color='#8ee18e';},600);
+}
+
+// ── LIVE FEEDS — Smart fetch with backoff, stops after 3 fails ─────────
+const LIVE={usdInr:83.42,goldPerGram:7148,crypto:{}};
+const FEED_STATE={fx:{fails:0,ok:false},crypto:{fails:0,ok:false},bullion:{fails:0,ok:false}};
+const MAX_FAILS=3;  // stop retrying after this many consecutive failures
+const RETRY_MS=[0,30000,120000]; // immediate, 30s, 2min — then give up until manual refresh
+
+// Smart fetch wrapper — silent after MAX_FAILS, only logs once
+async function safeFetch(url,timeout=8000){
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),timeout);
+  try{
+    const r=await fetch(url,{signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  }catch(e){
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+// ── FX (ExchangeRate-API — free, no CORS issues when served from real domain) ──
+async function fetchFxRates(){
+  if(FEED_STATE.fx.fails>=MAX_FAILS) return; // silently stop
+  try{
+    const d=await safeFetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const rates=d.rates||{};
+    LIVE.usdInr=rates.INR||83.42;
+    FEED_STATE.fx.fails=0; FEED_STATE.fx.ok=true;
+    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    s('fx-usdinr','₹'+LIVE.usdInr.toFixed(2));
+    s('fx-eurinr','₹'+(LIVE.usdInr/(rates.EUR||0.926)).toFixed(2));
+    s('fx-gbpinr','₹'+(LIVE.usdInr/(rates.GBP||0.791)).toFixed(2));
+    const lsUsd=document.getElementById('ls-usd');if(lsUsd)lsUsd.textContent='₹'+LIVE.usdInr.toFixed(2);
+    calcFx();
+  }catch(e){
+    FEED_STATE.fx.fails++;
+    if(FEED_STATE.fx.fails===1) console.info('[Hormuz] FX API unavailable — showing cached rates. Will work when deployed to hormuz.co.in');
+  }
+}
+
+// ── CRYPTO (CoinGecko — free tier, rate-limited) ──
+async function fetchCryptoRates(){
+  if(FEED_STATE.crypto.fails>=MAX_FAILS) return;
+  try{
+    const d=await safeFetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=inr&include_24hr_change=true');
+    LIVE.crypto=d; FEED_STATE.crypto.fails=0; FEED_STATE.crypto.ok=true;
+    const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    if(d.bitcoin){
+      const p=d.bitcoin.inr,c=(d.bitcoin.inr_24h_change||2.14).toFixed(2),up=parseFloat(c)>=0;
+      s('cr-btc','₹'+Math.round(p).toLocaleString('en-IN'));
+      const cc=document.getElementById('cr-btc-c');if(cc){cc.textContent=(up?'▲ +':'▼ ')+c+'%';cc.className='kc '+(up?'up':'dn');}
+      s('ls-btc','₹'+(p/100000).toFixed(1)+'L');
+      const lc=document.getElementById('ls-btc-c');if(lc){lc.textContent=(up?'+':'')+c+'%';lc.className='M '+(up?'up':'dn');}
+    }
+    if(d.ethereum){
+      const p=d.ethereum.inr,c=(d.ethereum.inr_24h_change||-0.82).toFixed(2),up=parseFloat(c)>=0;
+      s('cr-eth','₹'+Math.round(p).toLocaleString('en-IN'));
+      const cc=document.getElementById('cr-eth-c');if(cc){cc.textContent=(up?'▲ +':'▼ ')+c+'%';cc.className='kc '+(up?'up':'dn');}
+      s('ls-eth','₹'+(p/100000).toFixed(2)+'L');
+    }
+    if(d.solana){
+      const p=d.solana.inr,c=(d.solana.inr_24h_change||3.42).toFixed(2),up=parseFloat(c)>=0;
+      s('cr-sol','₹'+Math.round(p).toLocaleString('en-IN'));
+      const cc=document.getElementById('cr-sol-c');if(cc){cc.textContent=(up?'▲ +':'▼ ')+c+'%';cc.className='kc '+(up?'up':'dn');}
+      s('ls-sol','₹'+Math.round(p).toLocaleString('en-IN'));
+    }
+  }catch(e){
+    FEED_STATE.crypto.fails++;
+    if(FEED_STATE.crypto.fails===1) console.info('[Hormuz] Crypto API unavailable — showing cached prices. CoinGecko works on deployed domain.');
+  }
+}
+
+// ── BULLION (metals.live) ──
+async function fetchBullionRates(){
+  if(FEED_STATE.bullion.fails>=MAX_FAILS) return;
+  try{
+    const d=await safeFetch('https://api.metals.live/v1/spot/gold,silver');
+    FEED_STATE.bullion.fails=0; FEED_STATE.bullion.ok=true;
+    d.forEach(m=>{
+      if(m.metal==='gold'){
+        LIVE.goldPerGram=(m.price/31.1035)*LIVE.usdInr;
+        const g10=Math.round(LIVE.goldPerGram*10);
+        const el=document.getElementById('bl-gold');if(el)el.textContent='₹'+g10.toLocaleString('en-IN');
+        const ls=document.getElementById('ls-gold');if(ls)ls.textContent='₹'+g10.toLocaleString('en-IN');
+        calcPurity();
+      }
+      if(m.metal==='silver'){
+        const s=(m.price/31.1035)*1000*LIVE.usdInr;
+        const el=document.getElementById('bl-silver');if(el)el.textContent='₹'+Math.round(s).toLocaleString('en-IN');
+        const ls=document.getElementById('ls-silver');if(ls)ls.textContent='₹'+Math.round(s).toLocaleString('en-IN');
+      }
+    });
+  }catch(e){
+    FEED_STATE.bullion.fails++;
+    if(FEED_STATE.bullion.fails===1) console.info('[Hormuz] Bullion API unavailable — showing cached rates.');
+  }
+}
+
+// ── START — staggered so they don't all fire at once ──
+function startLiveFeeds(){
+  // Initial fetches — staggered 2s apart to avoid simultaneous failures
+  fetchFxRates();
+  setTimeout(fetchCryptoRates,2000);
+  setTimeout(fetchBullionRates,4000);
+
+  // Intervals — only if we've had at least one success OR haven't hit max fails
+  // FX: every 5 min (free tier allows it)
+  setInterval(()=>{
+    if(FEED_STATE.fx.fails<MAX_FAILS){FEED_STATE.fx.fails=0;fetchFxRates();}
+  },300000);
+
+  // Crypto: every 2 min (CoinGecko free = 30 req/min, so 1 req/2min is safe)
+  setInterval(()=>{
+    if(FEED_STATE.crypto.fails<MAX_FAILS){FEED_STATE.crypto.fails=0;fetchCryptoRates();}
+  },120000);
+
+  // Bullion: every 5 min
+  setInterval(()=>{
+    if(FEED_STATE.bullion.fails<MAX_FAILS){FEED_STATE.bullion.fails=0;fetchBullionRates();}
+  },300000);
+}
+
+// Manual refresh resets fail counter and retries immediately
+function refreshFx(){FEED_STATE.fx.fails=0;toast('Refreshing forex rates...');fetchFxRates();}
+function refreshCrypto(){FEED_STATE.crypto.fails=0;toast('Refreshing crypto prices...');fetchCryptoRates();}
+function refreshBullion(){FEED_STATE.bullion.fails=0;toast('Refreshing bullion rates...');fetchBullionRates();}
+
+function calcFx(){
+  const amt=parseFloat(document.getElementById('fx-amt')?.value)||0;
+  const el=document.getElementById('fx-result');
+  if(el)el.textContent='₹'+Math.round(amt*LIVE.usdInr).toLocaleString('en-IN');
+}
+
+// Purity calc
+let goldKarat=22;
+function setPurity(btn,k){goldKarat=k;document.querySelectorAll('.pu-k').forEach(b=>{b.className='btn bg bxs pu-k';});btn.className='btn bp bxs pu-k';calcPurity();}
+function calcPurity(){
+  const wt=parseFloat(document.getElementById('pu-wt')?.value)||0;
+  const melt=wt*(goldKarat/24)*LIVE.goldPerGram;
+  const el=document.getElementById('pu-total');if(el)el.textContent='₹'+Math.round(melt+melt*.03).toLocaleString('en-IN');
+}
+
+// ── AI PANEL ─────────────────────────────────────
+function toggleAI(){document.getElementById('aip').classList.toggle('on');}
+function openAI(){document.getElementById('aip').classList.add('on');}
+function aiQ(q){document.getElementById('ai-in').value=q;sendAI();}
+function addAIMsg(text,role){const msgs=document.getElementById('ai-msgs');const d=document.createElement('div');d.className='am '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
+async function sendAI(){
+  const inp=document.getElementById('ai-in');const q=inp.value.trim();if(!q)return;inp.value='';
+  addAIMsg(q,'u');const bot=addAIMsg('Thinking…','b');
+  document.querySelector('.aiqk').style.display='none';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:`You are Hormuz AI, an elite Indian wealth analyst. User's portfolio ₹18.4L: Zerodha (RELIANCE 50, INFY 100), Groww (RELIANCE 30 duplicate, WIPRO 200 loss ₹18200), Angel (TCS 25). Issues: RELIANCE duplication, Energy 38%, WIPRO tax harvest saves ₹2730, KYC due. Moderate risk. Give concise actionable advice under 150 words. Use ₹ amounts.`,messages:[{role:'user',content:q}]})});
+    const d=await res.json();bot.textContent=d.content?.[0]?.text||'Ask me anything.';
+  }catch(e){bot.textContent='WIPRO loss ₹18,200 → harvest before Mar 31 to save ₹2,730 tax. RELIANCE duplicate in Groww (30 shares) → sell to consolidate in Zerodha. Energy at 38% → reduce by selling RELIANCE, buy Nifty ETF for diversification.';}
+}
+
+// ── WIRE SIP SLIDERS ─────────────────────────── 
