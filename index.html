@@ -1075,16 +1075,136 @@ pre{white-space:pre-wrap;word-break:break-word}
 
 <!-- ══════════════════ FAMILY ══════════════════ -->
 <div class="page" id="pg-family">
-  <div class="ph"><h2>Family Wealth View</h2><button class="btn bo bsm" onclick="toast('Invite sent — member must consent with own PAN+Aadhaar')">+ Invite Member</button></div>
+  <div class="ph">
+    <h2>👨‍👩‍👧 Family & Associates Wealth</h2>
+    <div style="display:flex;gap:7px">
+      <button class="btn bg bsm" onclick="showInviteModal('family')">+ Invite Family</button>
+      <button class="btn bg bsm" onclick="showInviteModal('advisor')">+ Add Advisor</button>
+      <button class="btn bs bsm" onclick="openAI();aiQ('Analyse combined family wealth ₹'+document.getElementById('fam-nw')?.textContent+'. Suggest consolidation, tax optimisation and succession planning for HNI family.')">✦ AI Family Report</button>
+    </div>
+  </div>
   <div class="ps">
-    <div class="al alw" style="margin-bottom:12px">⚠️ RELIANCE = 14.2% of combined family wealth. Exceeds 10% safe limit.</div>
-    <div class="g3" style="margin-bottom:12px"><div class="card sh"><div class="kl">Family Net Worth</div><div class="kv">₹38.4L</div><div class="kc up">▲ ₹1.2L today</div></div><div class="card sh"><div class="kl">Members</div><div class="kv">3</div><div class="kc" style="color:var(--mu)">All consented</div></div><div class="card sh"><div class="kl">Combined Tax Savings</div><div class="kv">₹1.8L</div><div class="kc" style="color:var(--mu)">This FY</div></div></div>
-    <div class="fmem"><div class="mavt" style="background:var(--tl)">RK</div><div style="flex:1"><div class="fsb" style="margin-bottom:3px"><strong>Rahul Kumar (You)</strong><span class="tag tok">Full Access</span></div><div style="font-size:12px;color:var(--mu)">Zerodha + Groww + Angel One</div></div><div style="text-align:right"><div class="M" style="font-size:15px;font-weight:700;color:var(--tl)">₹18.4L</div><div style="font-size:11px;color:var(--ok)">+₹42,850</div></div></div>
-    <div class="fmem"><div class="mavt" style="background:var(--sf)">PK</div><div style="flex:1"><div class="fsb" style="margin-bottom:3px"><strong>Priya Kumar (Spouse)</strong><span class="tag ttl">Totals Only</span></div><div style="font-size:12px;color:var(--mu)">Zerodha + HDFC Securities</div></div><div style="text-align:right"><div class="M" style="font-size:15px;font-weight:700;color:var(--tl)">₹12.6L</div><div style="font-size:11px;color:var(--ok)">+₹28,400</div></div></div>
-    <div class="fmem"><div class="mavt" style="background:#6366f1">SK</div><div style="flex:1"><div class="fsb" style="margin-bottom:3px"><strong>Suresh Kumar (Father)</strong><span class="tag tmu">Sector View</span></div><div style="font-size:12px;color:var(--mu)">SBI Securities + LIC MF</div></div><div style="text-align:right"><div class="M" style="font-size:15px;font-weight:700;color:var(--tl)">₹7.4L</div><div style="font-size:11px;color:var(--ok)">+₹9,200</div></div></div>
-    <div class="card sh"><div class="ct">Combined Family Sectors</div><canvas id="fam-c" height="65"></canvas></div>
+
+    <!-- ══ FAMILY NET WORTH HEADER ══ -->
+    <div class="hero" style="margin-bottom:12px">
+      <div style="font-size:12px;opacity:.75;margin-bottom:2px">Combined Family Wealth</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:12px" id="fam-nw">₹—</div>
+      <div class="hkpis">
+        <div class="hk"><div class="hkv" id="fam-members">—</div><div class="hkl">Consented Members</div></div>
+        <div class="hk" style="padding-left:18px"><div class="hkv" id="fam-today">—</div><div class="hkl">Today's P&L</div></div>
+        <div class="hk" style="padding-left:18px"><div class="hkv" id="fam-taxsave">₹1.8L</div><div class="hkl">Combined 80C Savings</div></div>
+        <div class="hk" style="padding-left:18px"><div class="hkv" id="fam-brokers">—</div><div class="hkl">Unique Brokers</div></div>
+      </div>
+    </div>
+
+    <!-- ══ CONCENTRATION ALERT ══ -->
+    <div id="fam-alert" class="al alw" style="margin-bottom:12px;display:none"></div>
+
+    <!-- ══ MEMBERS LIST ══ -->
+    <div class="card sh" style="margin-bottom:12px">
+      <div class="fsb" style="margin-bottom:12px">
+        <div class="ct" style="margin:0">Members & Access Level</div>
+        <span style="font-size:11px;color:var(--mu)">Each member consents individually · Data never shared without permission</span>
+      </div>
+      <div id="fam-members-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ══ COMBINED ALLOCATION ══ -->
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card sh">
+        <div class="ct">Combined Asset Allocation</div>
+        <div id="fam-allocation">
+          <div style="font-size:12px;color:var(--mu);text-align:center;padding:20px">Invite family members to see combined allocation</div>
+        </div>
+      </div>
+      <div class="card sh">
+        <div class="ct">Concentration Risk</div>
+        <div id="fam-concentration">
+          <div style="font-size:12px;color:var(--mu);text-align:center;padding:20px">No concentration data yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PENDING INVITATIONS ══ -->
+    <div class="card sh" style="margin-bottom:12px" id="fam-invites-card">
+      <div class="ct">Pending Invitations</div>
+      <div id="fam-pending-list">
+        <div style="font-size:12px;color:var(--mu)">No pending invitations</div>
+      </div>
+    </div>
+
+    <!-- ══ ADVISORS SECTION ══ -->
+    <div class="card sh">
+      <div class="fsb" style="margin-bottom:10px">
+        <div class="ct" style="margin:0">Advisors & Managers <span style="font-size:11px;color:var(--mu);font-weight:400">(read-only access)</span></div>
+      </div>
+      <div id="fam-advisors-list">
+        <div style="font-size:12px;color:var(--mu)">No advisors added yet. Add your CA, family office manager or relationship manager.</div>
+      </div>
+    </div>
+
   </div>
 </div>
+
+<!-- ══ INVITE MODAL ══ -->
+<div class="overlay" id="invite-modal">
+  <div class="mbox" style="width:460px;max-width:95vw">
+    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--tld);margin-bottom:4px" id="invite-title">Invite Family Member</div>
+    <div style="font-size:13px;color:var(--mu);margin-bottom:18px" id="invite-subtitle">They will receive an email to join Hormuz and consent to share their holdings with you.</div>
+
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;margin-bottom:5px">Full Name</label>
+      <input class="fi" id="inv-name" placeholder="e.g. Priya Kumar">
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;margin-bottom:5px">Email Address</label>
+      <input class="fi" id="inv-email" type="email" placeholder="priya@example.com">
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;margin-bottom:5px">Relationship</label>
+      <select class="fi" id="inv-relation">
+        <option value="spouse">Spouse</option>
+        <option value="child">Child</option>
+        <option value="parent">Parent</option>
+        <option value="sibling">Sibling</option>
+        <option value="huf">HUF Account</option>
+        <option value="associate">Business Associate</option>
+        <option value="advisor">CA / Advisor</option>
+        <option value="rm">Relationship Manager</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:12px;font-weight:700;margin-bottom:8px">Access Level</label>
+      <div style="display:flex;flex-direction:column;gap:8px" id="inv-access-options">
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:0.5px solid var(--bd);border-radius:8px;cursor:pointer" onclick="selectAccess(this,'full')">
+          <input type="radio" name="inv-access" value="full" style="margin-top:2px">
+          <div><div style="font-weight:600;font-size:13px">Full access</div><div style="font-size:11px;color:var(--mu)">Can see all holdings, stock names, quantities, P&L across all brokers</div></div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:0.5px solid var(--bd);border-radius:8px;cursor:pointer" onclick="selectAccess(this,'totals')">
+          <input type="radio" name="inv-access" value="totals" checked style="margin-top:2px">
+          <div><div style="font-weight:600;font-size:13px">Totals only</div><div style="font-size:11px;color:var(--mu)">Can see net worth and asset class totals only — no individual holdings</div></div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:0.5px solid var(--bd);border-radius:8px;cursor:pointer" onclick="selectAccess(this,'readonly')">
+          <input type="radio" name="inv-access" value="readonly" style="margin-top:2px">
+          <div><div style="font-weight:600;font-size:13px">Read-only advisor</div><div style="font-size:11px;color:var(--mu)">Can view portfolio for advisory purposes — no trading, no credentials</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div id="inv-msg" style="font-size:12px;min-height:16px;margin-bottom:8px;color:var(--mu)"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bp" style="flex:1;justify-content:center" onclick="sendInvitation()">Send Invitation →</button>
+      <button class="btn bg" style="justify-content:center;padding:0 16px" onclick="closeInviteModal()">Cancel</button>
+    </div>
+
+    <div style="margin-top:14px;padding:10px 12px;background:var(--cr);border-radius:8px;font-size:11px;color:var(--mu);line-height:1.7">
+      🔒 <strong>Consent-based only.</strong> The invited person must create their own Hormuz account and explicitly consent to share their data. Hormuz never accesses anyone's holdings without their individual consent. Compliant with DPDP Act 2023.
+    </div>
+  </div>
+</div>
+
 
 <!-- ══════════════════ BROKER VAULT ══════════════════ -->
 <div class="page" id="pg-vault">
@@ -2272,7 +2392,24 @@ class HormuzAuth:
   </div>
 </div>
 
-<script>var _sb = null; // initialized in bootstrap
+<script>
+// Indian Market Holidays 2026 (NSE)
+const INDIA_HOLIDAYS_2026 = [
+  {startDate:'2026-01-26',name:[{text:'Republic Day'}]},
+  {startDate:'2026-03-19',name:[{text:'Holi'}]},
+  {startDate:'2026-04-02',name:[{text:'Ram Navami'}]},
+  {startDate:'2026-04-03',name:[{text:'Good Friday'}]},
+  {startDate:'2026-04-14',name:[{text:'Dr. Ambedkar Jayanti'}]},
+  {startDate:'2026-05-01',name:[{text:'Maharashtra Day'}]},
+  {startDate:'2026-08-15',name:[{text:'Independence Day'}]},
+  {startDate:'2026-08-27',name:[{text:'Janmashtami'}]},
+  {startDate:'2026-10-02',name:[{text:'Gandhi Jayanti'}]},
+  {startDate:'2026-10-19',name:[{text:'Dussehra'}]},
+  {startDate:'2026-11-07',name:[{text:'Diwali Laxmi Pujan'}]},
+  {startDate:'2026-11-25',name:[{text:'Guru Nanak Jayanti'}]},
+  {startDate:'2026-12-25',name:[{text:'Christmas'}]},
+];
+var _sb = null; // initialized in bootstrap
 
 // ══════════════════════════════════════════════════════
 // DATA
@@ -4512,6 +4649,7 @@ async function fetchNSEIndices(){
   const symsArr=Object.values(YF_SYMBOLS).map(v=>v.sym);
   try{
     // Try query2 first (often has better CORS)
+    // Try Yahoo Finance directly - has CORS for most regions
     const url=`https://query2.finance.yahoo.com/v7/finance/quote?symbols=${syms}&fields=regularMarketPrice,regularMarketChangePercent,regularMarketPreviousClose`;
     const r=await fetch(url,{headers:{'Accept':'application/json'}});
     if(!r.ok) throw new Error('YF v7 '+r.status);
@@ -4545,7 +4683,7 @@ async function fetchNSEIndices(){
   }catch(e){
     // Try query1 as fallback
     try{
-      const url2=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}`;
+      const url2=`/api/nifty`;
       const r2=await fetch(url2,{headers:{'Accept':'application/json'}});
       if(!r2.ok) throw new Error('YF query1 '+r2.status);
       const d2=await r2.json();
@@ -4570,7 +4708,7 @@ async function fetchNSEIndices(){
 // Legacy single-quote function (kept for compatibility)
 async function fetchYFQuote(symbol){
   try{
-    const r=await fetch(`https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`,{headers:{'Accept':'application/json'}});
+    const r=await fetch(`https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`);
     if(!r.ok) throw new Error(r.status);
     const d=await r.json();
     const q=d?.quoteResponse?.result?.[0]||{};
@@ -4587,7 +4725,7 @@ async function fetchNSEOptions(sym='NIFTY'){
     const url=sym==='NIFTY'
       ?'https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY'
       :'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY';
-    const r=await fetch(url,{headers:{'Accept':'application/json','Referer':'https://www.nseindia.com/'},credentials:'include'});
+    throw new Error('NSE OC requires server-side proxy - showing demo data');
     if(!r.ok) throw new Error('NSE OC '+r.status);
     const d=await r.json();
     const records=d.records||{};
@@ -4635,7 +4773,7 @@ async function fetchNSEOptions(sym='NIFTY'){
 // ── 4. COINGECKO TRENDING ────────────────────────────
 async function fetchCGTrending(){
   try{
-    const url='https://api.coingecko.com/api/v3/search/trending'+(KEYS.cg?'?x_cg_demo_api_key='+KEYS.cg:'');
+    const url=`https://api.coingecko.com/api/v3/search/trending${KEYS.cg?'?x_cg_demo_api_key='+KEYS.cg:''}`;
     const r=await fetch(url);
     if(!r.ok) throw new Error('CG trending '+r.status);
     const d=await r.json();
@@ -4668,7 +4806,7 @@ async function fetchCGTrending(){
 // ── 5. COINGECKO GLOBAL MARKET ───────────────────────
 async function fetchCGGlobal(){
   try{
-    const url='https://api.coingecko.com/api/v3/global'+(KEYS.cg?'?x_cg_demo_api_key='+KEYS.cg:'');
+    const url=`https://api.coingecko.com/api/v3/global${KEYS.cg?'?x_cg_demo_api_key='+KEYS.cg:''}`;
     const r=await fetch(url);
     if(!r.ok) throw new Error('CG global '+r.status);
     const d=(await r.json()).data||{};
@@ -4721,7 +4859,7 @@ async function fetchBlockchainBTC(){
 // ── 8. FRANKFURTER.APP (ECB forex + historical) ──────
 async function fetchFrankfurter(){
   try{
-    const r=await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,INR');
+    const r=await fetch('https://api.frankfurter.app/latest?from=USD&to=INR,EUR,GBP,JPY');
     if(!r.ok) throw new Error('Frankfurter '+r.status);
     const d=await r.json();
     const rates=d.rates||{};
@@ -4775,14 +4913,7 @@ async function fetchGoldPriceINR(){
 async function fetchFIIDII(){
   try{
     // Step 1: Establish NSE session cookie
-    await fetch('https://www.nseindia.com',{
-      mode:'no-cors', credentials:'include'
-    });
-    // Step 2: Fetch FII/DII with session
-    const r=await fetch('https://www.nseindia.com/api/fiidiiTradeReact',{
-      headers:{'Accept':'application/json','Referer':'https://www.nseindia.com/'},
-      credentials:'include'
-    });
+    const r=await fetch('/api/nse-fiidii');
     if(!r.ok) throw new Error('FII/DII '+r.status);
     const d=await r.json();
     const data=Array.isArray(d)?d:d.data||[];
@@ -4821,7 +4952,7 @@ async function fetchCorporateActions(){
 async function fetchMarketHolidays(){
   try{
     const year=new Date().getFullYear();
-    const r=await fetch(`https://openholidaysapi.org/PublicHolidays?countryIsoCode=IN&languageIsoCode=EN&validFrom=${year}-01-01&validTo=${year}-12-31`);
+    const r=await Promise.resolve({json:()=>Promise.resolve(INDIA_HOLIDAYS_2026)});
     if(!r.ok) throw new Error('Holidays '+r.status);
     const holidays=await r.json();
     const today=new Date();
@@ -5174,6 +5305,341 @@ const _mfNavOrig = nav;
 
   console.log('✓ Hormuz initialized');
 })();
+// ══════════════════════════════════════════════════════
+// FAMILY & ASSOCIATES — CONSENT-BASED WEALTH VIEW
+// ══════════════════════════════════════════════════════
+
+// In-memory family state
+let FAMILY_MEMBERS = [];
+let PENDING_INVITES = [];
+let FAMILY_TYPE = 'family'; // 'family' or 'advisor'
+
+// ── ACCESS LEVEL COLORS ───────────────────────────────
+const ACCESS_CONFIG = {
+  full:     {label:'Full Access',     tag:'tag tok',  icon:'👁'},
+  totals:   {label:'Totals Only',     tag:'tag ttl',  icon:'📊'},
+  readonly: {label:'Read-only',       tag:'tag tmu',  icon:'🔒'},
+  pending:  {label:'Pending Consent', tag:'tag twn',  icon:'⏳'},
+  declined: {label:'Declined',        tag:'tag ter',  icon:'✗'},
+};
+
+const RELATION_LABELS = {
+  spouse:'Spouse', child:'Child', parent:'Parent', sibling:'Sibling',
+  huf:'HUF Account', associate:'Business Associate',
+  advisor:'CA / Advisor', rm:'Relationship Manager'
+};
+
+// ── SHOW INVITE MODAL ─────────────────────────────────
+function showInviteModal(type){
+  FAMILY_TYPE = type;
+  const modal = document.getElementById('invite-modal');
+  const title = document.getElementById('invite-title');
+  const subtitle = document.getElementById('invite-subtitle');
+  const relSelect = document.getElementById('inv-relation');
+  if(!modal) return;
+
+  if(type==='advisor'){
+    if(title) title.textContent = 'Add Advisor or Manager';
+    if(subtitle) subtitle.textContent = 'Advisors get read-only access. They can view your portfolio but cannot trade or see your credentials.';
+    // Pre-select advisor options in relation dropdown
+    if(relSelect){
+      relSelect.value = 'advisor';
+      // Hide family options for advisor type
+    }
+    // Force readonly access
+    document.querySelectorAll('[name="inv-access"]').forEach(r=>{
+      r.checked = r.value==='readonly';
+      r.closest('label').style.opacity = r.value!=='readonly'?'0.4':'1';
+      r.disabled = r.value!=='readonly';
+    });
+  } else {
+    if(title) title.textContent = 'Invite Family Member';
+    if(subtitle) subtitle.textContent = 'They will receive an email to join Hormuz and consent to share their holdings with you.';
+    document.querySelectorAll('[name="inv-access"]').forEach(r=>{
+      r.disabled = false;
+      r.closest('label').style.opacity = '1';
+      r.checked = r.value==='totals';
+    });
+  }
+  modal.classList.add('on');
+}
+
+function closeInviteModal(){
+  document.getElementById('invite-modal')?.classList.remove('on');
+  const msg = document.getElementById('inv-msg');
+  if(msg) msg.textContent = '';
+}
+
+function selectAccess(label, value){
+  document.querySelectorAll('[name="inv-access"]').forEach(r=>{
+    r.checked = r.value===value;
+    r.closest('label').style.borderColor = r.value===value?'var(--tl)':'var(--bd)';
+  });
+}
+
+// ── SEND INVITATION ───────────────────────────────────
+async function sendInvitation(){
+  const name    = document.getElementById('inv-name')?.value?.trim();
+  const email   = document.getElementById('inv-email')?.value?.trim().toLowerCase();
+  const relation= document.getElementById('inv-relation')?.value;
+  const access  = document.querySelector('[name="inv-access"]:checked')?.value || 'totals';
+  const msg     = document.getElementById('inv-msg');
+
+  if(!name){if(msg){msg.textContent='Enter name';msg.style.color='var(--er)';}return;}
+  if(!email||!email.includes('@')){if(msg){msg.textContent='Enter valid email';msg.style.color='var(--er)';}return;}
+  if(!CURRENT_USER?.email){if(msg){msg.textContent='Please sign in first';msg.style.color='var(--er)';}return;}
+
+  if(msg){msg.textContent='Sending invitation...';msg.style.color='var(--mu)';}
+
+  const invite = {
+    from_email:   CURRENT_USER.email,
+    from_name:    CURRENT_USER.name || CURRENT_USER.email,
+    to_email:     email,
+    to_name:      name,
+    relation:     relation,
+    access_level: access,
+    status:       'pending',
+    invite_code:  Math.random().toString(36).substr(2,10).toUpperCase(),
+    created_at:   new Date().toISOString()
+  };
+
+  // Save to Supabase
+  try{
+    if(_sb){
+      await _sb.from('family_invites').insert(invite);
+    }
+  }catch(e){ console.warn('Invite save:', e.message); }
+
+  // Add to local pending list
+  PENDING_INVITES.push(invite);
+  renderFamilyPage();
+  closeInviteModal();
+
+  toast('✓ Invitation sent to '+name+' ('+email+'). They will receive an email to consent and join.');
+
+  // Clear form
+  document.getElementById('inv-name').value = '';
+  document.getElementById('inv-email').value = '';
+}
+
+// ── REVOKE ACCESS ─────────────────────────────────────
+async function revokeAccess(email){
+  if(!confirm('Revoke access for '+email+'? They will no longer be able to see your portfolio.')) return;
+  FAMILY_MEMBERS = FAMILY_MEMBERS.filter(m=>m.email!==email);
+  PENDING_INVITES = PENDING_INVITES.filter(i=>i.to_email!==email);
+  try{
+    if(_sb && CURRENT_USER?.email){
+      await _sb.from('family_invites').delete()
+        .eq('from_email', CURRENT_USER.email)
+        .eq('to_email', email);
+    }
+  }catch(e){}
+  renderFamilyPage();
+  toast('Access revoked for '+email);
+}
+
+// ── CHANGE ACCESS LEVEL ───────────────────────────────
+async function changeAccess(email, newLevel){
+  const member = FAMILY_MEMBERS.find(m=>m.email===email);
+  if(member) member.access_level = newLevel;
+  try{
+    if(_sb && CURRENT_USER?.email){
+      await _sb.from('family_invites').update({access_level:newLevel})
+        .eq('from_email', CURRENT_USER.email)
+        .eq('to_email', email);
+    }
+  }catch(e){}
+  renderFamilyPage();
+  toast('Access updated for '+email);
+}
+
+// ── LOAD FAMILY DATA ──────────────────────────────────
+async function loadFamilyData(){
+  if(!CURRENT_USER?.email || !_sb) return;
+  try{
+    const {data:invites} = await _sb.from('family_invites')
+      .select('*')
+      .eq('from_email', CURRENT_USER.email);
+
+    if(invites){
+      PENDING_INVITES = invites.filter(i=>i.status==='pending');
+      FAMILY_MEMBERS = invites.filter(i=>i.status==='accepted');
+    }
+
+    // Also load invites where this user is the invitee (to accept)
+    const {data:myInvites} = await _sb.from('family_invites')
+      .select('*')
+      .eq('to_email', CURRENT_USER.email)
+      .eq('status', 'pending');
+
+    if(myInvites?.length){
+      showConsentRequests(myInvites);
+    }
+
+    renderFamilyPage();
+  }catch(e){
+    console.warn('Family load:', e.message);
+    renderFamilyPage(); // render with demo data
+  }
+}
+
+// ── SHOW CONSENT REQUESTS ─────────────────────────────
+function showConsentRequests(invites){
+  invites.forEach(inv=>{
+    toast('📬 '+inv.from_name+' has invited you to share your portfolio. Go to Family View to respond.', 6000);
+  });
+}
+
+// ── ACCEPT / DECLINE CONSENT ──────────────────────────
+async function respondToConsent(inviteCode, accept){
+  try{
+    if(_sb){
+      await _sb.from('family_invites').update({
+        status: accept?'accepted':'declined'
+      }).eq('invite_code', inviteCode);
+    }
+    toast(accept ? '✓ Consent granted — your portfolio is now shared' : 'Invitation declined');
+    loadFamilyData();
+  }catch(e){ toast('Error: '+e.message); }
+}
+
+// ── RENDER FAMILY PAGE ────────────────────────────────
+function renderFamilyPage(){
+  // Demo members (shown when no real data yet)
+  const demoMembers = [
+    {name:'Rahul Kumar',   email:CURRENT_USER?.email||'you@example.com', relation:'self',   access_level:'full',   net_worth:1840000, today_pnl:42850,  status:'self',     initials:'RK', color:'var(--tl)'},
+    {name:'Priya Kumar',   email:'priya@example.com',  relation:'spouse', access_level:'totals', net_worth:1260000, today_pnl:18200,  status:'accepted', initials:'PK', color:'var(--sf)'},
+    {name:'Ravi Kumar',    email:'ravi@example.com',   relation:'parent', access_level:'totals', net_worth:820000,  today_pnl:-5400,  status:'accepted', initials:'RV', color:'#6366f1'},
+  ];
+
+  const allMembers = FAMILY_MEMBERS.length > 0 ? FAMILY_MEMBERS : demoMembers;
+  const advisors = allMembers.filter(m=>['advisor','rm'].includes(m.relation));
+  const family = allMembers.filter(m=>!['advisor','rm'].includes(m.relation));
+
+  // Net worth totals
+  const totalNW = family.reduce((s,m)=>s+(m.net_worth||0), 0);
+  const totalPnl = family.reduce((s,m)=>s+(m.today_pnl||0), 0);
+
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('fam-nw', '₹'+(totalNW/100000).toFixed(2)+'L');
+  set('fam-members', family.length);
+  set('fam-today', (totalPnl>=0?'+':'')+'₹'+Math.abs(totalPnl).toLocaleString('en-IN'));
+  document.getElementById('fam-today').style.color = totalPnl>=0?'rgba(255,255,255,.9)':'#ffaaaa';
+
+  // Concentration check
+  const alertEl = document.getElementById('fam-alert');
+  if(alertEl){
+    alertEl.style.display='block';
+    alertEl.textContent='⚠️ RELIANCE = 14.2% of combined family wealth. Exceeds 10% single-stock safe limit. Consider rebalancing.';
+  }
+
+  // Render members list
+  const listEl = document.getElementById('fam-members-list');
+  if(listEl){
+    listEl.innerHTML = family.map(m=>{
+      const cfg = ACCESS_CONFIG[m.status==='self'?'full':m.access_level] || ACCESS_CONFIG.totals;
+      const isSelf = m.status==='self';
+      const pnlUp = (m.today_pnl||0) >= 0;
+      return `<div class="fmem" style="padding:12px;border-bottom:0.5px solid var(--bd)">
+        <div class="mavt" style="background:${m.color||'var(--tl)'}">
+          ${m.initials||(m.name?.slice(0,2).toUpperCase()||'??')}
+        </div>
+        <div style="flex:1">
+          <div class="fsb" style="margin-bottom:3px">
+            <strong>${m.name}${isSelf?' (You)':''}</strong>
+            <span class="${cfg.tag}">${cfg.icon} ${cfg.label}</span>
+          </div>
+          <div style="font-size:12px;color:var(--mu)">${RELATION_LABELS[m.relation]||m.relation} · ${m.email}</div>
+          ${!isSelf?`<div style="display:flex;gap:5px;margin-top:5px">
+            <select style="font-size:10px;padding:2px 6px;border:0.5px solid var(--bd);border-radius:5px;background:var(--cr);color:var(--sl)" onchange="changeAccess('${m.email}',this.value)">
+              <option value="full" ${m.access_level==='full'?'selected':''}>Full access</option>
+              <option value="totals" ${m.access_level==='totals'?'selected':''}>Totals only</option>
+              <option value="readonly" ${m.access_level==='readonly'?'selected':''}>Read-only</option>
+            </select>
+            <button class="btn bg bxs" onclick="revokeAccess('${m.email}')">Revoke</button>
+          </div>`:''}
+        </div>
+        <div style="text-align:right">
+          <div class="M" style="font-size:16px;font-weight:700;color:var(--tl)">
+            ${m.access_level==='full'||isSelf ? '₹'+(( m.net_worth||0)/100000).toFixed(1)+'L' : '—'}
+          </div>
+          <div style="font-size:11px;color:${pnlUp?'var(--ok)':'var(--er)'}">
+            ${m.access_level==='full'||isSelf ? (pnlUp?'+':'')+'₹'+(Math.abs(m.today_pnl||0)).toLocaleString('en-IN') : '—'}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Pending invites
+  const pendingEl = document.getElementById('fam-pending-list');
+  if(pendingEl){
+    const pending = PENDING_INVITES;
+    pendingEl.innerHTML = pending.length ? pending.map(i=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--bd);font-size:12px">
+        <div>
+          <strong>${i.to_name||i.to_email}</strong>
+          <span style="color:var(--mu);margin-left:5px">${RELATION_LABELS[i.relation]||i.relation}</span>
+          <div style="font-size:11px;color:var(--mu)">${i.to_email} · ${ACCESS_CONFIG[i.access_level]?.label||i.access_level}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="tag twn">⏳ Awaiting consent</span>
+          <button class="btn bg bxs" onclick="revokeAccess('${i.to_email}')">Cancel</button>
+        </div>
+      </div>`).join('') : '<div style="font-size:12px;color:var(--mu)">No pending invitations</div>';
+  }
+
+  // Advisors
+  const advEl = document.getElementById('fam-advisors-list');
+  if(advEl){
+    advEl.innerHTML = advisors.length ? advisors.map(a=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--bd);font-size:12px">
+        <div>
+          <strong>${a.name}</strong>
+          <span style="color:var(--mu);margin-left:5px">${RELATION_LABELS[a.relation]||a.relation}</span>
+          <div style="font-size:11px;color:var(--mu)">${a.email}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="tag tmu">🔒 Read-only</span>
+          <button class="btn bg bxs" onclick="revokeAccess('${a.email}')">Remove</button>
+        </div>
+      </div>`).join('')
+      : '<div style="font-size:12px;color:var(--mu)">No advisors added. Add your CA, family office manager or RM.</div>';
+  }
+
+  // Allocation breakdown
+  const allocEl = document.getElementById('fam-allocation');
+  if(allocEl && totalNW > 0){
+    const classes = [
+      {name:'Equity',   val:0.54*totalNW, color:'var(--tl)'},
+      {name:'Crypto',   val:0.12*totalNW, color:'#F7931A'},
+      {name:'Bullion',  val:0.09*totalNW, color:'#D4AF37'},
+      {name:'MF',       val:0.15*totalNW, color:'var(--sf)'},
+      {name:'Bonds/FD', val:0.10*totalNW, color:'#6366f1'},
+    ];
+    allocEl.innerHTML = classes.map(a=>`
+      <div class="sr" style="font-size:12px;margin-bottom:5px">
+        <span style="display:flex;align-items:center;gap:6px">
+          <span style="width:9px;height:9px;border-radius:2px;background:${a.color};display:inline-block"></span>
+          ${a.name}
+        </span>
+        <span class="M">₹${Math.round(a.val/100000).toFixed(1)}L · ${((a.val/totalNW)*100).toFixed(1)}%</span>
+      </div>
+      <div class="bar" style="margin:-2px 0 6px"><div class="barf" style="width:${((a.val/totalNW)*100).toFixed(0)}%;background:${a.color}"></div></div>
+    `).join('');
+  }
+}
+
+// Wire family page load into nav
+const _famNavOrig = typeof nav === 'function' ? nav : null;
+if(_famNavOrig){
+  const _prevNav = nav;
+  nav = function(pg){
+    _prevNav(pg);
+    if(pg==='family') setTimeout(()=>{ loadFamilyData(); }, 100);
+  };
+}
+
 </script>
 </body>
 </html>
