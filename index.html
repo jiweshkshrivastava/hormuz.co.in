@@ -8,6 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Hormuz — AI Wealth Aggregator</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -2278,24 +2279,24 @@ function doSignIn(){
   enterApp(user);
 }
 
-function doSignUp(){
+async function doSignUp(){
   const fname=(document.getElementById('su-fname')?.value||'').trim();
   const lname=(document.getElementById('su-lname')?.value||'').trim();
   const email=(document.getElementById('su-email')?.value||'').trim().toLowerCase();
   const pass=(document.getElementById('su-pass')?.value||'').trim();
   const pass2=(document.getElementById('su-pass2')?.value||'').trim();
   const err=document.getElementById('su-err');
-
-  if(!fname||!email||!pass){if(err)err.textContent='Please fill all required fields.';return;}
-  if(!email.includes('@')){if(err)err.textContent='Enter a valid email address.';return;}
-  if(pass.length<8){if(err)err.textContent='Password must be at least 8 characters.';return;}
+  if(!fname||!email||!pass){if(err)err.textContent='Fill all fields.';return;}
+  if(pass.length<8){if(err)err.textContent='Password min 8 characters.';return;}
   if(pass!==pass2){if(err)err.textContent='Passwords do not match.';return;}
-
-  const user={email,name:fname+(lname?' '+lname:''),pass:btoa(pass)};
-  localStorage.setItem('hormuz_user_'+email, JSON.stringify(user));
-  localStorage.setItem('hormuz_session', JSON.stringify({email,name:user.name,ts:Date.now()}));
-  toast('✓ Account created! Welcome to Hormuz, '+fname+'.');
-  enterApp(user);
+  if(err)err.textContent='Creating account...';
+  const {data,error}=await _sb.auth.signUp({
+    email,password:pass,
+    options:{data:{full_name:(fname+' '+lname).trim()}}
+  });
+  if(error){if(err)err.textContent=error.message;return;}
+  toast('✓ Welcome to Hormuz, '+fname+'! 🎉');
+  enterApp({email,name:(fname+' '+lname).trim()});
 }
 
 function doReset(){
@@ -2332,28 +2333,36 @@ function closeOB(){
   nav('dashboard');
 }
 
-function signOut(){
+async function signOut(){
+  await _sb.auth.signOut();
   localStorage.removeItem('hormuz_session');
   document.getElementById('ob-ov').classList.add('on');
   authTab('in');
   toast('Signed out successfully.');
 }
 
-// Auto sign-in if session exists
-(function checkSession(){
-  const s=localStorage.getItem('hormuz_session');
-  if(s){
-    try{
-      const sess=JSON.parse(s);
-      // Session valid for 7 days
-      if(sess.ts && Date.now()-sess.ts < 7*86400000){
-        enterApp(sess);
-        return;
+// Restore session from Supabase on load
+(async function checkSession(){
+  try{
+    const {data:{session}}=await _sb.auth.getSession();
+    if(session?.user){
+      enterApp({
+        email:session.user.email,
+        name:session.user.user_metadata?.full_name||session.user.email.split('@')[0]
+      });
+    } else {
+      authTab('in');
+    }
+    _sb.auth.onAuthStateChange((event,session)=>{
+      if(event==='SIGNED_OUT'){
+        document.getElementById('ob-ov').classList.add('on');
+        authTab('in');
       }
-    }catch(e){}
+    });
+  }catch(e){
+    console.warn('Supabase session check failed:',e);
+    authTab('in');
   }
-  // No session — show auth screen
-  authTab('in');
 })();
 
 // ══════════════════════════════════════════════════════
@@ -3011,9 +3020,7 @@ calcRR();
 // ══════════════════════════════════════════════════════
 
 // ── CONFIG ──────────────────────────────────────────
-let SB_URL = localStorage.getItem('ns_sb_url') || '';
-let SB_KEY = localStorage.getItem('ns_sb_key') || '';
-const DB_CONFIGURED = () => SB_URL && SB_KEY;
+const DB_CONFIGURED = () => true; // Supabase always configured
 
 // ── SESSION & USER ID ────────────────────────────────
 const SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
@@ -3411,6 +3418,13 @@ document.head.appendChild(shakeStyle);
 // ══════════════════════════════════════════════════════
 // FOREX / CRYPTO / BULLION — LIVE API ENGINE
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// ══════════════════════════════════════════════════════
+const SB_URL = 'https://cepielxlixupymkadlgi.supabase.co';
+const SB_KEY = 'sb_publishable_azs3vu3lvWQx7WiJFoshnQ_IJkZkJ__';
+const _sb = supabase.createClient(SB_URL, SB_KEY);
 
 // ── SHARED STATE ──────────────────────────────────────
 const LIVE = {
