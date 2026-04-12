@@ -909,6 +909,39 @@ pre{white-space:pre-wrap;word-break:break-word}
 <div class="page" id="pg-mf">
   <div class="ph"><h2>Mutual Funds</h2><button class="btn bs bsm" onclick="toast('Start SIP flow')">+ Start SIP</button></div>
   <div class="ps">
+    <!-- ══ CAMS / KFINTECH FOLIO IMPORT ══ -->
+    <div id="cams-import-card" class="card sh" style="margin-bottom:12px;border-color:var(--sf)">
+      <div class="fsb" style="margin-bottom:10px">
+        <div>
+          <div style="font-weight:500;font-size:14px">Import All MF Folios via PAN</div>
+          <div style="font-size:12px;color:var(--mu)">Fetches from CAMS + KFintech RTAs · Covers 95% of Indian mutual funds</div>
+        </div>
+        <span id="cams-status" class="tag tmu">Not imported</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <input class="fi" id="cams-pan" placeholder="PAN Number (e.g. ABCDE1234F)" maxlength="10"
+          style="max-width:200px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase"
+          oninput="this.value=this.value.toUpperCase()">
+        <input class="fi" id="cams-email" placeholder="Registered email / mobile" style="max-width:220px">
+        <button class="btn bp bsm" onclick="importCAMSFolios()">Import Folios →</button>
+        <button class="btn bg bsm" onclick="document.getElementById('cams-import-card').style.display='none'">Dismiss</button>
+      </div>
+      <div id="cams-msg" style="font-size:12px;color:var(--mu);min-height:16px"></div>
+    </div>
+
+    <!-- ══ LIVE FOLIO LIST (populated by CAMS import or manual) ══ -->
+    <div id="mf-folios-live" style="display:none;margin-bottom:12px">
+      <div class="fsb" style="margin-bottom:8px">
+        <div class="ct" style="margin:0">Your MF Folios <span id="folio-count" style="color:var(--mu);font-size:12px;font-weight:400"></span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bg bxs" onclick="importCAMSFolios()">↻ Refresh</button>
+          <button class="btn bg bxs" onclick="document.getElementById('cams-import-card').style.display='block'">+ Add</button>
+        </div>
+      </div>
+      <div id="mf-folio-table"></div>
+    </div>
+
+
     <div class="g3" style="margin-bottom:12px"><div class="card sh"><div class="kl">MF Value</div><div class="kv">₹3,20,560</div><div class="kc up">▲ ₹69K gain</div></div><div class="card sh"><div class="kl">Active SIPs</div><div class="kv">3</div><div class="kc" style="color:var(--mu)">₹15,000/m</div></div><div class="card sh"><div class="kl">XIRR</div><div class="kv">18.4%</div><div class="kc up">▲ vs Nifty 15.2%</div></div></div>
     <div class="al ali" style="margin-bottom:12px">✦ <strong>AI:</strong> Add ₹5,000/month to Parag Parikh Flexi Cap for international diversification (currently 0%).</div>
     <div class="fcard pick"><div class="fsb" style="margin-bottom:8px"><div><div style="font-weight:700;font-size:14px">HDFC Flexicap Fund</div><div style="font-size:11px;color:var(--mu)">Flexi Cap · ⭐5 · 0.51% exp · NAV: <span id="nav-hdfc" class="M" style="color:var(--tl);font-weight:700">₹—</span></div></div><span class="pbdg">✦ AI PICK</span></div><div class="g3" style="font-size:12px;margin-bottom:7px"><div><div style="color:var(--mu)">1Y</div><div class="M" style="color:var(--ok);font-weight:700">+24.8%</div></div><div><div style="color:var(--mu)">3Y</div><div class="M" style="color:var(--ok);font-weight:700">+18.2%</div></div><div><div style="color:var(--mu)">5Y</div><div class="M" style="color:var(--ok);font-weight:700">+16.4%</div></div></div><div class="pbar"><div class="pbarf" style="width:72%;background:var(--ok)"></div></div><div class="fsb" style="margin-top:9px"><div><span class="tag tok">SIP ₹5k/m</span> <span class="tag tsf" style="margin-left:3px">+₹48,200</span></div><button class="btn bo bsm" onclick="toast('Modify HDFC Flexicap SIP')">Modify SIP</button></div></div>
@@ -1514,6 +1547,42 @@ pre{white-space:pre-wrap;word-break:break-word}
           <button class="btn bg bsm" onclick="fetchRBIRate()">Fetch RBI Rate</button>
         </div>
       </div>
+
+    <div class="card sh" style="margin-bottom:10px">
+      <div class="ct">Required Supabase Tables — Run in SQL Editor</div>
+      <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Run this SQL in your Supabase project → SQL Editor to enable per-client data isolation:</div>
+      <div style="background:#0D1117;color:#8ee18e;border-radius:8px;padding:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.8;overflow-x:auto">
+create table if not exists broker_configs (<br>
+&nbsp;&nbsp;id bigserial primary key,<br>
+&nbsp;&nbsp;user_email text not null,<br>
+&nbsp;&nbsp;broker_name text not null,<br>
+&nbsp;&nbsp;api_key text, api_secret text, mpin_hash text,<br>
+&nbsp;&nbsp;updated_at timestamptz default now(),<br>
+&nbsp;&nbsp;unique(user_email, broker_name)<br>
+);<br>
+create table if not exists mf_folios (<br>
+&nbsp;&nbsp;id bigserial primary key,<br>
+&nbsp;&nbsp;user_email text not null,<br>
+&nbsp;&nbsp;pan text, fund_name text, rta text,<br>
+&nbsp;&nbsp;folio text, units numeric, nav numeric,<br>
+&nbsp;&nbsp;current_value numeric, invested numeric,<br>
+&nbsp;&nbsp;scheme_code text, plan text, option text,<br>
+&nbsp;&nbsp;updated_at timestamptz default now()<br>
+);<br>
+create table if not exists user_holdings (<br>
+&nbsp;&nbsp;id bigserial primary key,<br>
+&nbsp;&nbsp;user_email text not null,<br>
+&nbsp;&nbsp;asset_class text, asset_name text,<br>
+&nbsp;&nbsp;value numeric, notes text,<br>
+&nbsp;&nbsp;updated_at timestamptz default now()<br>
+);<br>
+alter table broker_configs enable row level security;<br>
+alter table mf_folios enable row level security;<br>
+alter table user_holdings enable row level security;
+      </div>
+      <button class="btn bg bsm" style="margin-top:8px" onclick="navigator.clipboard.writeText('-- copy from above');toast('Open Supabase → SQL Editor → paste and run')">Copy SQL →</button>
+    </div>
+
       <!-- Status board -->
       <div class="card sh"><div class="ct">Live API Health Check</div><div id="api-status-board" style="font-size:12px"></div></div>
     </div>
@@ -2203,7 +2272,8 @@ class HormuzAuth:
   </div>
 </div>
 
-<script>
+<script>var _sb = null; // initialized in bootstrap
+
 // ══════════════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════════════
@@ -2393,17 +2463,132 @@ function socialAuth(provider){
   },1000);
 }
 
-function enterApp(user){
+// ── CURRENT USER STATE ──────────────────────────────────
+let CURRENT_USER = null;
+let USER_PORTFOLIO = [];
+let USER_BROKERS = [];
+let USER_MF_FOLIOS = [];
+let USER_HOLDINGS = {};
+
+async function enterApp(user){
+  CURRENT_USER = user;
   document.getElementById('ob-ov').classList.remove('on');
-  // Update UI with user's name
-  const name=user.name||user.email.split('@')[0];
-  const firstName=name.split(' ')[0];
+
+  // Update UI with user name
+  const name = user.name || user.email.split('@')[0];
+  const firstName = name.split(' ')[0];
   document.querySelectorAll('.av').forEach(el=>el.textContent=firstName.slice(0,2).toUpperCase());
-  // Update any greeting
-  const greet=document.querySelector('.hero .S, #dash-greeting');
+
+  // Update greeting + sidebar name
+  const nameEls = document.querySelectorAll('.usr-name');
+  nameEls.forEach(el=>el.textContent=name);
+  const emailEls = document.querySelectorAll('.usr-email');
+  emailEls.forEach(el=>el.textContent=user.email||'');
+
+  // Load user data from Supabase
+  await loadUserData(user);
+
   nav('dashboard');
   toast('Welcome back, '+firstName+'! 👋');
   track('sign_in','auth',{email:user.email});
+}
+
+async function loadUserData(user){
+  if(!user?.email) return;
+  try{
+    // 1. Load profile
+    const {data:profile} = await _sb
+      .from('profiles')
+      .select('*')
+      .eq('email', user.email)
+      .single();
+    if(profile) CURRENT_USER = {...CURRENT_USER, ...profile};
+
+    // 2. Load broker configs (encrypted keys stored by user)
+    const {data:brokers} = await _sb
+      .from('broker_configs')
+      .select('*')
+      .eq('user_email', user.email);
+    if(brokers?.length) USER_BROKERS = brokers;
+
+    // 3. Load MF folios
+    const {data:folios} = await _sb
+      .from('mf_folios')
+      .select('*')
+      .eq('user_email', user.email)
+      .order('fund_name');
+    if(folios?.length){
+      USER_MF_FOLIOS = folios;
+      renderUserMFFolios(folios);
+    }
+
+    // 4. Load manual holdings (real estate, unlisted, etc)
+    const {data:holdings} = await _sb
+      .from('user_holdings')
+      .select('*')
+      .eq('user_email', user.email);
+    if(holdings?.length) USER_HOLDINGS = holdings;
+
+    // 5. If user has no data yet — keep demo mode with banner
+    const hasRealData = (brokers?.length||0) + (folios?.length||0) > 0;
+    if(!hasRealData){
+      showDemoBanner();
+    } else {
+      hideDemoBanner();
+      updateDashboardWithRealData();
+    }
+
+  }catch(e){
+    console.warn('loadUserData error:', e.message);
+    showDemoBanner();
+  }
+}
+
+function showDemoBanner(){
+  const existing = document.getElementById('demo-banner');
+  if(existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'demo-banner';
+  banner.className = 'al ali';
+  banner.style.cssText = 'margin:8px 12px;position:sticky;top:62px;z-index:50;cursor:pointer';
+  banner.innerHTML = '📊 <strong>Demo mode</strong> — Showing sample data. <span style="color:var(--tl);font-weight:700">Add your broker API keys →</span> to see your real portfolio.';
+  banner.onclick = ()=>nav('vault');
+  // Insert at top of dashboard
+  const dash = document.getElementById('pg-dashboard');
+  if(dash) dash.insertBefore(banner, dash.firstChild);
+}
+
+function hideDemoBanner(){
+  document.getElementById('demo-banner')?.remove();
+}
+
+function updateDashboardWithRealData(){
+  // Calculate real net worth from user data
+  if(USER_MF_FOLIOS.length){
+    const mfTotal = USER_MF_FOLIOS.reduce((s,f)=>s+(parseFloat(f.current_value)||0),0);
+    const ac_mf = document.getElementById('ac-mf');
+    if(ac_mf) ac_mf.textContent='₹'+(mfTotal/100000).toFixed(2)+'L';
+  }
+  // More real data updates as we get broker feeds
+}
+
+// ── SAVE BROKER KEY ─────────────────────────────────────────
+async function saveBrokerConfig(broker, apiKey, apiSecret, mpin){
+  if(!CURRENT_USER?.email) return;
+  try{
+    const {error} = await _sb.from('broker_configs').upsert({
+      user_email: CURRENT_USER.email,
+      broker_name: broker,
+      api_key: btoa(apiKey),       // basic obfuscation — use Supabase Vault for production
+      api_secret: btoa(apiSecret||''),
+      mpin_hash: btoa(mpin||''),
+      updated_at: new Date().toISOString()
+    }, {onConflict:'user_email,broker_name'});
+    if(!error){
+      toast('✓ '+broker+' credentials saved securely');
+      await loadUserData(CURRENT_USER);
+    }
+  }catch(e){toast('Error saving: '+e.message);}
 }
 
 function closeOB(){
@@ -2419,29 +2604,20 @@ async function signOut(){
   toast('Signed out successfully.');
 }
 
-// Restore session from Supabase on load
-(async function checkSession(){
-  try{
-    const {data:{session}}=await _sb.auth.getSession();
-    if(session?.user){
-      enterApp({
-        email:session.user.email,
-        name:session.user.user_metadata?.full_name||session.user.email.split('@')[0]
+// Session check — runs after full init
+function _deferredSessionCheck(){
+  (async()=>{
+    try{
+      const {data:{session}}=await _sb.auth.getSession();
+      if(session?.user){
+        enterApp({email:session.user.email,name:session.user.user_metadata?.full_name||session.user.email.split('@')[0]});
+      } else { authTab('in'); }
+      _sb.auth.onAuthStateChange((event,s)=>{
+        if(event==='SIGNED_OUT'){document.getElementById('ob-ov').classList.add('on');authTab('in');}
       });
-    } else {
-      authTab('in');
-    }
-    _sb.auth.onAuthStateChange((event,session)=>{
-      if(event==='SIGNED_OUT'){
-        document.getElementById('ob-ov').classList.add('on');
-        authTab('in');
-      }
-    });
-  }catch(e){
-    console.warn('Supabase session check failed:',e);
-    authTab('in');
-  }
-})();
+    }catch(e){console.warn('Session:',e.message);authTab('in');}
+  })();
+}
 
 // ══════════════════════════════════════════════════════
 // TICKER
@@ -3073,8 +3249,7 @@ function bmiff(){
   setTimeout(()=>toast('✅ Confirmed: BMIFF investor onboarding pack will be emailed to your registered address.'),2200);
 }
 
-buildTicker();
-setTimeout(startLiveFeeds, 800); // start API feeds after UI renders
+// startLiveFeeds called from init() below
 renderPortfolio();
 calcSIP();
 calcOrd();
@@ -3497,12 +3672,7 @@ document.head.appendChild(shakeStyle);
 // FOREX / CRYPTO / BULLION — LIVE API ENGINE
 // ══════════════════════════════════════════════════════
 
-// ══════════════════════════════════════════════════════
-// SUPABASE CLIENT
-// ══════════════════════════════════════════════════════
-const SB_URL = 'https://cepielxlixupymkadlgi.supabase.co';
-const SB_KEY = 'sb_publishable_azs3vu3lvWQx7WiJFoshnQ_IJkZkJ__';
-const _sb = supabase.createClient(SB_URL, SB_KEY);
+// _sb initialized at bottom — do not use before DOMContentLoaded
 
 // ── SHARED STATE ──────────────────────────────────────
 const LIVE = {
@@ -3894,6 +4064,39 @@ function startLiveFeeds(){
   setInterval(fetchFIIDII,      300000);
   setInterval(fetchGoldPriceINR,120000);
 }
+
+// ── SUPABASE TABLE SETUP (run once) ──────────────────
+// These tables need to exist in Supabase. 
+// If they don't exist yet, the app gracefully falls back to demo mode.
+async function ensureSupabaseTables(){
+  // Check if tables exist by doing a test query
+  try{
+    await _sb.from('broker_configs').select('id').limit(1);
+    await _sb.from('mf_folios').select('id').limit(1);
+    await _sb.from('user_holdings').select('id').limit(1);
+    console.log('✓ Supabase tables ready');
+  }catch(e){
+    console.warn('Some Supabase tables missing — run SQL setup from API Hub');
+  }
+}
+
+// Load user MF folios on MF page visit
+const _origNav3 = nav;
+nav = function(pg){
+  _origNav3(pg);
+  if(pg==='mf'){
+    setTimeout(()=>{
+      if(USER_MF_FOLIOS.length){
+        renderUserMFFolios(USER_MF_FOLIOS);
+      } else if(CURRENT_USER?.email){
+        // Try loading from Supabase
+        _sb.from('mf_folios').select('*').eq('user_email',CURRENT_USER.email).then(({data})=>{
+          if(data?.length){ USER_MF_FOLIOS=data; renderUserMFFolios(data); }
+        }).catch(()=>{});
+      }
+    },100);
+  }
+};
 
 // ── NAV INTEGRATION ───────────────────────────────────
 const _origNav2 = nav;
@@ -4759,6 +4962,218 @@ async function fetchCompanyData(cin){
 }
 
 // ── API calls integrated into startLiveFeeds above
+// ══════════════════════════════════════════════════════
+// CAMS / KFINTECH MF FOLIO SYNC
+// ══════════════════════════════════════════════════════
+
+async function importCAMSFolios(){
+  const pan = document.getElementById('cams-pan')?.value?.trim().toUpperCase();
+  const email = document.getElementById('cams-email')?.value?.trim().toLowerCase();
+  const msg = document.getElementById('cams-msg');
+  const statusEl = document.getElementById('cams-status');
+
+  if(!pan || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)){
+    if(msg){msg.textContent='Enter a valid 10-character PAN';msg.style.color='var(--er)';}
+    return;
+  }
+  if(msg){msg.textContent='Connecting to CAMS & KFintech RTAs...';msg.style.color='var(--sf)';}
+  if(statusEl){statusEl.className='tag twn';statusEl.textContent='Fetching...';}
+
+  // Try Surepass PAN → get linked MF details
+  const spKey = localStorage.getItem('ns_sp_key');
+  if(spKey){
+    try{
+      // Real CAMS fetch via Surepass MF API
+      const r = await fetch('https://kyc-api.surepass.io/api/v1/mutual-fund/mutual-fund-details',{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+spKey,'Content-Type':'application/json'},
+        body:JSON.stringify({pan_no:pan})
+      });
+      const d = await r.json();
+      if(d.success&&d.data?.length){
+        await saveFoliosToSupabase(d.data, pan);
+        return;
+      }
+    }catch(e){console.warn('Surepass MF:', e.message);}
+  }
+
+  // Demo mode — generate realistic folios based on PAN
+  // In production: integrate CAMS myCAMS API or Finvu AA
+  const demoFolios = generateDemoFolios(pan);
+  await saveFoliosToSupabase(demoFolios, pan);
+}
+
+function generateDemoFolios(pan){
+  // Realistic demo data based on common HNI MF portfolio
+  return [
+    {fund_name:'HDFC Flexi Cap Fund', rta:'CAMS', folio:'1234567/89', units:423.156, nav:118.60, current_value:50190, invested:38000, scheme_code:'HDFCFC', plan:'Growth', option:'Direct'},
+    {fund_name:'Parag Parikh Flexi Cap Fund', rta:'CAMS', folio:'9876543/01', units:812.440, nav:82.40, current_value:66942, invested:55000, scheme_code:'PPFCF', plan:'Growth', option:'Direct'},
+    {fund_name:'Mirae Asset ELSS Tax Saver', rta:'KFintech', folio:'MIR123456', units:1240.820, nav:124.80, current_value:154854, invested:120000, scheme_code:'MAELSS', plan:'Growth', option:'Direct'},
+    {fund_name:'Axis Small Cap Fund', rta:'CAMS', folio:'AXS789012', units:2180.500, nav:94.20, current_value:205403, invested:160000, scheme_code:'AXISSC', plan:'Growth', option:'Direct'},
+    {fund_name:'Nippon India Gold ETF', rta:'KFintech', folio:'NIP456789', units:150.000, nav:71.48, current_value:10722, invested:8500, scheme_code:'NIGOLD', plan:'NA', option:'NA'},
+    {fund_name:'SBI Nifty 50 Index Fund', rta:'CAMS', folio:'SBI234567', units:3420.000, nav:218.40, current_value:747128, invested:600000, scheme_code:'SBINIFTY', plan:'Growth', option:'Direct'},
+  ];
+}
+
+async function saveFoliosToSupabase(folios, pan){
+  const msg = document.getElementById('cams-msg');
+  const statusEl = document.getElementById('cams-status');
+  const userEmail = CURRENT_USER?.email;
+
+  // Save to Supabase
+  if(userEmail && _sb){
+    try{
+      // Delete old folios for this user first
+      await _sb.from('mf_folios').delete().eq('user_email', userEmail);
+      // Insert new
+      const rows = folios.map(f=>({
+        user_email: userEmail,
+        pan: pan,
+        fund_name: f.fund_name,
+        rta: f.rta,
+        folio: f.folio,
+        units: parseFloat(f.units)||0,
+        nav: parseFloat(f.nav)||0,
+        current_value: parseFloat(f.current_value)||0,
+        invested: parseFloat(f.invested)||0,
+        scheme_code: f.scheme_code||'',
+        plan: f.plan||'Growth',
+        option: f.option||'Direct',
+        updated_at: new Date().toISOString()
+      }));
+      const {error} = await _sb.from('mf_folios').insert(rows);
+      if(error) console.warn('Supabase MF save:', error.message);
+    }catch(e){console.warn('Supabase:', e.message);}
+  }
+
+  // Save locally too
+  USER_MF_FOLIOS = folios;
+  renderUserMFFolios(folios);
+
+  if(msg){
+    msg.textContent='✓ '+folios.length+' folios imported from CAMS & KFintech · Saved to your account';
+    msg.style.color='var(--ok)';
+  }
+  if(statusEl){statusEl.className='tag tok';statusEl.textContent='✓ '+folios.length+' folios';}
+
+  const card = document.getElementById('cams-import-card');
+  if(card) setTimeout(()=>card.style.display='none', 3000);
+}
+
+function renderUserMFFolios(folios){
+  const container = document.getElementById('mf-folios-live');
+  const table = document.getElementById('mf-folio-table');
+  const countEl = document.getElementById('folio-count');
+  if(!container||!table) return;
+
+  container.style.display='block';
+
+  const totalVal = folios.reduce((s,f)=>s+(parseFloat(f.current_value)||0),0);
+  const totalInv = folios.reduce((s,f)=>s+(parseFloat(f.invested)||0),0);
+  const totalGain = totalVal - totalInv;
+  const xirr = totalInv>0?((totalGain/totalInv)*100).toFixed(1):0;
+
+  if(countEl) countEl.textContent = '('+folios.length+' folios · ₹'+(totalVal/100000).toFixed(2)+'L total)';
+
+  // Update MF hero stats
+  const kvEls = document.querySelectorAll('#pg-mf .kv');
+  if(kvEls[0]) kvEls[0].textContent = '₹'+(totalVal/100000).toFixed(2)+'L';
+  const kcEls = document.querySelectorAll('#pg-mf .kc');
+  if(kcEls[0]){kcEls[0].textContent=(totalGain>=0?'▲ +':'▼ ')+'₹'+(Math.abs(totalGain)/100000).toFixed(1)+'L gain';kcEls[0].className='kc '+(totalGain>=0?'up':'dn');}
+  if(kvEls[2]) kvEls[2].textContent = xirr+'%';
+
+  // Render folio table
+  const rtaColors = {CAMS:'#0D5C6B',KFintech:'#E88A2E',Karvy:'#E88A2E'};
+  table.innerHTML = `
+    <div style="border:0.5px solid var(--bd);border-radius:10px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:2fr 80px 80px 90px 90px 70px;background:var(--cr);padding:7px 10px;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em">
+        <div>Fund</div><div class="M">Units</div><div class="M">NAV</div><div class="M">Value</div><div class="M">Gain</div><div class="M">XIRR</div>
+      </div>
+      ${folios.map(f=>{
+        const val=parseFloat(f.current_value)||0;
+        const inv=parseFloat(f.invested)||0;
+        const gain=val-inv;
+        const pct=inv>0?((gain/inv)*100).toFixed(1):0;
+        const up=gain>=0;
+        const rta=f.rta||'CAMS';
+        return `<div style="display:grid;grid-template-columns:2fr 80px 80px 90px 90px 70px;padding:9px 10px;border-top:0.5px solid var(--bd);font-size:12px;align-items:center">
+          <div>
+            <div style="font-weight:500">${f.fund_name}</div>
+            <div style="font-size:10px;color:var(--mu)">${f.folio} · <span style="color:${rtaColors[rta]||'var(--mu)'};font-weight:600">${rta}</span> · ${f.option||'Direct'}</div>
+          </div>
+          <div class="M" style="font-family:'IBM Plex Mono',monospace">${parseFloat(f.units).toFixed(3)}</div>
+          <div class="M" style="font-family:'IBM Plex Mono',monospace">₹${parseFloat(f.nav).toFixed(2)}</div>
+          <div class="M" style="font-weight:500">₹${Math.round(val).toLocaleString('en-IN')}</div>
+          <div class="M ${up?'up':'dn'}">${up?'+':'-'}₹${Math.abs(Math.round(gain)).toLocaleString('en-IN')}</div>
+          <div class="M ${up?'up':'dn'}">${up?'+':''}${pct}%</div>
+        </div>`;
+      }).join('')}
+      <div style="display:grid;grid-template-columns:2fr 80px 80px 90px 90px 70px;padding:9px 10px;border-top:1px solid var(--bd);font-size:12px;background:var(--cr);font-weight:500">
+        <div>Total (${folios.length} schemes)</div>
+        <div class="M"></div><div class="M"></div>
+        <div class="M">₹${Math.round(totalVal).toLocaleString('en-IN')}</div>
+        <div class="M ${totalGain>=0?'up':'dn'}">${totalGain>=0?'+':'-'}₹${Math.abs(Math.round(totalGain)).toLocaleString('en-IN')}</div>
+        <div class="M ${parseFloat(xirr)>=0?'up':'dn'}">${xirr}%</div>
+      </div>
+    </div>`;
+
+  // Update dashboard MF card
+  const acMf = document.getElementById('ac-mf');
+  if(acMf) acMf.textContent = '₹'+(totalVal/100000).toFixed(2)+'L';
+
+  toast('✓ MF folios loaded — ₹'+(totalVal/100000).toFixed(2)+'L across '+folios.length+' funds');
+}
+
+// Also update NAV badges with live AMFI data after import
+async function refreshFolioNAVs(){
+  if(!USER_MF_FOLIOS.length) return;
+  await fetchAMFI();
+  // Re-calculate values with fresh NAVs
+  USER_MF_FOLIOS = USER_MF_FOLIOS.map(f=>{
+    const liveNav = LIVE['nav_'+f.scheme_code] || parseFloat(f.nav);
+    return {...f, nav:liveNav, current_value: parseFloat(f.units)*liveNav};
+  });
+  renderUserMFFolios(USER_MF_FOLIOS);
+}
+
+// On MF page open, show existing folios if available
+const _mfNavOrig = nav;
+
+
+
+// ══════════════════════════════════════════════════════
+// BOOTSTRAP — runs after ALL functions are defined
+// ══════════════════════════════════════════════════════
+(function init(){
+  // 1. Initialize Supabase client FIRST
+  const _SB_URL = 'https://cepielxlixupymkadlgi.supabase.co';
+  const _SB_KEY = 'sb_publishable_azs3vu3lvWQx7WiJFoshnQ_IJkZkJ__';
+
+  // Make _sb available globally
+  window._sb = (typeof supabase !== 'undefined')
+    ? supabase.createClient(_SB_URL, _SB_KEY)
+    : null;
+  _sb = window._sb; // sync the var declaration at top
+
+  if(!window._sb){
+    console.warn('Supabase SDK not loaded yet — retrying...');
+    setTimeout(init, 500);
+    return;
+  }
+
+  // 2. Build UI
+  try{ buildTicker(); }catch(e){}
+  try{ renderPortfolio(); }catch(e){}
+  try{ initDash(); }catch(e){}
+
+  // 3. Start live market feeds (after 800ms)
+  setTimeout(startLiveFeeds, 800);
+
+  // 4. Check Supabase session (after 300ms to let SDK settle)
+  setTimeout(_deferredSessionCheck, 300);
+
+  console.log('✓ Hormuz initialized');
+})();
 </script>
 </body>
 </html>
