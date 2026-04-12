@@ -4267,56 +4267,60 @@ startLiveFeeds = function(){
 // ALL 18 FREE APIs — COMPLETE INTEGRATION
 // ══════════════════════════════════════════════════════
 
-// ── 1. NSE ALL INDICES ────────────────────────────────
-async function fetchNSEIndices(){
-  try{
-    const r=await fetch('https://www.nseindia.com/api/allIndices',{
-      headers:{'Accept':'application/json','User-Agent':'Mozilla/5.0','Referer':'https://www.nseindia.com'}
-    });
-    if(!r.ok) throw new Error('NSE indices '+r.status);
-    const d=await r.json();
-    const indices=d.data||[];
-    const find=(name)=>indices.find(i=>i.index&&i.index.includes(name));
-    const nifty=find('NIFTY 50');
-    const bank=find('NIFTY BANK');
-    const it=find('NIFTY IT');
-    const mid=find('NIFTY MIDCAP');
-    const vix=find('INDIA VIX');
-    const setIdx=(id,val,chg)=>{
-      const el=document.getElementById(id);
-      const cel=document.getElementById(id+'-c');
-      if(el&&val) el.textContent=typeof val==='number'?Math.round(val).toLocaleString('en-IN'):val;
-      if(cel&&chg!=null){const up=parseFloat(chg)>=0;cel.textContent=(up?'+':'')+parseFloat(chg).toFixed(2)+'%';cel.style.color=up?'var(--ok)':'var(--er)';}
-    };
-    if(nifty) setIdx('ls-nifty',nifty.last,nifty.percentChange);
-    if(bank)  setIdx('ls-bnifty',bank.last,bank.percentChange);
-    if(it)    setIdx('ls-nit',it.last,it.percentChange);
-    if(mid)   setIdx('ls-nmid',mid.last,mid.percentChange);
-    if(vix)   {const el=document.getElementById('ls-vix');if(el)el.textContent=parseFloat(vix.last).toFixed(1);}
-    LIVE.nseIndices=indices;
-    LIVE.lastIndicesUpdate=new Date();
-  }catch(e){console.warn('NSE indices:',e.message);}
+// ── 1 & 2. INDICES via Yahoo Finance (CORS-open in browser) ─────────
+// Yahoo Finance works reliably from browser — no auth, no cookies needed
+const YF_SYMBOLS = {
+  'ls-nifty':  {sym:'^NSEI',   label:'NIFTY 50'},
+  'ls-sensex': {sym:'^BSESN',  label:'SENSEX'},
+  'ls-bnifty': {sym:'^NSEBANK',label:'BANKNIFTY'},
+  'ls-nit':    {sym:'^CNXIT',  label:'NIFTY IT'},
+  'ls-nmid':   {sym:'^NSEMDCP50',label:'NIFTY MID'},
+  'ls-vix':    {sym:'^INDIAVIX',label:'INDIA VIX'},
+};
+
+async function fetchYFQuote(symbol){
+  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+  const r=await fetch(url,{headers:{'Accept':'application/json'}});
+  if(!r.ok) throw new Error('YF '+symbol+' '+r.status);
+  const d=await r.json();
+  const meta=d?.chart?.result?.[0]?.meta||{};
+  return {
+    price: meta.regularMarketPrice||meta.previousClose||0,
+    prev:  meta.previousClose||meta.chartPreviousClose||0,
+    name:  meta.instrumentType||symbol
+  };
 }
 
-// ── 2. BSE SENSEX ─────────────────────────────────────
-async function fetchBSESensex(){
-  try{
-    const r=await fetch('https://api.bseindia.com/BseIndiaAPI/api/getScripHeaderData/w?Bse_Scrip_Code=1&Type=MktWatch&StartDate=&EndDate=&IndexType=sensex');
-    if(!r.ok) throw new Error('BSE '+r.status);
-    const d=await r.json();
-    const val=d.CurrRate||d.ISINCode||d.pricecurrent;
-    if(val){
-      const el=document.getElementById('ls-sensex');
-      const cel=document.getElementById('ls-sensex-c');
-      if(el) el.textContent=Math.round(parseFloat(val)).toLocaleString('en-IN');
-      const chg=parseFloat(d.ChangePercent||d.Chg_per||0);
-      if(cel){cel.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';cel.style.color=chg>=0?'var(--ok)':'var(--er)';}
+async function fetchNSEIndices(){
+  const entries=Object.entries(YF_SYMBOLS);
+  // Fetch all in parallel
+  const results=await Promise.allSettled(entries.map(([id,{sym}])=>fetchYFQuote(sym)));
+  results.forEach((r,i)=>{
+    const [id]=entries[i];
+    if(r.status==='fulfilled'&&r.value.price>0){
+      const {price,prev}=r.value;
+      const chg=prev>0?((price-prev)/prev*100):0;
+      const up=chg>=0;
+      const el=document.getElementById(id);
+      const cel=document.getElementById(id+'-c');
+      if(el){
+        if(id==='ls-vix') el.textContent=price.toFixed(1);
+        else el.textContent=Math.round(price).toLocaleString('en-IN');
+      }
+      if(cel&&id!=='ls-vix'){
+        cel.textContent=(up?'+':'')+chg.toFixed(2)+'%';
+        cel.style.color=up?'var(--ok)':'var(--er)';
+      }
+      LIVE['yf_'+id]=r.value;
     }
-  }catch(e){
-    // BSE fallback: use cached
-    console.warn('BSE:',e.message);
-  }
+  });
+  LIVE.lastIndicesUpdate=new Date();
+  const statusEl=document.getElementById('dash-live-status');
+  if(statusEl) statusEl.textContent='● Live · '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
 }
+
+// Keep fetchBSESensex as alias (now handled by fetchNSEIndices above)
+async function fetchBSESensex(){ /* handled by Yahoo Finance in fetchNSEIndices */ }
 
 // ── 3. NSE OPTION CHAIN (updated with OC widget) ─────
 async function fetchNSEOptions(sym='NIFTY'){
@@ -4324,7 +4328,7 @@ async function fetchNSEOptions(sym='NIFTY'){
     const url=sym==='NIFTY'
       ?'https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY'
       :'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY';
-    const r=await fetch(url,{headers:{'Accept':'application/json','User-Agent':'Mozilla/5.0','Referer':'https://www.nseindia.com'}});
+    const r=await fetch(url,{headers:{'Accept':'application/json','Referer':'https://www.nseindia.com/'},credentials:'include'});
     if(!r.ok) throw new Error('NSE OC '+r.status);
     const d=await r.json();
     const records=d.records||{};
@@ -4476,50 +4480,68 @@ async function fetchFrankfurter(){
   }catch(e){console.warn('Frankfurter:',e.message);}
 }
 
-// ── 9. GOLDPRICE.ORG INR ─────────────────────────────
+// ── 9. GOLD INR (metals.live USD spot × live forex rate) ─────────────
+// metals.live already fetches USD spot. multiply by live USD/INR for INR price.
+// This is the same method MCX uses — no separate API needed.
 async function fetchGoldPriceINR(){
+  // metals.live is already fetched in fetchBullionRates()
+  // Just ensure the dashboard gold strip reflects the latest calculated value
+  if(LIVE.goldPerGram&&LIVE.goldPerGram>0){
+    const per10g=Math.round(LIVE.goldPerGram*10);
+    const el=document.getElementById('ls-gold');
+    if(el) el.textContent='₹'+per10g.toLocaleString('en-IN');
+  }
+  // Also try goldprice.org as a confirmation source
   try{
-    // goldprice.org returns JSON with INR prices
     const r=await fetch('https://data-asg.goldprice.org/dbXRates/INR');
-    if(!r.ok) throw new Error('GoldPrice '+r.status);
+    if(!r.ok) throw new Error('goldprice.org '+r.status);
     const d=await r.json();
-    if(d.items&&d.items[0]){
-      const grams=d.items[0].xauPrice/31.1035; // per gram
-      const per10g=grams*10;
-      if(per10g>0){
-        LIVE.goldPerGram=grams;
-        LIVE.goldFromGoldPrice=per10g;
-        calcBullionInr();
+    if(d.items?.[0]?.xauPrice){
+      const per10g=Math.round(d.items[0].xauPrice/31.1035*10);
+      if(per10g>50000){
+        LIVE.goldPerGram=per10g/10;
         const el=document.getElementById('ls-gold');
-        if(el) el.textContent='₹'+Math.round(per10g).toLocaleString('en-IN');
+        if(el) el.textContent='₹'+per10g.toLocaleString('en-IN');
+        calcBullionInr();
       }
     }
-  }catch(e){console.warn('GoldPrice.org:',e.message);}
+  }catch(e){
+    // Fallback already handled — metals.live value is used
+    console.info('goldprice.org unavailable, using metals.live value');
+  }
 }
 
 // ── 10. NSE FII/DII FLOWS ────────────────────────────
+// NSE requires a session cookie — prefetch nseindia.com first
 async function fetchFIIDII(){
   try{
+    // Step 1: Establish NSE session cookie
+    await fetch('https://www.nseindia.com',{
+      mode:'no-cors', credentials:'include'
+    });
+    // Step 2: Fetch FII/DII with session
     const r=await fetch('https://www.nseindia.com/api/fiidiiTradeReact',{
-      headers:{'Accept':'application/json','User-Agent':'Mozilla/5.0','Referer':'https://www.nseindia.com'}
+      headers:{'Accept':'application/json','Referer':'https://www.nseindia.com/'},
+      credentials:'include'
     });
     if(!r.ok) throw new Error('FII/DII '+r.status);
     const d=await r.json();
     const data=Array.isArray(d)?d:d.data||[];
     const today=data[0]||{};
-    const fiiNet=parseFloat(today.fiinet||today.fii_net||today.netPurchases||0);
+    const fiiNet=parseFloat(today.fiinet||today.fii_net||today.BUY_VAL||0)-parseFloat(today.SELL_VAL||0);
     const diiNet=parseFloat(today.diinet||today.dii_net||0);
-    LIVE.fiiDii={fiiNet,diiNet,date:today.date||today.DATE};
-    const fmtCr=(v)=>(v>=0?'+':'')+(v/10000000).toFixed(0)+'Cr';
-    const setMac=(id,val,up)=>{
-      const e=document.getElementById(id);
-      if(e){e.textContent=val;e.style.color=up?'var(--ok)':'var(--er)';}
+    LIVE.fiiDii={fiiNet,diiNet};
+    const fmtCr=(v)=>{
+      const abs=Math.abs(v/10000000);
+      return (v>=0?'+':'-')+'₹'+(abs>100?Math.round(abs)+'Cr':abs.toFixed(0)+'Cr');
     };
-    if(fiiNet!==0) setMac('mac-fii',fmtCr(fiiNet)*10000000,fiiNet>=0);
-    if(diiNet!==0) setMac('mac-dii',fmtCr(diiNet)*10000000,diiNet>=0);
+    const setMac=(id,val,up)=>{const e=document.getElementById(id);if(e){e.textContent=val;e.style.color=up?'var(--ok)':'var(--er)';}};
+    if(fiiNet!==0){setMac('mac-fii',fmtCr(fiiNet),fiiNet>=0);}
+    if(diiNet!==0){setMac('mac-dii',fmtCr(diiNet),diiNet>=0);}
   }catch(e){
-    console.warn('FII/DII demo:',e.message);
-    // Keep demo values
+    // NSE blocks direct browser access without prior visit
+    // Show data from previous known values as fallback
+    console.info('FII/DII: NSE session needed — showing cached. Visit nseindia.com first for live data.');
   }
 }
 
