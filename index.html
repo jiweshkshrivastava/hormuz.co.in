@@ -369,7 +369,6 @@ pre{white-space:pre-wrap;word-break:break-word}
   </div>
 
   <div class="auth-right">
-    <!-- Sign In / Sign Up Tabs -->
     <div style="width:100%;text-align:center;margin-bottom:24px">
       <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--tld)">Welcome to Hormuz</div>
       <div style="font-size:12px;color:var(--mu);margin-top:4px">India's AI Wealth Aggregator</div>
@@ -379,8 +378,8 @@ pre{white-space:pre-wrap;word-break:break-word}
       <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
 
-    <!-- SIGN IN FORM -->
-    <div id="form-signin" class="auth-form">
+    <!-- ✅ FIX 1: SIGN IN — wrapped in <form> -->
+    <form id="form-signin" class="auth-form" onsubmit="doSignIn();return false;">
       <label class="auth-label">Email Address</label>
       <input type="email" class="auth-inp" id="si-email" placeholder="you@example.com" autocomplete="email" oninput="clearAuthErr()"/>
       <label class="auth-label">Password</label>
@@ -390,23 +389,23 @@ pre{white-space:pre-wrap;word-break:break-word}
       </div>
       <div style="text-align:right;margin-bottom:12px"><span class="auth-link" onclick="showForgot()" style="font-size:12px">Forgot password?</span></div>
       <div class="auth-err" id="si-err"></div>
-      <button class="auth-btn" id="si-btn" onclick="doSignIn()">Sign In →</button>
+      <button type="submit" class="auth-btn" id="si-btn">Sign In →</button>
       <div class="auth-sep">or continue with</div>
       <div class="auth-social">
-        <button class="auth-social-btn" onclick="doGoogleSignIn()">
+        <button type="button" class="auth-social-btn" onclick="doGoogleSignIn()">
           <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Google
         </button>
-        <button class="auth-social-btn" onclick="doAppleSignIn()">
+        <button type="button" class="auth-social-btn" onclick="doAppleSignIn()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
           Apple
         </button>
       </div>
       <div class="auth-disclaimer">By signing in you agree to Hormuz's <span class="auth-link">Terms of Service</span> and <span class="auth-link">Privacy Policy</span>. Hormuz is not a SEBI-registered investment advisor. All content is for informational purposes only.</div>
-    </div>
+    </form>
 
-    <!-- SIGN UP FORM -->
-    <div id="form-signup" class="auth-form" style="display:none">
+    <!-- ✅ FIX 2: SIGN UP — wrapped in <form> -->
+    <form id="form-signup" class="auth-form" style="display:none" onsubmit="doSignUp();return false;">
       <div class="g2" style="gap:8px">
         <div>
           <label class="auth-label">First Name</label>
@@ -422,19 +421,18 @@ pre{white-space:pre-wrap;word-break:break-word}
       <input type="email" class="auth-inp" id="su-email" placeholder="you@example.com" autocomplete="email" oninput="clearAuthErr()"/>
       <label class="auth-label">Password <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--mu)">(min 8 characters)</span></label>
       <div class="auth-inp-wrap">
-        <input type="password" class="auth-inp" id="su-pw" placeholder="Create a strong password" oninput="checkPwStrength();clearAuthErr()"/>
+        <input type="password" class="auth-inp" id="su-pw" placeholder="Create a strong password" autocomplete="new-password" oninput="checkPwStrength();clearAuthErr()"/>
         <button class="pw-toggle" type="button" onclick="togglePw('su-pw',this)">👁</button>
       </div>
-      <!-- Password strength bar -->
       <div style="height:4px;background:var(--bd);border-radius:2px;margin-bottom:10px;overflow:hidden">
         <div id="pw-strength-bar" style="height:100%;width:0%;border-radius:2px;transition:all .3s;background:var(--er)"></div>
       </div>
       <label class="auth-label">Confirm Password</label>
-      <input type="password" class="auth-inp" id="su-pw2" placeholder="Repeat password" oninput="clearAuthErr()" onkeydown="if(event.key==='Enter')doSignUp()"/>
+      <input type="password" class="auth-inp" id="su-pw2" placeholder="Repeat password" autocomplete="new-password" oninput="clearAuthErr()" onkeydown="if(event.key==='Enter')doSignUp()"/>
       <div class="auth-err" id="su-err"></div>
-      <button class="auth-btn" id="su-btn" onclick="doSignUp()">Create Account →</button>
+      <button type="submit" class="auth-btn" id="su-btn">Create Account →</button>
       <div class="auth-disclaimer" style="margin-top:14px">By creating an account you agree to Hormuz's <span class="auth-link">Terms of Service</span> and <span class="auth-link">Privacy Policy</span>. Hormuz is not a SEBI-registered investment advisor. All content is for informational purposes only.</div>
-    </div>
+    </form>
 
     <!-- FORGOT PASSWORD FORM -->
     <div id="form-forgot" class="auth-form" style="display:none">
@@ -482,14 +480,15 @@ pre{white-space:pre-wrap;word-break:break-word}
     <h3 style="font-family:'Playfair Display',serif;font-size:17px;color:var(--tld);margin-bottom:4px" id="mp-title">Confirm Order</h3>
     <div style="background:var(--cr);border-radius:8px;padding:10px 13px;margin:10px 0;text-align:left;font-size:12px" id="mp-detail"></div>
     <div style="font-size:11px;color:var(--mu);margin-bottom:4px">Enter 6-digit MPIN for <strong id="mp-broker">Zerodha</strong></div>
-    <div class="mpins" id="mp-digits">
-      <input class="mpd" maxlength="1" type="password" id="mp0" oninput="mpIn(this,0)">
-      <input class="mpd" maxlength="1" type="password" id="mp1" oninput="mpIn(this,1)">
-      <input class="mpd" maxlength="1" type="password" id="mp2" oninput="mpIn(this,2)">
-      <input class="mpd" maxlength="1" type="password" id="mp3" oninput="mpIn(this,3)">
-      <input class="mpd" maxlength="1" type="password" id="mp4" oninput="mpIn(this,4)">
-      <input class="mpd" maxlength="1" type="password" id="mp5" oninput="mpIn(this,5)">
-    </div>
+    <!-- ✅ FIX 3: MPIN digits — wrapped in <form> -->
+    <form class="mpins" id="mp-digits" onsubmit="submitMPIN();return false;">
+      <input class="mpd" maxlength="1" type="password" id="mp0" autocomplete="one-time-code" oninput="mpIn(this,0)">
+      <input class="mpd" maxlength="1" type="password" id="mp1" autocomplete="one-time-code" oninput="mpIn(this,1)">
+      <input class="mpd" maxlength="1" type="password" id="mp2" autocomplete="one-time-code" oninput="mpIn(this,2)">
+      <input class="mpd" maxlength="1" type="password" id="mp3" autocomplete="one-time-code" oninput="mpIn(this,3)">
+      <input class="mpd" maxlength="1" type="password" id="mp4" autocomplete="one-time-code" oninput="mpIn(this,4)">
+      <input class="mpd" maxlength="1" type="password" id="mp5" autocomplete="one-time-code" oninput="mpIn(this,5)">
+    </form>
     <div id="mp-err" style="color:var(--er);font-size:12px;min-height:16px;margin-bottom:8px"></div>
     <button class="btn bp" id="mp-btn" style="width:100%;justify-content:center;margin-bottom:7px" onclick="submitMPIN()">Confirm Order</button>
     <button class="btn bg" style="width:100%;justify-content:center" onclick="closeMPIN()">Cancel</button>
@@ -503,14 +502,15 @@ pre{white-space:pre-wrap;word-break:break-word}
     <div style="font-size:44px;margin-bottom:10px">🔒</div>
     <h3 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--tld);margin-bottom:6px">Unlock Broker Vault</h3>
     <p style="font-size:13px;color:var(--mu);margin-bottom:16px">Enter your 6-digit Master PIN to access saved credentials</p>
-    <div class="mpins" id="vpin-digits">
-      <input class="mpd" maxlength="1" type="password" id="vp0" oninput="vpIn(this,0)">
-      <input class="mpd" maxlength="1" type="password" id="vp1" oninput="vpIn(this,1)">
-      <input class="mpd" maxlength="1" type="password" id="vp2" oninput="vpIn(this,2)">
-      <input class="mpd" maxlength="1" type="password" id="vp3" oninput="vpIn(this,3)">
-      <input class="mpd" maxlength="1" type="password" id="vp4" oninput="vpIn(this,4)">
-      <input class="mpd" maxlength="1" type="password" id="vp5" oninput="vpIn(this,5)">
-    </div>
+    <!-- ✅ FIX 4: Vault PIN digits — wrapped in <form> -->
+    <form class="mpins" id="vpin-digits" onsubmit="doUnlockVault();return false;">
+      <input class="mpd" maxlength="1" type="password" id="vp0" autocomplete="current-password" oninput="vpIn(this,0)">
+      <input class="mpd" maxlength="1" type="password" id="vp1" autocomplete="current-password" oninput="vpIn(this,1)">
+      <input class="mpd" maxlength="1" type="password" id="vp2" autocomplete="current-password" oninput="vpIn(this,2)">
+      <input class="mpd" maxlength="1" type="password" id="vp3" autocomplete="current-password" oninput="vpIn(this,3)">
+      <input class="mpd" maxlength="1" type="password" id="vp4" autocomplete="current-password" oninput="vpIn(this,4)">
+      <input class="mpd" maxlength="1" type="password" id="vp5" autocomplete="current-password" oninput="vpIn(this,5)">
+    </form>
     <div id="vp-err" style="color:var(--er);font-size:12px;min-height:16px;margin-bottom:10px"></div>
     <button class="btn bp" style="width:100%;justify-content:center;margin-bottom:7px" onclick="doUnlockVault()">Unlock Vault</button>
     <button class="btn bg" style="width:100%;justify-content:center" onclick="document.getElementById('vault-ov').classList.remove('on')">Cancel</button>
@@ -539,7 +539,7 @@ pre{white-space:pre-wrap;word-break:break-word}
     <div class="sb-u-av" id="sb-av">RK</div>
     <div>
       <div class="sb-u-name" id="sb-uname">Rahul Kumar</div>
-      <div class="sb-u-email" id="sb-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4e3c2f263b220e2b362f233e222b602d2123">[email&#160;protected]</a></div>
+      <div class="sb-u-email" id="sb-email">rahul@example.com</div>
     </div>
   </div>
   <div class="ng">
@@ -824,7 +824,7 @@ pre{white-space:pre-wrap;word-break:break-word}
       </div>
       <div id="scr-results"><div style="color:var(--mu);font-size:12px;text-align:center;padding:18px">Select a screener</div></div>
     </div>
-    <div class="tpane" id="tp-news" id="news-pane"></div>
+    <div class="tpane" id="tp-news"></div>
     <div style="border-top:1px solid var(--bd);padding:8px;flex-shrink:0">
       <div style="display:flex;gap:5px"><input class="fi fisq" id="t-ai-q" placeholder="Ask AI about this stock..." style="flex:1" onkeydown="if(event.key==='Enter')tradeAI()"><button class="btn bp bsm" onclick="tradeAI()">→</button></div>
     </div>
@@ -851,8 +851,7 @@ pre{white-space:pre-wrap;word-break:break-word}
     <div class="al ali" style="margin-bottom:12px">✦ <strong>AI:</strong> Add ₹5,000/month to Parag Parikh Flexi Cap for international diversification (currently 0%).</div>
     <div class="fcard pick"><div class="fsb" style="margin-bottom:8px"><div><div style="font-weight:700;font-size:14px">HDFC Flexicap Fund</div><div style="font-size:11px;color:var(--mu)">Flexi Cap · ⭐5 · 0.51% exp</div></div><span class="pbdg">✦ AI PICK</span></div><div class="g3" style="font-size:12px;margin-bottom:7px"><div><div style="color:var(--mu)">1Y</div><div class="M" style="color:var(--ok);font-weight:700">+24.8%</div></div><div><div style="color:var(--mu)">3Y</div><div class="M" style="color:var(--ok);font-weight:700">+18.2%</div></div><div><div style="color:var(--mu)">5Y</div><div class="M" style="color:var(--ok);font-weight:700">+16.4%</div></div></div><div class="pbar"><div class="pbarf" style="width:72%;background:var(--ok)"></div></div><div class="fsb" style="margin-top:9px"><div><span class="tag tok">SIP ₹5k/m</span> <span class="tag tsf" style="margin-left:3px">+₹48,200</span></div><button class="btn bo bsm" onclick="toast('Modify HDFC Flexicap SIP')">Modify SIP</button></div></div>
     <div class="fcard"><div class="fsb" style="margin-bottom:8px"><div><div style="font-weight:700;font-size:14px">Mirae ELSS Tax Saver</div><div style="font-size:11px;color:var(--mu)">ELSS · 80C eligible</div></div><span class="tag ttl">TAX SAVING</span></div><div class="g3" style="font-size:12px;margin-bottom:7px"><div><div style="color:var(--mu)">1Y</div><div class="M" style="color:var(--ok);font-weight:700">+21.4%</div></div><div><div style="color:var(--mu)">3Y</div><div class="M" style="color:var(--ok);font-weight:700">+17.8%</div></div><div><div style="color:var(--mu)">5Y</div><div class="M" style="color:var(--ok);font-weight:700">+15.9%</div></div></div><div class="pbar"><div class="pbarf" style="width:65%;background:var(--tl)"></div></div><div class="fsb" style="margin-top:9px"><div><span class="tag tok">SIP ₹5k/m</span></div><button class="btn bo bsm" onclick="toast('Manage Mirae ELSS')">Manage</button></div></div>
-    <!-- SIP Calculator -->
-    <div class="card sh" style="margin-top:6px"><div class="ct">SIP Projection Calculator</div><div class="g3" style="margin-bottom:11px"><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Monthly ₹</label><input type="range" min="500" max="50000" value="10000" id="sip-a" style="width:100%"><div class="M" id="sip-av" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">₹10,000</div></div><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Years</label><input type="range" min="1" max="30" value="10" id="sip-y" style="width:100%"><div class="M" id="sip-yv" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">10 years</div></div><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Return %</label><input type="range" min="6" max="20" value="12" id="sip-r" style="width:100%"><div class="M" id="sip-rv" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">12% p.a.</div></div></div><div class="g3"><div class="card" style="background:var(--cr);padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">Invested</div><div class="kv" id="sip-inv" style="font-size:17px">₹12.0L</div></div><div class="card" style="background:var(--cr);padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">Returns</div><div class="kv" id="sip-ret" style="font-size:17px;color:var(--ok)">₹11.6L</div></div><div class="card" style="background:var(--tl);padding:11px"><div style="font-size:10px;color:rgba(255,255,255,.7);margin-bottom:3px">Maturity</div><div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff" id="sip-mat">₹23.6L</div></div></div></div>
+    <div class="card sh" style="margin-top:6px"><div class="ct">SIP Projection Calculator</div><div class="g3" style="margin-bottom:11px"><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Monthly ₹</label><input type="range" min="500" max="50000" value="10000" id="sip-a" oninput="calcSIP()" style="width:100%"><div class="M" id="sip-av" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">₹10,000</div></div><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Years</label><input type="range" min="1" max="30" value="10" id="sip-y" oninput="calcSIP()" style="width:100%"><div class="M" id="sip-yv" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">10 years</div></div><div><label style="font-size:11px;font-weight:700;color:var(--mu);display:block;margin-bottom:3px">Return %</label><input type="range" min="6" max="20" value="12" id="sip-r" oninput="calcSIP()" style="width:100%"><div class="M" id="sip-rv" style="font-weight:700;color:var(--tl);font-size:12px;margin-top:2px">12% p.a.</div></div></div><div class="g3"><div class="card" style="background:var(--cr);padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">Invested</div><div class="kv" id="sip-inv" style="font-size:17px">₹12.0L</div></div><div class="card" style="background:var(--cr);padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">Returns</div><div class="kv" id="sip-ret" style="font-size:17px;color:var(--ok)">₹11.6L</div></div><div class="card" style="background:var(--tl);padding:11px"><div style="font-size:10px;color:rgba(255,255,255,.7);margin-bottom:3px">Maturity</div><div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff" id="sip-mat">₹23.6L</div></div></div></div>
   </div>
 </div>
 
@@ -1014,7 +1013,7 @@ pre{white-space:pre-wrap;word-break:break-word}
         <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--tl),var(--tll));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff" id="profile-av">RK</div>
         <div>
           <div style="font-weight:700;font-size:15px" id="profile-name">Rahul Kumar</div>
-          <div style="font-size:12px;color:var(--mu)" id="profile-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0c7e6d6479604c69746d617c6069226f6361">[email&#160;protected]</a></div>
+          <div style="font-size:12px;color:var(--mu)" id="profile-email">rahul@example.com</div>
           <div style="font-size:11px;color:var(--tl);font-weight:600;margin-top:2px">Account verified ✓</div>
         </div>
       </div>
@@ -1068,7 +1067,7 @@ pre{white-space:pre-wrap;word-break:break-word}
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ══════════════════════════════════════════════
 //  HORMUZ — JAVASCRIPT ENGINE
 // ══════════════════════════════════════════════
@@ -1076,14 +1075,12 @@ pre{white-space:pre-wrap;word-break:break-word}
 // ── AUTH STATE ──────────────────────────────────
 let AUTH = {
   user: null,
-  // Simple localStorage-based user store for demo
   users: JSON.parse(localStorage.getItem('hormuz_users') || '{}'),
   otpCode: null,
   pendingEmail: null,
   pendingName: null,
 };
 
-// Load existing session
 function loadSession(){
   const saved = localStorage.getItem('hormuz_session');
   if(saved){
@@ -1124,14 +1121,12 @@ function doSignIn(){
   btn.disabled=true;
 
   setTimeout(()=>{
-    // Check stored users or accept any for demo
     const stored = AUTH.users[email];
     if(stored && stored.pw !== pw){
       btn.innerHTML='Sign In →'; btn.disabled=false;
       errEl.textContent='Incorrect password. Try again.';
       return;
     }
-    // Accept sign-in (create user if first time with this email)
     const name = stored?.name || email.split('@')[0].replace(/[^a-zA-Z]/g,' ').trim() || 'User';
     loginUser(email, name);
     btn.innerHTML='Sign In →'; btn.disabled=false;
@@ -1158,12 +1153,10 @@ function doSignUp(){
   btn.disabled=true;
 
   setTimeout(()=>{
-    // Show OTP screen
     AUTH.pendingEmail = email;
     AUTH.pendingName  = (fname+' '+lname).trim();
     AUTH.otpCode      = String(Math.floor(100000+Math.random()*900000));
     
-    // In production: send real email. For demo: show code in toast
     console.log('[DEMO OTP]', AUTH.otpCode);
     
     document.getElementById('otp-email-display').textContent = email;
@@ -1172,7 +1165,6 @@ function doSignUp(){
     for(let i=0;i<6;i++){ const el=document.getElementById('otp'+i); el.value=''; el.classList.remove('filled'); }
     setTimeout(()=>document.getElementById('otp0').focus(), 100);
     startOTPTimer();
-    // Show code in toast for demo
     toast('Demo: Your OTP is ' + AUTH.otpCode + ' (in production, sent by email)');
     btn.innerHTML='Create Account →'; btn.disabled=false;
   }, 900);
@@ -1213,7 +1205,6 @@ function doVerifyOTP(){
   const errEl = document.getElementById('otp-err');
   if(entered.length<6){ errEl.textContent='Enter all 6 digits'; return; }
   if(entered !== AUTH.otpCode){ errEl.textContent='Incorrect code. Try again.'; return; }
-  // Create user
   AUTH.users[AUTH.pendingEmail] = { name: AUTH.pendingName, pw: document.getElementById('su-pw').value, created: Date.now() };
   localStorage.setItem('hormuz_users', JSON.stringify(AUTH.users));
   loginUser(AUTH.pendingEmail, AUTH.pendingName);
@@ -1225,11 +1216,10 @@ function doForgot(){
   const errEl = document.getElementById('fp-err');
   const okEl  = document.getElementById('fp-ok');
   if(!email || !isValidEmail(email)){ errEl.textContent='Enter a valid email address'; return; }
-  // Simulate sending reset email
   setTimeout(()=>{ okEl.textContent='✓ Password reset link sent to '+email+' (check inbox & spam)'; errEl.textContent=''; }, 600);
 }
 
-// ── SOCIAL AUTH (demo) ────────────────────────────
+// ── SOCIAL AUTH ────────────────────────────────
 function doGoogleSignIn(){
   toast('Google Sign-In: In production, opens Google OAuth popup. For demo, signing you in as demo@gmail.com');
   setTimeout(()=>loginUser('demo@gmail.com','Demo User'), 800);
@@ -1271,7 +1261,6 @@ function showApp(){
   const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
   const firstName = name.split(' ')[0];
 
-  // Update all name displays
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('dash-uname', firstName);
   set('hdr-name', firstName);
@@ -1285,7 +1274,6 @@ function showApp(){
   set('fam-self-name', firstName+' (You)');
   set('member-since', new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'}));
 
-  // Init app
   buildTicker();
   renderPortfolio();
   calcSIP();
@@ -1502,7 +1490,6 @@ function buildNews(){
 function placeOrder(){
   const br=BROKERS[activeBroker]||BROKERS[0];
   if(br.expired){toast('⚠ '+br.nm+' session expired. Re-authenticate in Broker Vault first.');return;}
-  // Show MPIN
   const qty=document.getElementById('o-qty')?.value||'0',price=document.getElementById('o-price')?.value||'0';
   const val=Math.round(qty*price).toLocaleString('en-IN');
   document.getElementById('mp-title').textContent='Confirm '+tradeSide.toUpperCase()+' Order';
@@ -1583,13 +1570,11 @@ function runCon(){
   setTimeout(()=>{document.getElementById('con-resp').textContent=CON_RESP[e]||'{"status":"success","data":{}}';document.getElementById('con-resp').style.color='#8ee18e';},600);
 }
 
-// ── LIVE FEEDS — Smart fetch with backoff, stops after 3 fails ─────────
+// ── LIVE FEEDS ────────────────────────────────────
 const LIVE={usdInr:83.42,goldPerGram:7148,crypto:{}};
 const FEED_STATE={fx:{fails:0,ok:false},crypto:{fails:0,ok:false},bullion:{fails:0,ok:false}};
-const MAX_FAILS=3;  // stop retrying after this many consecutive failures
-const RETRY_MS=[0,30000,120000]; // immediate, 30s, 2min — then give up until manual refresh
+const MAX_FAILS=3;
 
-// Smart fetch wrapper — silent after MAX_FAILS, only logs once
 async function safeFetch(url,timeout=8000){
   const ctrl=new AbortController();
   const tid=setTimeout(()=>ctrl.abort(),timeout);
@@ -1604,9 +1589,8 @@ async function safeFetch(url,timeout=8000){
   }
 }
 
-// ── FX (ExchangeRate-API — free, no CORS issues when served from real domain) ──
 async function fetchFxRates(){
-  if(FEED_STATE.fx.fails>=MAX_FAILS) return; // silently stop
+  if(FEED_STATE.fx.fails>=MAX_FAILS) return;
   try{
     const d=await safeFetch('https://api.exchangerate-api.com/v4/latest/USD');
     const rates=d.rates||{};
@@ -1620,11 +1604,10 @@ async function fetchFxRates(){
     calcFx();
   }catch(e){
     FEED_STATE.fx.fails++;
-    if(FEED_STATE.fx.fails===1) console.info('[Hormuz] FX API unavailable — showing cached rates. Will work when deployed to hormuz.co.in');
+    if(FEED_STATE.fx.fails===1) console.info('[Hormuz] FX API unavailable — showing cached rates.');
   }
 }
 
-// ── CRYPTO (CoinGecko — free tier, rate-limited) ──
 async function fetchCryptoRates(){
   if(FEED_STATE.crypto.fails>=MAX_FAILS) return;
   try{
@@ -1652,11 +1635,10 @@ async function fetchCryptoRates(){
     }
   }catch(e){
     FEED_STATE.crypto.fails++;
-    if(FEED_STATE.crypto.fails===1) console.info('[Hormuz] Crypto API unavailable — showing cached prices. CoinGecko works on deployed domain.');
+    if(FEED_STATE.crypto.fails===1) console.info('[Hormuz] Crypto API unavailable — showing cached prices.');
   }
 }
 
-// ── BULLION (metals.live) ──
 async function fetchBullionRates(){
   if(FEED_STATE.bullion.fails>=MAX_FAILS) return;
   try{
@@ -1682,31 +1664,15 @@ async function fetchBullionRates(){
   }
 }
 
-// ── START — staggered so they don't all fire at once ──
 function startLiveFeeds(){
-  // Initial fetches — staggered 2s apart to avoid simultaneous failures
   fetchFxRates();
   setTimeout(fetchCryptoRates,2000);
   setTimeout(fetchBullionRates,4000);
-
-  // Intervals — only if we've had at least one success OR haven't hit max fails
-  // FX: every 5 min (free tier allows it)
-  setInterval(()=>{
-    if(FEED_STATE.fx.fails<MAX_FAILS){FEED_STATE.fx.fails=0;fetchFxRates();}
-  },300000);
-
-  // Crypto: every 2 min (CoinGecko free = 30 req/min, so 1 req/2min is safe)
-  setInterval(()=>{
-    if(FEED_STATE.crypto.fails<MAX_FAILS){FEED_STATE.crypto.fails=0;fetchCryptoRates();}
-  },120000);
-
-  // Bullion: every 5 min
-  setInterval(()=>{
-    if(FEED_STATE.bullion.fails<MAX_FAILS){FEED_STATE.bullion.fails=0;fetchBullionRates();}
-  },300000);
+  setInterval(()=>{if(FEED_STATE.fx.fails<MAX_FAILS){FEED_STATE.fx.fails=0;fetchFxRates();}},300000);
+  setInterval(()=>{if(FEED_STATE.crypto.fails<MAX_FAILS){FEED_STATE.crypto.fails=0;fetchCryptoRates();}},120000);
+  setInterval(()=>{if(FEED_STATE.bullion.fails<MAX_FAILS){FEED_STATE.bullion.fails=0;fetchBullionRates();}},300000);
 }
 
-// Manual refresh resets fail counter and retries immediately
 function refreshFx(){FEED_STATE.fx.fails=0;toast('Refreshing forex rates...');fetchFxRates();}
 function refreshCrypto(){FEED_STATE.crypto.fails=0;toast('Refreshing crypto prices...');fetchCryptoRates();}
 function refreshBullion(){FEED_STATE.bullion.fails=0;toast('Refreshing bullion rates...');fetchBullionRates();}
@@ -1717,7 +1683,6 @@ function calcFx(){
   if(el)el.textContent='₹'+Math.round(amt*LIVE.usdInr).toLocaleString('en-IN');
 }
 
-// Purity calc
 let goldKarat=22;
 function setPurity(btn,k){goldKarat=k;document.querySelectorAll('.pu-k').forEach(b=>{b.className='btn bg bxs pu-k';});btn.className='btn bp bxs pu-k';calcPurity();}
 function calcPurity(){
@@ -1741,4 +1706,8 @@ async function sendAI(){
   }catch(e){bot.textContent='WIPRO loss ₹18,200 → harvest before Mar 31 to save ₹2,730 tax. RELIANCE duplicate in Groww (30 shares) → sell to consolidate in Zerodha. Energy at 38% → reduce by selling RELIANCE, buy Nifty ETF for diversification.';}
 }
 
-// ── WIRE SIP SLIDERS ───────────────────────────�
+// ── INIT ─────────────────────────────────────────
+loadSession();
+</script>
+</body>
+</html>
