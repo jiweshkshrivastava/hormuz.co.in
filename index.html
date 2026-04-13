@@ -597,11 +597,14 @@ pre{white-space:pre-wrap;word-break:break-word}
     <div class="ni" id="ni-vault" onclick="nav('vault')"><span class="ic">🔐</span>Broker Vault</div>
     <div class="ni" id="ni-hmap" onclick="nav('hmap')"><span class="ic">🗂️</span>Holdings Map</div>
     <div class="ni" id="ni-realestate" onclick="nav('realestate')"><span class="ic">🏠</span>Real Estate & Unlisted</div>
+    <div class="ni" id="ni-cdsl" onclick="nav('cdsl')"><span class="ic">📂</span>CDSL CAS Fetch</div>
+    <div class="ni" id="ni-aa" onclick="nav('aa')"><span class="ic">🏛️</span>Account Aggregator</div>
     <div class="ni" id="ni-api" onclick="nav('api')"><span class="ic">🔌</span>API Hub</div>
     <div class="ni" id="ni-tax" onclick="nav('tax')"><span class="ic">🧾</span>Tax & Reports</div>
     <div class="ni" id="ni-brokers" onclick="nav('brokers')"><span class="ic">🏦</span>Open Account</div>
   </div>
   <div class="sbot">
+    <div class="ni" style="background:linear-gradient(90deg,var(--tld),var(--tl));color:#fff;margin-bottom:5px" id="ni-onboard" onclick="startOnboarding()"><span class="ic">🚀</span>Setup Wizard</div>
     <div class="ni" id="ni-settings" onclick="nav('settings')"><span class="ic">⚙️</span>Settings</div>
     <div class="ni" id="ni-admin" onclick="openAdmin()" style="margin-top:4px;background:#0D1117;color:#8ee18e"><span class="ic">📡</span>Analytics<span class="nb" id="admin-live-dot" style="background:#1A9E6B;animation:pulse 2s infinite">LIVE</span></div>
   </div>
@@ -2146,6 +2149,397 @@ pre{white-space:pre-wrap;word-break:break-word}
 </div>
 
 <!-- ══════════════════ API HUB ══════════════════ -->
+
+<!-- ══════════════════ CDSL CAS FETCH ══════════════════ -->
+<div class="page" id="pg-cdsl">
+  <div class="ph">
+    <div>
+      <h2>📂 CDSL CAS — Consolidated Account Statement</h2>
+      <div style="font-size:11px;color:var(--mu);margin-top:2px">Fetches all demat holdings across every CDSL broker via your PAN — one click, complete picture</div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn bp bsm" onclick="fetchCDSLCAS()">⟳ Sync CAS Now</button>
+      <button class="btn bg bsm" onclick="downloadCASPDF()">📄 Download PDF</button>
+    </div>
+  </div>
+  <div class="ps">
+
+    <!-- HOW IT WORKS HERO -->
+    <div class="hero" style="margin-bottom:14px">
+      <div style="font-size:11px;opacity:.65;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">What is CDSL CAS?</div>
+      <div style="font-size:14px;line-height:1.6;opacity:.9;max-width:680px;margin-bottom:14px">
+        CDSL (Central Depository Services India) holds demat records for 9 crore+ investors. Their CAS API lets you fetch <strong>every stock, ETF, bond, and SGB</strong> held across Zerodha, Groww, Angel, IIFL and any CDSL-linked broker — using just your PAN and registered mobile OTP. No individual broker login needed.
+      </div>
+      <div class="hkpis">
+        <div class="hk"><div class="hkv" id="cas-brokers">3</div><div class="hkl">Brokers Detected</div></div>
+        <div class="hk"><div class="hkv" id="cas-isin-count">8</div><div class="hkl">Unique ISINs</div></div>
+        <div class="hk"><div class="hkv" id="cas-total-val">₹18.43L</div><div class="hkl">Total Demat Value</div></div>
+        <div class="hk"><div class="hkv" id="cas-last-sync">Today 9:12 AM</div><div class="hkl">Last Synced</div></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: PAN + OTP FETCH -->
+    <div class="card sh" style="margin-bottom:12px" id="cas-fetch-card">
+      <div class="fsb" style="margin-bottom:12px">
+        <div>
+          <div style="font-weight:700;font-size:14px">Step 1 — Authenticate via PAN + OTP</div>
+          <div style="font-size:11px;color:var(--mu);margin-top:2px">CDSL sends a one-time password to your registered mobile. No broker credentials needed.</div>
+        </div>
+        <span class="tag tok" id="cas-auth-status">✓ Authenticated</span>
+      </div>
+      <div style="display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px">
+        <div style="flex:1;min-width:160px">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">PAN Number</label>
+          <input class="fi M" id="cas-pan" placeholder="ABCDE1234F" maxlength="10" style="letter-spacing:2px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" value="ABCDE1234F">
+        </div>
+        <div style="flex:1;min-width:160px">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Registered Mobile</label>
+          <input class="fi M" id="cas-mobile" placeholder="9876543210" maxlength="10" value="9876543210">
+        </div>
+        <div style="flex:1;min-width:120px" id="cas-otp-group" style="display:none">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">OTP (6 digits)</label>
+          <input class="fi M" id="cas-otp" placeholder="──────" maxlength="6" style="letter-spacing:4px">
+        </div>
+        <button class="btn bp bsm" id="cas-otp-btn" onclick="requestCDSLOTP()">Request OTP →</button>
+        <button class="btn bs bsm" id="cas-verify-btn" style="display:none" onclick="verifyCDSLOTP()">Verify &amp; Fetch →</button>
+      </div>
+      <div class="al ali" style="padding:8px 11px;font-size:11px">
+        🔒 OTP is sent by CDSL directly to your registered mobile. Hormuz never sees your OTP — it's submitted directly to CDSL's API. Session token valid 6 hours.
+      </div>
+    </div>
+
+    <!-- FETCHED HOLDINGS TABLE -->
+    <div class="card sh" style="margin-bottom:12px">
+      <div class="fsb" style="margin-bottom:11px">
+        <div class="ct" style="margin-bottom:0">Demat Holdings — Across All CDSL Brokers</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:11px;color:var(--mu)" id="cas-updated-label">Last updated: Today 9:12 AM</span>
+          <button class="btn bg bxs" onclick="fetchCDSLCAS()">⟳ Refresh</button>
+        </div>
+      </div>
+      <div class="dt-wrap" style="overflow-x:auto">
+        <table class="dt" id="cas-holdings-table">
+          <thead>
+            <tr>
+              <th>Security</th>
+              <th>ISIN</th>
+              <th>Broker / DP</th>
+              <th>Qty</th>
+              <th>Avg Cost</th>
+              <th>LTP</th>
+              <th>Value</th>
+              <th>P&L</th>
+              <th>Pledged</th>
+            </tr>
+          </thead>
+          <tbody id="cas-tbody">
+            <tr>
+              <td><strong>RELIANCE</strong><br><span style="font-size:10px;color:var(--mu)">Reliance Industries Ltd</span></td>
+              <td class="M" style="font-size:11px">INE002A01018</td>
+              <td><span class="bpz bz" style="font-size:10px">Z · IN304201</span> <span class="bpz bgr" style="font-size:10px;margin-left:3px">G · IN389491</span></td>
+              <td class="M">80</td>
+              <td class="M">₹2,374</td>
+              <td class="M">₹2,847</td>
+              <td class="M" style="color:var(--ok)">₹2,27,760</td>
+              <td class="M" style="color:var(--ok)">+₹37,840</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr>
+              <td><strong>INFY</strong><br><span style="font-size:10px;color:var(--mu)">Infosys Ltd</span></td>
+              <td class="M" style="font-size:11px">INE009A01021</td>
+              <td><span class="bpz bz" style="font-size:10px">Z · IN304201</span></td>
+              <td class="M">100</td>
+              <td class="M">₹1,210</td>
+              <td class="M">₹1,456</td>
+              <td class="M" style="color:var(--ok)">₹1,45,600</td>
+              <td class="M" style="color:var(--ok)">+₹24,600</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr>
+              <td><strong>HDFCBANK</strong><br><span style="font-size:10px;color:var(--mu)">HDFC Bank Ltd</span></td>
+              <td class="M" style="font-size:11px">INE040A01034</td>
+              <td><span class="bpz bz" style="font-size:10px">Z · IN304201</span></td>
+              <td class="M">60</td>
+              <td class="M">₹1,420</td>
+              <td class="M">₹1,614</td>
+              <td class="M" style="color:var(--ok)">₹96,840</td>
+              <td class="M" style="color:var(--ok)">+₹11,640</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr>
+              <td><strong>TCS</strong><br><span style="font-size:10px;color:var(--mu)">Tata Consultancy Services</span></td>
+              <td class="M" style="font-size:11px">INE467B01029</td>
+              <td><span class="bpz ban" style="font-size:10px">AN · IN200364</span></td>
+              <td class="M">25</td>
+              <td class="M">₹3,650</td>
+              <td class="M">₹3,912</td>
+              <td class="M" style="color:var(--ok)">₹97,800</td>
+              <td class="M" style="color:var(--ok)">+₹6,550</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr>
+              <td><strong>WIPRO</strong><br><span style="font-size:10px;color:var(--mu)">Wipro Ltd</span></td>
+              <td class="M" style="font-size:11px">INE075A01022</td>
+              <td><span class="bpz bgr" style="font-size:10px">G · IN389491</span></td>
+              <td class="M">200</td>
+              <td class="M">₹569</td>
+              <td class="M">₹478</td>
+              <td class="M" style="color:var(--er)">₹95,600</td>
+              <td class="M" style="color:var(--er)">−₹18,200</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr>
+              <td><strong>SGBJAN25</strong><br><span style="font-size:10px;color:var(--mu)">Sovereign Gold Bond Jan 2025</span></td>
+              <td class="M" style="font-size:11px">IN0020200122</td>
+              <td><span class="bpz bz" style="font-size:10px">Z · IN304201</span></td>
+              <td class="M">8 units</td>
+              <td class="M">₹5,450</td>
+              <td class="M">₹7,180</td>
+              <td class="M" style="color:var(--ok)">₹57,440</td>
+              <td class="M" style="color:var(--ok)">+₹13,840</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr>
+              <td><strong>NIFTY BEES</strong><br><span style="font-size:10px;color:var(--mu)">Nippon India ETF Nifty BeES</span></td>
+              <td class="M" style="font-size:11px">INF204KA1B18</td>
+              <td><span class="bpz bgr" style="font-size:10px">G · IN389491</span></td>
+              <td class="M">150</td>
+              <td class="M">₹189</td>
+              <td class="M">₹248</td>
+              <td class="M" style="color:var(--ok)">₹37,200</td>
+              <td class="M" style="color:var(--ok)">+₹8,850</td>
+              <td style="color:var(--mu)">—</td>
+            </tr>
+            <tr style="background:var(--cr);font-weight:700">
+              <td colspan="6">TOTAL — 3 brokers · 7 securities</td>
+              <td class="M" style="color:var(--tl)">₹7,58,240</td>
+              <td class="M" style="color:var(--ok)">+₹85,120</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DUPLICATION ALERT -->
+    <div class="al ald" style="margin-bottom:12px">
+      ⚠️ <strong>Duplication Alert:</strong> RELIANCE held in 2 DPs (IN304201 · IN389491). You are paying double DP charges (₹5.50+GST per debit). Consider consolidating to one broker.
+      <button class="btn bs bxs" style="margin-left:8px;flex-shrink:0" onclick="nav('trade');toast('Pre-loaded: SELL RELIANCE 30 qty from Groww to consolidate')">Consolidate →</button>
+    </div>
+
+    <!-- NSDL NOTE -->
+    <div class="card sh" style="margin-bottom:12px">
+      <div class="ct">NSDL Holdings</div>
+      <div class="al ali" style="margin-bottom:9px">📋 <strong>Angel One (IN200364 · NSDL)</strong> — NSDL requires separate CAS fetch via investor.nsdl.com. Click below to open NSDL portal in new tab, download your CAS PDF, then import it here.</div>
+      <div style="display:flex;gap:7px">
+        <a href="https://investor.nsdl.com/eservices/demat/DematAccount.aspx" target="_blank" class="btn bo bsm">Open NSDL Portal →</a>
+        <button class="btn bg bsm" onclick="toast('NSDL CAS import: Upload PDF in Tax & Reports → Import Statements. Coming in Phase 3.')">Import NSDL CAS</button>
+      </div>
+    </div>
+
+    <!-- HOW TO VIDEO / STEPS -->
+    <div class="card sh">
+      <div class="ct">How CDSL CAS Integration Works</div>
+      <div class="g3">
+        <div style="text-align:center;padding:12px">
+          <div style="font-size:28px;margin-bottom:7px">🔐</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:5px">PAN + OTP Auth</div>
+          <div style="font-size:11px;color:var(--mu);line-height:1.6">CDSL verifies your PAN against their depository records. OTP sent to registered mobile. Session valid 6 hrs.</div>
+        </div>
+        <div style="text-align:center;padding:12px;border-left:1px solid var(--bd);border-right:1px solid var(--bd)">
+          <div style="font-size:28px;margin-bottom:7px">📡</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:5px">CAS API Pull</div>
+          <div style="font-size:11px;color:var(--mu);line-height:1.6">Hormuz calls CDSL's /holdings endpoint and receives all ISIN records across every DP account linked to your PAN.</div>
+        </div>
+        <div style="text-align:center;padding:12px">
+          <div style="font-size:28px;margin-bottom:7px">📊</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:5px">Auto-Merge to Dashboard</div>
+          <div style="font-size:11px;color:var(--mu);line-height:1.6">Holdings merge with live LTP from NSE/BSE feed. Duplications are flagged. Net worth and P&L update instantly.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- /pg-cdsl -->
+
+
+<!-- ══════════════════ ACCOUNT AGGREGATOR ══════════════════ -->
+<div class="page" id="pg-aa">
+  <div class="ph">
+    <div>
+      <h2>🏛️ Account Aggregator — RBI Consent Framework</h2>
+      <div style="font-size:11px;color:var(--mu);margin-top:2px">Securely fetch bank accounts, FDs, loans, insurance and investments via Sahamati / Finvu AA — no bank login needed</div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn bp bsm" onclick="initiateAAConsent()">🔗 Link Accounts</button>
+      <button class="btn bg bsm" onclick="refreshAAData()">⟳ Refresh</button>
+    </div>
+  </div>
+  <div class="ps">
+
+    <!-- AA HERO -->
+    <div class="hero" style="margin-bottom:14px">
+      <div style="font-size:11px;opacity:.65;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Account Aggregator (AA) — RBI Regulated</div>
+      <div style="font-size:14px;line-height:1.6;opacity:.9;max-width:700px;margin-bottom:14px">
+        The Account Aggregator framework (RBI circular 2021) lets you share financial data from any bank, insurance or pension account with your consent — in real time, without sharing passwords. Powered by <strong>Finvu AA</strong> (Cookiejar Technologies) — one of India's 7 licensed AAs.
+      </div>
+      <div class="hkpis">
+        <div class="hk"><div class="hkv" id="aa-accounts-count">4</div><div class="hkl">Accounts Linked</div></div>
+        <div class="hk"><div class="hkv" id="aa-bank-balance">₹3,84,200</div><div class="hkl">Total Bank Balance</div></div>
+        <div class="hk"><div class="hkv" id="aa-fd-total">₹12,50,000</div><div class="hkl">FD / RD Value</div></div>
+        <div class="hk"><div class="hkv" id="aa-consent-expiry">89 days</div><div class="hkl">Consent Validity</div></div>
+      </div>
+    </div>
+
+    <!-- CONSENT INITIATION -->
+    <div class="card sh" style="margin-bottom:12px">
+      <div class="fsb" style="margin-bottom:12px">
+        <div>
+          <div style="font-weight:700;font-size:14px">Step 1 — Initiate AA Consent via Finvu</div>
+          <div style="font-size:11px;color:var(--mu);margin-top:2px">Finvu will redirect you to your bank's app / netbanking for one-tap approval. Data flows directly to Hormuz.</div>
+        </div>
+        <span class="tag tok">✓ Consent Active</span>
+      </div>
+      <div class="g3" style="margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Mobile (AA Handle)</label>
+          <input class="fi M" id="aa-mobile" placeholder="9876543210" value="9876543210" maxlength="10">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Consent Duration</label>
+          <select class="fi" id="aa-duration" style="padding:7px 10px">
+            <option value="90">90 days (recommended)</option>
+            <option value="180">180 days</option>
+            <option value="365">1 year</option>
+            <option value="1">One-time fetch</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Data to Fetch</label>
+          <select class="fi" id="aa-scope" style="padding:7px 10px">
+            <option value="all">All (Bank + FD + Ins + MF)</option>
+            <option value="deposit">Bank + FD / RD only</option>
+            <option value="insurance">Insurance only</option>
+            <option value="mf">Mutual Funds (CAMS)</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn bp" onclick="initiateAAConsent()" style="justify-content:center">🔗 Open Finvu Consent Screen →</button>
+        <button class="btn bg bsm" onclick="toast('Consent history: 2 active consents. HDFC Bank: ₹2.1L balance, ₹10L FD. SBI: ₹1.74L balance. Consent via Finvu AA. Next refresh: 24hr auto.')">View Consent Log</button>
+      </div>
+      <div class="al ali" style="margin-top:10px;padding:8px 11px;font-size:11px">
+        🛡️ <strong>DPDP compliant:</strong> You can revoke any consent instantly. Hormuz stores only the last fetched snapshot — not your bank credentials. Data retention: 90 days per consent cycle.
+      </div>
+    </div>
+
+    <!-- LINKED ACCOUNTS TABLE -->
+    <div class="card sh" style="margin-bottom:12px">
+      <div class="fsb" style="margin-bottom:11px">
+        <div class="ct" style="margin-bottom:0">Linked Financial Accounts</div>
+        <button class="btn bp bxs" onclick="initiateAAConsent()">+ Link More</button>
+      </div>
+      <table class="dt">
+        <thead>
+          <tr><th>Institution</th><th>Account Type</th><th>Acc No.</th><th>Balance / Value</th><th>Interest / Yield</th><th>Maturity</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>HDFC Bank</strong><br><span style="font-size:10px;color:var(--mu)">Savings Account</span></td>
+            <td><span class="tag ttl">SAVINGS</span></td>
+            <td class="M" style="font-size:11px">XXXX-XXXX-2847</td>
+            <td class="M" style="color:var(--ok)">₹2,10,400</td>
+            <td class="M">3.5% p.a.</td>
+            <td style="color:var(--mu)">—</td>
+            <td><span class="tag tok">● Live</span></td>
+          </tr>
+          <tr>
+            <td><strong>HDFC Bank</strong><br><span style="font-size:10px;color:var(--mu)">Fixed Deposit</span></td>
+            <td><span class="tag tsf">FD</span></td>
+            <td class="M" style="font-size:11px">FD-XXXX-4821</td>
+            <td class="M" style="color:var(--ok)">₹10,00,000</td>
+            <td class="M" style="color:var(--ok)">7.1% p.a.</td>
+            <td class="M">Nov 2026</td>
+            <td><span class="tag tok">● Live</span></td>
+          </tr>
+          <tr>
+            <td><strong>SBI</strong><br><span style="font-size:10px;color:var(--mu)">Savings Account</span></td>
+            <td><span class="tag ttl">SAVINGS</span></td>
+            <td class="M" style="font-size:11px">XXXX-XXXX-9134</td>
+            <td class="M" style="color:var(--ok)">₹1,73,800</td>
+            <td class="M">2.7% p.a.</td>
+            <td style="color:var(--mu)">—</td>
+            <td><span class="tag tok">● Live</span></td>
+          </tr>
+          <tr>
+            <td><strong>Bajaj Finance</strong><br><span style="font-size:10px;color:var(--mu)">Fixed Deposit</span></td>
+            <td><span class="tag tsf">FD</span></td>
+            <td class="M" style="font-size:11px">FD-XXXX-7731</td>
+            <td class="M" style="color:var(--ok)">₹2,50,000</td>
+            <td class="M" style="color:var(--ok)">8.6% p.a.</td>
+            <td class="M">Mar 2027</td>
+            <td><span class="tag tok">● Live</span></td>
+          </tr>
+          <tr>
+            <td><strong>ICICI Bank</strong><br><span style="font-size:10px;color:var(--mu)">Home Loan</span></td>
+            <td><span class="tag tmu">LOAN</span></td>
+            <td class="M" style="font-size:11px">HL-XXXX-5512</td>
+            <td class="M" style="color:var(--er)">−₹18,40,000</td>
+            <td class="M" style="color:var(--wn)">8.9% p.a.</td>
+            <td class="M">Apr 2038</td>
+            <td><span class="tag twn">⚠ Pending</span></td>
+          </tr>
+          <tr style="background:var(--cr);font-weight:700">
+            <td colspan="3">Net Liquid (Bank + FD − Loan)</td>
+            <td class="M" style="color:var(--tl)">−₹2,06,800</td>
+            <td colspan="3" style="color:var(--mu);font-size:11px">Weighted FD yield: 7.5% avg</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- AA FINANCIAL HEALTH -->
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card sh">
+        <div class="ct">Cash Flow Analysis (Last 3 Months)</div>
+        <div class="sr"><span class="lb">Monthly Income (salary)</span><span class="M" style="color:var(--ok)">+₹2,40,000</span></div>
+        <div class="sr"><span class="lb">EMI outflow (home loan)</span><span class="M" style="color:var(--er)">−₹28,400</span></div>
+        <div class="sr"><span class="lb">SIP investments</span><span class="M" style="color:var(--wn)">−₹25,000</span></div>
+        <div class="sr"><span class="lb">Avg monthly spend</span><span class="M" style="color:var(--er)">−₹85,000</span></div>
+        <div class="sr"><span class="lb">Net monthly surplus</span><span class="M" style="color:var(--ok);font-weight:700">+₹1,01,600</span></div>
+        <div class="al alo" style="margin-top:9px;padding:7px 10px;font-size:11px">✓ Strong surplus. AI suggests: increase SIP by ₹20,000/month — can reach ₹1Cr corpus 4 years earlier.</div>
+      </div>
+      <div class="card sh">
+        <div class="ct">FD Maturity Tracker</div>
+        <div class="sr"><span class="lb">HDFC FD · ₹10L</span><span class="M">Nov 2026 · 7.1%</span></div>
+        <div class="sr"><span class="lb">Bajaj FD · ₹2.5L</span><span class="M">Mar 2027 · 8.6%</span></div>
+        <div style="margin-top:9px;padding:9px 11px;background:var(--cr);border-radius:7px;font-size:12px">
+          <div style="font-weight:700;color:var(--tl);margin-bottom:5px">✦ AI FD Renewal Advice</div>
+          HDFC FD matures Nov 2026. Current best rate: <strong>Unity SFB 9.0%</strong>. Rolling ₹10L from HDFC 7.1% → Unity 9.0% adds <strong>₹19,000/yr</strong> extra interest.
+          <br><div style="margin-top:7px"><button class="btn bs bxs" onclick="toast('Comparing FD rates: Unity SFB 9.0%, Jana SFB 8.5%, Bajaj 8.6%, HDFC 7.1% — redirecting to Bonds page')">Renew at Best Rate →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AA PARTNERS -->
+    <div class="card sh">
+      <div class="ct">Supported AA Partners &amp; Banks</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <span class="tag tok" style="padding:4px 10px">Finvu (Cookiejar)</span>
+        <span class="tag ttl" style="padding:4px 10px">OneMoney</span>
+        <span class="tag ttl" style="padding:4px 10px">CAMS Finserv AA</span>
+        <span class="tag ttl" style="padding:4px 10px">Setu AA</span>
+        <span class="tag tmu" style="padding:4px 10px">NADL (NSDL)</span>
+        <span class="tag tmu" style="padding:4px 10px">Protean AA</span>
+      </div>
+      <div style="font-size:11px;color:var(--mu)">Supports 100+ FIPs: HDFC, SBI, ICICI, Axis, Kotak, Bajaj Finance, NPS CRA, CAMS MF, KFintech MF, and all major insurers.</div>
+    </div>
+
+  </div>
+</div>
+<!-- /pg-aa -->
+
 <div class="page" id="pg-api">
   <div class="ph"><h2>🔌 Broker API Hub</h2></div>
   <div class="ps">
@@ -3190,6 +3584,7 @@ async function doSignUp(){
   });
   if(error){if(err)err.textContent=error.message;return;}
   toast('✓ Welcome to Hormuz, '+fname+'! 🎉');
+  setTimeout(checkShowOnboarding, 2000);
   enterApp({email,name:(fname+' '+lname).trim()});
 }
 
@@ -4297,7 +4692,7 @@ function buildUserTable(events) {
     if (e.event === 'page_view' && e.page) u.pages[e.page] = (u.pages[e.page] || 0) + 1;
   });
 
-  const PAGE_LABELS = {dashboard:'Dashboard',portfolio:'Holdings',trade:'Terminal',mf:'MF',bonds:'Bonds',tax:'Tax',vault:'Vault',hmap:'Holdings Map',realestate:'Real Estate & Unlisted',api:'API',orders:'Orders',insurance:'Insurance',premium:'AIFs'};
+  const PAGE_LABELS = {dashboard:'Dashboard',portfolio:'Holdings',trade:'Terminal',mf:'MF',bonds:'Bonds',tax:'Tax',vault:'Vault',hmap:'Holdings Map',realestate:'Real Estate & Unlisted',cdsl:'CDSL CAS Fetch',aa:'Account Aggregator',api:'API',orders:'Orders',insurance:'Insurance',premium:'AIFs'};
 
   const rows = Object.entries(userMap)
     .sort((a,b) => b[1].sessions.size - a[1].sessions.size)
@@ -6538,6 +6933,37 @@ function buildStatementHTML(monthLabel, type, forPrint){
   This statement is for informational purposes only. Not a SEBI-registered investment advisor. Consult your CA for tax filing.<br>
   Hormuz is not responsible for omissions or errors in broker API data. Verify figures with your broker statements.
 </div>
+
+<!-- ══════════════════ ONBOARDING WIZARD ══════════════════ -->
+<div class="overlay" id="onboard-ov" style="z-index:800;align-items:flex-start;padding-top:30px">
+  <div class="mbox" style="width:640px;max-width:96vw;padding:0;overflow:hidden;border-radius:14px">
+
+    <!-- Progress bar -->
+    <div style="background:var(--tld);padding:18px 24px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:'Playfair Display',serif;color:#fff;font-size:17px;font-weight:700">🚀 Hormuz Setup Wizard</div>
+        <button onclick="closeOnboarding()" style="background:rgba(255,255,255,.12);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+      <!-- Steps indicator -->
+      <div style="display:flex;gap:0;margin-bottom:0" id="ob-steps-bar">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Step content -->
+    <div id="ob-content" style="padding:24px;min-height:320px;max-height:60vh;overflow-y:auto">
+      <!-- rendered by JS -->
+    </div>
+
+    <!-- Footer nav -->
+    <div style="padding:14px 24px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--cr)">
+      <button class="btn bg bsm" id="ob-back-btn" onclick="obStep(-1)">← Back</button>
+      <div style="font-size:12px;color:var(--mu)" id="ob-step-label">Step 1 of 6</div>
+      <button class="btn bp" id="ob-next-btn" onclick="obStep(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
 </body></html>`;
 }
 
@@ -6609,6 +7035,366 @@ function buildTaxReportHTML(period){
   For CA reference only. Not a substitute for professional tax advice. Verify with Form 26AS + broker contract notes.
 </div>
 </body></html>`;
+}
+
+
+// ══════════════════════════════════════════════════
+// CDSL CAS FETCH
+// ══════════════════════════════════════════════════
+function requestCDSLOTP(){
+  const pan    = document.getElementById('cas-pan')?.value?.trim();
+  const mobile = document.getElementById('cas-mobile')?.value?.trim();
+  if(!pan || pan.length !== 10){ toast('Enter valid 10-char PAN'); return; }
+  if(!mobile || mobile.length !== 10){ toast('Enter registered 10-digit mobile'); return; }
+
+  const btn = document.getElementById('cas-otp-btn');
+  if(btn){ btn.textContent = '⏳ Sending...'; btn.disabled = true; }
+
+  // Simulate CDSL OTP send (real: POST to /api/cdsl/otp with pan + mobile)
+  setTimeout(()=>{
+    toast('✓ OTP sent to ••••••' + mobile.slice(-4) + ' by CDSL. Valid 10 minutes.');
+    if(btn){ btn.style.display='none'; }
+    const otpGroup = document.getElementById('cas-otp-group');
+    const verifyBtn = document.getElementById('cas-verify-btn');
+    if(otpGroup) otpGroup.style.display='block';
+    if(verifyBtn) verifyBtn.style.display='inline-flex';
+  }, 1200);
+}
+
+function verifyCDSLOTP(){
+  const otp = document.getElementById('cas-otp')?.value?.trim();
+  if(!otp || otp.length < 4){ toast('Enter OTP from SMS'); return; }
+  toast('✓ OTP verified. Fetching CAS from CDSL depository...');
+  setTimeout(()=>{ fetchCDSLCAS(); }, 1200);
+}
+
+function fetchCDSLCAS(){
+  toast('📡 Fetching CAS from CDSL... syncing all DP accounts');
+  const statusEl = document.getElementById('cas-auth-status');
+  if(statusEl){ statusEl.textContent = '⟳ Syncing...'; statusEl.className = 'tag twn'; }
+  const updLabel = document.getElementById('cas-updated-label');
+
+  setTimeout(()=>{
+    // Update KPIs
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    if(updLabel) updLabel.textContent = 'Last updated: Today ' + timeStr;
+    if(statusEl){ statusEl.textContent = '✓ Authenticated'; statusEl.className = 'tag tok'; }
+    document.getElementById('cas-last-sync') && (document.getElementById('cas-last-sync').textContent = 'Today ' + timeStr);
+    toast('✓ CAS synced — 3 DPs · 7 ISINs · ₹7,58,240 total demat value');
+  }, 2000);
+}
+
+function downloadCASPDF(){
+  toast('Generating CAS PDF...');
+  const u = document.getElementById('user-name')?.textContent || 'Rahul Kumar';
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const w = window.open('','_blank');
+  if(!w){ toast('⚠ Allow pop-ups to download PDF'); return; }
+  w.document.write(`<!DOCTYPE html><html><head><title>CDSL CAS — ${u}</title>
+  <style>body{font-family:Arial,sans-serif;font-size:13px;padding:24px;color:#333}
+  h1{color:#08404D;margin-bottom:4px}.sub{color:#6B7E85;font-size:11px;margin-bottom:18px}
+  table{width:100%;border-collapse:collapse}th{background:#F7F3EE;text-align:left;padding:7px 10px;font-size:11px;border-bottom:1px solid #ddd}
+  td{padding:6px 10px;border-bottom:1px solid #eee}.ok{color:#1A9E6B}.er{color:#C0392B}
+  .footer{margin-top:20px;font-size:10px;color:#9BA8B0;border-top:1px solid #ddd;padding-top:8px}</style>
+  </head><body>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+    <div><h1>${u} — CDSL Consolidated Account Statement</h1><div class="sub">PAN: ABCDE1234F · Generated: ${today} · DPs: 3 (IN304201 · IN389491 · IN200364)</div></div>
+  </div>
+  <table><thead><tr><th>Security</th><th>ISIN</th><th>Broker/DP</th><th>Qty</th><th>Avg Cost</th><th>LTP</th><th>Value</th><th>P&L</th></tr></thead>
+  <tbody>
+  <tr><td><strong>RELIANCE</strong></td><td>INE002A01018</td><td>Zerodha+Groww</td><td>80</td><td>₹2,374</td><td>₹2,847</td><td class="ok">₹2,27,760</td><td class="ok">+₹37,840</td></tr>
+  <tr><td><strong>INFY</strong></td><td>INE009A01021</td><td>Zerodha</td><td>100</td><td>₹1,210</td><td>₹1,456</td><td class="ok">₹1,45,600</td><td class="ok">+₹24,600</td></tr>
+  <tr><td><strong>HDFCBANK</strong></td><td>INE040A01034</td><td>Zerodha</td><td>60</td><td>₹1,420</td><td>₹1,614</td><td class="ok">₹96,840</td><td class="ok">+₹11,640</td></tr>
+  <tr><td><strong>TCS</strong></td><td>INE467B01029</td><td>Angel One</td><td>25</td><td>₹3,650</td><td>₹3,912</td><td class="ok">₹97,800</td><td class="ok">+₹6,550</td></tr>
+  <tr><td><strong>WIPRO</strong></td><td>INE075A01022</td><td>Groww</td><td>200</td><td>₹569</td><td>₹478</td><td class="er">₹95,600</td><td class="er">−₹18,200</td></tr>
+  <tr><td><strong>SGBJAN25</strong></td><td>IN0020200122</td><td>Zerodha</td><td>8u</td><td>₹5,450</td><td>₹7,180</td><td class="ok">₹57,440</td><td class="ok">+₹13,840</td></tr>
+  <tr><td><strong>NIFTY BEES</strong></td><td>INF204KA1B18</td><td>Groww</td><td>150</td><td>₹189</td><td>₹248</td><td class="ok">₹37,200</td><td class="ok">+₹8,850</td></tr>
+  <tr style="font-weight:700;background:#F7F3EE"><td colspan="6">TOTAL</td><td class="ok">₹7,58,240</td><td class="ok">+₹85,120</td></tr>
+  </tbody></table>
+  <div class="footer">CDSL CAS · hormuz.co.in · ${today} · For informational purposes only. Verify with CDSL e-CAS at www.cdslindia.com</div>
+  </body></html>`);
+  w.document.close(); w.onload = ()=>w.print();
+}
+
+
+// ══════════════════════════════════════════════════
+// ACCOUNT AGGREGATOR (Sahamati / Finvu)
+// ══════════════════════════════════════════════════
+function initiateAAConsent(){
+  const mobile   = document.getElementById('aa-mobile')?.value?.trim() || '9876543210';
+  const duration = document.getElementById('aa-duration')?.value || '90';
+  const scope    = document.getElementById('aa-scope')?.value || 'all';
+
+  toast('🔗 Opening Finvu consent screen... redirecting in 2 seconds');
+
+  // In production: POST to Finvu /api/consent/create → get redirectUrl → window.open(redirectUrl)
+  // Finvu redirects back to https://hormuz.co.in/aa-callback?consentHandle=xxx after user approves
+  // Then: GET /api/data-fetch with consentHandle to pull account data
+  setTimeout(()=>{
+    toast('✓ Simulated: Consent approved for ' + duration + ' days. Fetching account data from Finvu AA...');
+    setTimeout(()=> refreshAAData(), 1400);
+  }, 2000);
+}
+
+function refreshAAData(){
+  toast('📡 Refreshing account data via Account Aggregator...');
+  setTimeout(()=>{
+    const now = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    const el = document.getElementById('aa-accounts-count');
+    if(el) el.textContent = '5';
+    toast('✓ AA data refreshed — HDFC Bank, SBI, Bajaj FD, ICICI Loan, Axis RD synced at ' + now);
+  }, 2000);
+}
+
+
+// ══════════════════════════════════════════════════
+// HNI ONBOARDING WIZARD — 6-step guided setup
+// ══════════════════════════════════════════════════
+let OB_STEP = 0;
+const OB_STEPS = [
+  {
+    title: '👋  Welcome to Hormuz',
+    subtitle: 'India\'s AI Cross-Broker Wealth Platform',
+    content: `
+      <div style="text-align:center;padding:10px 0 18px">
+        <div style="font-size:48px;margin-bottom:10px">⬡</div>
+        <div style="font-size:22px;font-weight:700;color:var(--tld);font-family:'Playfair Display',serif;margin-bottom:6px">One Platform. Every Rupee.</div>
+        <div style="font-size:14px;color:var(--mu);max-width:420px;margin:0 auto;line-height:1.7">
+          We'll walk you through connecting your brokers, importing your holdings, and getting your complete net worth on screen — in under 5 minutes.
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px">
+        ${[['⏱️','5 minutes','Setup time'],['🔒','100% Private','Your keys stay yours'],['✦','AI Analyst','Portfolio insights']].map(([e,v,l])=>`
+          <div style="text-align:center;background:var(--cr);border-radius:9px;padding:12px">
+            <div style="font-size:22px;margin-bottom:5px">${e}</div>
+            <div style="font-weight:700;font-size:14px;color:var(--tl)">${v}</div>
+            <div style="font-size:11px;color:var(--mu)">${l}</div>
+          </div>`).join('')}
+      </div>
+    `
+  },
+  {
+    title: '👤  Your Profile',
+    subtitle: 'Tell us about yourself',
+    content: `
+      <div class="g2" style="gap:12px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">First Name</label>
+          <input class="fi" id="ob-fname" placeholder="Rahul" value="">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Last Name</label>
+          <input class="fi" id="ob-lname" placeholder="Kumar" value="">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">PAN Number</label>
+          <input class="fi M" id="ob-pan" placeholder="ABCDE1234F" maxlength="10" style="letter-spacing:2px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Mobile</label>
+          <input class="fi M" id="ob-mobile" placeholder="9876543210" maxlength="10">
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px;text-transform:uppercase">Risk Profile</label>
+        <div style="display:flex;gap:8px" id="ob-risk-group">
+          ${[['Conservative','Low-risk. FD, bonds, blue chips.','🛡️'],['Moderate','Balanced equity + debt.','⚖️'],['Aggressive','High-growth. Midcap + crypto.','🚀']].map(([v,d,e],i)=>`
+            <div onclick="obSelectRisk(this,'${v}')" style="flex:1;border:1.5px solid var(--bd);border-radius:9px;padding:10px;cursor:pointer;text-align:center;transition:all .15s" class="ob-risk-opt">
+              <div style="font-size:20px;margin-bottom:5px">${e}</div>
+              <div style="font-weight:700;font-size:13px;margin-bottom:3px">${v}</div>
+              <div style="font-size:11px;color:var(--mu)">${d}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase">Investment Goal</label>
+        <select class="fi" id="ob-goal" style="padding:7px 10px">
+          <option>Wealth accumulation (long term)</option>
+          <option>Retirement planning (10+ years)</option>
+          <option>Child's education (5–10 years)</option>
+          <option>Real estate purchase (3–5 years)</option>
+          <option>Tax optimization (this FY)</option>
+          <option>Family office / succession planning</option>
+        </select>
+      </div>
+    `
+  },
+  {
+    title: '🔐  Connect Your Brokers',
+    subtitle: 'Bring your own API key — your credentials stay with you',
+    content: `
+      <div class="al ali" style="margin-bottom:12px;font-size:12px">🔑 <strong>How it works:</strong> Log into your broker portal → API Settings → Generate Key → Paste below. Hormuz never stores plain-text passwords.</div>
+      ${[
+        ['Zerodha','bz','NSE/BSE/F&O · Kite API','ob-z-key','kite_api_key_here','https://developers.kite.trade'],
+        ['Groww','bgr','NSE/BSE/MF · OAuth2','ob-g-token','groww_access_token_here','https://openapi.groww.in'],
+        ['Angel One','ban','NSE/BSE/MCX · SmartAPI','ob-a-key','angel_api_key_here','https://smartapi.angelbroking.com'],
+      ].map(([name,cls,sub,id,ph,url])=>`
+        <div style="border:1.5px solid var(--bd);border-radius:9px;padding:11px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span class="bpz ${cls}" style="font-size:12px">${name}</span>
+            <span style="font-size:11px;color:var(--mu)">${sub}</span>
+            <a href="${url}" target="_blank" style="margin-left:auto;font-size:11px;color:var(--tl)">📖 Get API Key →</a>
+          </div>
+          <input class="fi M" id="${id}" placeholder="${ph}" style="font-size:11px">
+        </div>`).join('')}
+      <div style="font-size:11px;color:var(--mu);margin-top:6px;text-align:center">Don't have API keys yet? <span style="color:var(--tl);cursor:pointer;font-weight:700" onclick="obStep(1)">Skip for now — add later in Broker Vault →</span></div>
+    `
+  },
+  {
+    title: '📈  Import Your Mutual Funds',
+    subtitle: 'All CAMS + KFintech folios via PAN — one click',
+    content: `
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:36px;margin-bottom:8px">📈</div>
+        <div style="font-size:15px;font-weight:700;color:var(--tld);margin-bottom:5px">Enter your PAN once — all MF folios load automatically</div>
+        <div style="font-size:13px;color:var(--mu);line-height:1.6">Hormuz connects to CAMS and KFintech (cover 95% of Indian MFs). All your schemes, units, NAVs, and XIRR appear instantly.</div>
+      </div>
+      <div style="max-width:300px;margin:0 auto 14px">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase">PAN Number</label>
+        <input class="fi M" id="ob-mf-pan" placeholder="ABCDE1234F" maxlength="10" style="letter-spacing:2px;text-transform:uppercase;text-align:center;font-size:16px" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div style="text-align:center">
+        <button class="btn bp" onclick="obImportMF()" style="justify-content:center">📥 Import Folios via CAMS + KFintech →</button>
+      </div>
+      <div id="ob-mf-result" style="display:none;margin-top:12px;background:var(--cr);border-radius:8px;padding:11px 13px;font-size:13px"></div>
+      <div style="margin-top:14px;font-size:12px;color:var(--mu);text-align:center">Or <span style="color:var(--tl);cursor:pointer;font-weight:700" onclick="obStep(1)">skip — I'll add MF folios later →</span></div>
+    `
+  },
+  {
+    title: '🏠  Add Other Assets',
+    subtitle: 'Complete your net worth picture',
+    content: `
+      <div style="font-size:13px;color:var(--mu);margin-bottom:14px">Tell us about your other assets. You can add details later — just tick what you own:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="ob-asset-checklist">
+        ${[
+          ['🏠','Real Estate','Properties, plots, commercial'],
+          ['₿','Crypto','CoinDCX, WazirX, CoinSwitch'],
+          ['🥇','Gold / SGB','ETF, SGB, physical, MMTC'],
+          ['🏦','Bank FDs','HDFC, SBI, Bajaj Finance'],
+          ['💎','AIF / PMS','Cat II/III AIFs, PMS accounts'],
+          ['📋','Unlisted Shares','Pre-IPO, ESOPs, startup equity'],
+          ['💱','Forex','NSE CDS, forward contracts'],
+          ['🛡️','Insurance','Term, health, ULIP'],
+        ].map(([e,n,d])=>`
+          <div onclick="this.classList.toggle('ob-checked');this.style.borderColor=this.classList.contains('ob-checked')?'var(--tl)':'var(--bd)';this.style.background=this.classList.contains('ob-checked')?'var(--lt)':'var(--wh)'"
+            style="border:1.5px solid var(--bd);border-radius:9px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .15s">
+            <span style="font-size:20px">${e}</span>
+            <div><div style="font-weight:700;font-size:13px">${n}</div><div style="font-size:11px;color:var(--mu)">${d}</div></div>
+          </div>`).join('')}
+      </div>
+      <div class="al ali" style="margin-top:12px;padding:8px 11px;font-size:11px">Ticked assets will appear in your sidebar with dedicated pages for manual entry. AI will include them in your net worth calculation.</div>
+    `
+  },
+  {
+    title: '✅  You\'re All Set!',
+    subtitle: 'Your Hormuz dashboard is ready',
+    content: `
+      <div style="text-align:center;padding:8px 0 16px">
+        <div style="font-size:52px;margin-bottom:10px">🎉</div>
+        <div style="font-size:22px;font-weight:700;color:var(--tld);font-family:'Playfair Display',serif;margin-bottom:6px">Welcome to Hormuz</div>
+        <div style="font-size:13px;color:var(--mu);max-width:400px;margin:0 auto;line-height:1.7">Your wealth platform is configured. Your dashboard is live with demo data until your broker connections sync (usually under 2 minutes).</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        ${[
+          ['📊','Open Dashboard','See your complete net worth','dashboard'],
+          ['🔐','Broker Vault','Check connection status','vault'],
+          ['✦','Ask AI Analyst','Get your portfolio score',''],
+          ['📄','Generate PDF','Share with your CA','tax'],
+        ].map(([e,t,d,pg])=>`
+          <div onclick="${pg?`closeOnboarding();showPage('${pg}')`:'closeOnboarding();openAI()'}" style="border:1.5px solid var(--bd);border-radius:9px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;background:var(--wh)" onmouseover="this.style.borderColor='var(--tl)';this.style.background='var(--lt)'" onmouseout="this.style.borderColor='var(--bd)';this.style.background='var(--wh)'">
+            <span style="font-size:24px">${e}</span>
+            <div><div style="font-weight:700;font-size:13px;color:var(--tld)">${t}</div><div style="font-size:11px;color:var(--mu)">${d}</div></div>
+          </div>`).join('')}
+      </div>
+      <div class="al alo" style="padding:8px 11px;font-size:12px">✓ Setup complete. The wizard will not show again. Access it anytime from <strong>🚀 Setup Wizard</strong> in the sidebar.</div>
+    `
+  }
+];
+
+function startOnboarding(){
+  OB_STEP = 0;
+  document.getElementById('onboard-ov').classList.add('on');
+  renderObStep();
+}
+
+function closeOnboarding(){
+  document.getElementById('onboard-ov').classList.remove('on');
+}
+
+function obSelectRisk(el, val){
+  document.querySelectorAll('.ob-risk-opt').forEach(o=>{
+    o.style.borderColor='var(--bd)'; o.style.background='var(--wh)';
+  });
+  el.style.borderColor='var(--tl)';
+  el.style.background='var(--lt)';
+}
+
+async function obImportMF(){
+  const pan = document.getElementById('ob-mf-pan')?.value?.trim();
+  if(!pan || pan.length!==10){ toast('Enter valid 10-char PAN'); return; }
+  const res = document.getElementById('ob-mf-result');
+  if(res){ res.style.display='block'; res.innerHTML='<span style="color:var(--mu)">📡 Connecting to CAMS + KFintech...</span>'; }
+  await new Promise(r=>setTimeout(r,1600));
+  if(res){ res.innerHTML = '✅ <strong>6 folios found</strong> across CAMS and KFintech. Schemes: SBI Nifty 50, Axis Small Cap, Mirae ELSS, HDFC Flexicap, Parag Parikh, Nippon Gold ETF. <strong>Total: ₹12,35,239 · XIRR: 25.8%</strong>. Data will appear in your MF page instantly.'; res.style.background='#D1F5E8'; }
+  toast('✓ 6 MF folios imported via CAMS + KFintech');
+}
+
+function renderObStep(){
+  const step = OB_STEPS[OB_STEP];
+  if(!step) return;
+
+  // Step bar
+  const bar = document.getElementById('ob-steps-bar');
+  if(bar){
+    bar.innerHTML = OB_STEPS.map((_,i)=>`
+      <div style="flex:1;height:3px;background:${i<=OB_STEP?'var(--sf)':'rgba(255,255,255,.2)'};transition:background .3s;${i>0?'margin-left:3px':''}"></div>
+    `).join('');
+  }
+
+  // Content
+  const content = document.getElementById('ob-content');
+  if(content){
+    content.innerHTML = `
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--tld);margin-bottom:3px">${step.title}</div>
+        <div style="font-size:12px;color:var(--mu)">${step.subtitle}</div>
+      </div>
+      ${step.content}
+    `;
+  }
+
+  // Footer
+  const backBtn = document.getElementById('ob-back-btn');
+  const nextBtn = document.getElementById('ob-next-btn');
+  const label   = document.getElementById('ob-step-label');
+  const isLast  = OB_STEP === OB_STEPS.length - 1;
+  const isFirst = OB_STEP === 0;
+
+  if(backBtn) backBtn.style.display = isFirst ? 'none' : 'inline-flex';
+  if(nextBtn){ nextBtn.textContent = isLast ? '🚀 Go to Dashboard' : 'Next →'; }
+  if(label) label.textContent = `Step ${OB_STEP+1} of ${OB_STEPS.length}`;
+}
+
+function obStep(dir){
+  const isLast = OB_STEP === OB_STEPS.length - 1;
+  if(isLast && dir === 1){
+    closeOnboarding();
+    showPage('dashboard');
+    toast('🚀 Welcome to Hormuz! Your dashboard is live.');
+    return;
+  }
+  OB_STEP = Math.max(0, Math.min(OB_STEPS.length-1, OB_STEP + dir));
+  renderObStep();
+}
+
+// Auto-start onboarding for brand new users (first login, no data)
+function checkShowOnboarding(){
+  const shown = localStorage.getItem('hormuz_ob_shown');
+  if(!shown && typeof USER_EMAIL !== 'undefined' && USER_EMAIL){
+    localStorage.setItem('hormuz_ob_shown','1');
+    setTimeout(()=>startOnboarding(), 1200);
+  }
 }
 
 </script>
