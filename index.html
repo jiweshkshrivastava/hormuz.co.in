@@ -4320,7 +4320,7 @@ const AMFI_FUNDS = [
 async function fetchAMFI(){
   try {
     // AMFI txt file is CORS-enabled
-    const r = await fetch('https://api.amfiindia.com/spages/NAVAll.txt');
+    const r = await fetch('/api/amfi');
     if(!r.ok) throw new Error('AMFI '+r.status);
     const text = await r.text();
     const lines = text.split('\n');
@@ -4650,7 +4650,7 @@ async function fetchNSEIndices(){
   try{
     // Try query2 first (often has better CORS)
     // Try Yahoo Finance directly - has CORS for most regions
-    const url=`https://query2.finance.yahoo.com/v7/finance/quote?symbols=${syms}&fields=regularMarketPrice,regularMarketChangePercent,regularMarketPreviousClose`;
+    const url=`/api/nifty`;
     const r=await fetch(url,{headers:{'Accept':'application/json'}});
     if(!r.ok) throw new Error('YF v7 '+r.status);
     const d=await r.json();
@@ -4708,7 +4708,7 @@ async function fetchNSEIndices(){
 // Legacy single-quote function (kept for compatibility)
 async function fetchYFQuote(symbol){
   try{
-    const r=await fetch(`https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`);
+    const r=await fetch(`/api/nifty`);
     if(!r.ok) throw new Error(r.status);
     const d=await r.json();
     const q=d?.quoteResponse?.result?.[0]||{};
@@ -4725,7 +4725,7 @@ async function fetchNSEOptions(sym='NIFTY'){
     const url=sym==='NIFTY'
       ?'https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY'
       :'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY';
-    throw new Error('NSE OC requires server-side proxy - showing demo data');
+    const r=await fetch(`/api/nse-oc?symbol=${sym}`);
     if(!r.ok) throw new Error('NSE OC '+r.status);
     const d=await r.json();
     const records=d.records||{};
@@ -5043,7 +5043,7 @@ async function fetchForexHistory(base='USD',days=30){
 // ── 17. FETCH AMFI (MF NAVs) ─────────────────────────
 async function fetchAMFI(){
   try{
-    const r=await fetch('https://api.amfiindia.com/spages/NAVAll.txt');
+    const r=await fetch('/api/amfi');
     if(!r.ok) throw new Error('AMFI '+r.status);
     const text=await r.text();
     const lines=text.split('\n');
