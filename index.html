@@ -596,6 +596,7 @@ pre{white-space:pre-wrap;word-break:break-word}
     <div class="nl">Manage</div>
     <div class="ni" id="ni-vault" onclick="nav('vault')"><span class="ic">🔐</span>Broker Vault</div>
     <div class="ni" id="ni-hmap" onclick="nav('hmap')"><span class="ic">🗂️</span>Holdings Map</div>
+    <div class="ni" id="ni-realestate" onclick="nav('realestate')"><span class="ic">🏠</span>Real Estate & Unlisted</div>
     <div class="ni" id="ni-api" onclick="nav('api')"><span class="ic">🔌</span>API Hub</div>
     <div class="ni" id="ni-tax" onclick="nav('tax')"><span class="ic">🧾</span>Tax & Reports</div>
     <div class="ni" id="ni-brokers" onclick="nav('brokers')"><span class="ic">🏦</span>Open Account</div>
@@ -1338,7 +1339,7 @@ pre{white-space:pre-wrap;word-break:break-word}
       <div class="al alo" style="margin-bottom:10px">🔓 Vault unlocked — AES-256 encrypted · Session only · Auto-locks on close. <strong id="vault-count">9 accounts</strong> across 7 asset classes.</div>
       <!-- VAULT CATEGORY TABS -->
       <div class="tbar" style="margin-bottom:12px">
-        <div class="tab on" data-tc="vt-equity" onclick="swTab(this)">📊 Equity (3)</div>
+        <div class="tab on" data-tc="vt-equity" onclick="swTab(this)">📊 Equity (3+3)</div>
         <div class="tab" data-tc="vt-crypto" onclick="swTab(this)">₿ Crypto (3)</div>
         <div class="tab" data-tc="vt-bullion" onclick="swTab(this)">🥇 Bullion (2)</div>
         <div class="tab" data-tc="vt-forex" onclick="swTab(this)">💱 Forex (1)</div>
@@ -1354,6 +1355,140 @@ pre{white-space:pre-wrap;word-break:break-word}
       <!-- Angel One - expired -->
       <div class="vcard wn"><div class="fsb" style="margin-bottom:11px"><div class="f" style="gap:9px"><div class="cdot wn"></div><span class="bpz ban" style="font-size:13px">Angel One</span><span style="font-size:11px;color:var(--mu)">NSE/BSE/F&O/MCX</span></div><div class="f" style="gap:6px"><span class="tag twn">⚠ Session Expired</span><button class="btn bg bxs" onclick="toast('Angel SmartAPI — 401 JWT expired')">Test</button><button class="btn bs bsm" onclick="reAuthAngel()">🔑 Re-Authenticate</button></div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px"><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Client ID</div><input class="vi" id="v2c" value="AN901234" readonly></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Password</div><div style="position:relative"><input class="vi" id="v2p" value="••••••••••" type="password" readonly style="padding-right:28px"><button onclick="showHide('v2p','Angel$One456')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button></div></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">MPIN</div><div style="position:relative"><input class="vi" id="v2m" value="••••••" type="password" readonly style="padding-right:28px"><button onclick="showHide('v2m','376219')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button></div></div><div><div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">API Key</div><input class="vi" id="v2k" value="••••••••••••" type="password" readonly></div></div><div style="margin-top:9px;font-size:11px;color:var(--wn)">DP: <strong>IN200364 · NSDL</strong> · Session expired 4h ago</div></div>
       <!-- ── EQUITY TAB ── -->
+      <!-- ── Pending connections ── -->
+      <div class="al ali" style="margin-top:6px;margin-bottom:8px">📌 <strong>Add more equity brokers</strong> — IIFL, Kotak and HDFC Sky are live in beta. Generate your API key from their portals, paste below.</div>
+
+      <!-- ── IIFL Securities ── -->
+      <div class="vcard" style="border-color:#C00B0B;background:#FFF5F5">
+        <div class="fsb" style="margin-bottom:11px">
+          <div class="f" style="gap:9px">
+            <div class="cdot off" style="background:#C00B0B;box-shadow:0 0 0 3px rgba(192,11,11,.15)"></div>
+            <span style="font-weight:700;font-size:13px;color:#C00B0B">IIFL Securities</span>
+            <span style="font-size:11px;color:var(--mu)">NSE/BSE/F&O/Commodities</span>
+          </div>
+          <div class="f" style="gap:6px">
+            <span class="tag" style="background:#FEE2E2;color:#C00B0B">● Not Connected</span>
+            <a href="https://api.iiflsecurities.com" target="_blank" class="btn bg bxs">📖 API Docs</a>
+            <button class="btn bs bxs" onclick="connectIIFL()">Connect →</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:9px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Client Code</div>
+            <input class="vi" id="iifl-clientid" placeholder="e.g. DXYZ1234">
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Password</div>
+            <div style="position:relative">
+              <input class="vi" id="iifl-pass" type="password" placeholder="Portal password" style="padding-right:28px">
+              <button onclick="showHide('iifl-pass','')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">MPIN</div>
+            <div style="position:relative">
+              <input class="vi" id="iifl-mpin" type="password" placeholder="6-digit" maxlength="6" style="padding-right:28px;letter-spacing:3px">
+              <button onclick="showHide('iifl-mpin','')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">API Key</div>
+            <input class="vi" id="iifl-apikey" placeholder="Generate at IIFL portal">
+          </div>
+        </div>
+        <div class="al ali" style="padding:7px 10px;font-size:11px;margin-bottom:7px">
+          <strong>How to generate IIFL API key:</strong> Login to markets.iifl.com → My Account → API Settings → Generate New Key. Paste above.
+        </div>
+        <div style="font-size:11px;color:var(--mu)">IIFL Markets API · Supports: Equity, F&amp;O, Commodity, Currency · Rate: 150 req/min · Flat ₹20/order brokerage</div>
+      </div>
+
+      <!-- ── Kotak Securities ── -->
+      <div class="vcard" style="border-color:#E4371E;background:#FFF8F6">
+        <div class="fsb" style="margin-bottom:11px">
+          <div class="f" style="gap:9px">
+            <div class="cdot off" style="background:#E4371E;box-shadow:0 0 0 3px rgba(228,55,30,.15)"></div>
+            <span style="font-weight:700;font-size:13px;color:#E4371E">Kotak Securities</span>
+            <span style="font-size:11px;color:var(--mu)">NSE/BSE/F&O · Neo Zero</span>
+          </div>
+          <div class="f" style="gap:6px">
+            <span class="tag" style="background:#FEE2E2;color:#E4371E">● Not Connected</span>
+            <a href="https://openapi.kotaksecurities.com" target="_blank" class="btn bg bxs">📖 API Docs</a>
+            <button class="btn bs bxs" onclick="connectKotak()">Connect →</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:9px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">User ID</div>
+            <input class="vi" id="kotak-userid" placeholder="e.g. AB1234567">
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Password</div>
+            <div style="position:relative">
+              <input class="vi" id="kotak-pass" type="password" placeholder="Neo / Trade portal" style="padding-right:28px">
+              <button onclick="showHide('kotak-pass','')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Consumer Key</div>
+            <input class="vi" id="kotak-ck" placeholder="From Kotak API portal">
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Consumer Secret</div>
+            <div style="position:relative">
+              <input class="vi" id="kotak-cs" type="password" placeholder="Consumer Secret" style="padding-right:28px">
+              <button onclick="showHide('kotak-cs','')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="al ali" style="padding:7px 10px;font-size:11px;margin-bottom:7px">
+          <strong>How to get Kotak API keys:</strong> Login to neo.kotaksecurities.com → Tools → API → Create App. Set redirect URI to https://hormuz.co.in/callback
+        </div>
+        <div style="font-size:11px;color:var(--mu)">Kotak Neo Open API (REST) · OAuth2 · Supports: Equity, Derivatives, Commodities · GTT orders · Basket orders</div>
+      </div>
+
+      <!-- ── HDFC Sky (formerly HDFC Securities) ── -->
+      <div class="vcard" style="border-color:#005DAA;background:#F5F8FF">
+        <div class="fsb" style="margin-bottom:11px">
+          <div class="f" style="gap:9px">
+            <div class="cdot off" style="background:#005DAA;box-shadow:0 0 0 3px rgba(0,93,170,.15)"></div>
+            <span style="font-weight:700;font-size:13px;color:#005DAA">HDFC Sky</span>
+            <span style="font-size:11px;color:var(--mu)">NSE/BSE/F&O · ₹0 delivery</span>
+          </div>
+          <div class="f" style="gap:6px">
+            <span class="tag" style="background:#DBEAFE;color:#005DAA">● Not Connected</span>
+            <a href="https://developer.hdfcsky.com" target="_blank" class="btn bg bxs">📖 API Docs</a>
+            <button class="btn bp bxs" onclick="connectHDFCSky()">Connect →</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:9px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Client ID</div>
+            <input class="vi" id="hdfc-clientid" placeholder="e.g. HDFC-A123456">
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">Password</div>
+            <div style="position:relative">
+              <input class="vi" id="hdfc-pass" type="password" placeholder="Sky portal password" style="padding-right:28px">
+              <button onclick="showHide('hdfc-pass','')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">App Key</div>
+            <input class="vi" id="hdfc-appkey" placeholder="From HDFC Sky developer">
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--mu);margin-bottom:3px;text-transform:uppercase">App Secret</div>
+            <div style="position:relative">
+              <input class="vi" id="hdfc-secret" type="password" placeholder="App Secret" style="padding-right:28px">
+              <button onclick="showHide('hdfc-secret','')" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="al ali" style="padding:7px 10px;font-size:11px;margin-bottom:7px">
+          <strong>HDFC Sky API setup:</strong> developer.hdfcsky.com → Register App → Paste App Key + Secret above. Re-auth required every 24hrs via TOTP.
+        </div>
+        <div style="font-size:11px;color:var(--mu)">HDFC Sky (formerly HDFC Securities) · REST API · Supports: EQ, F&O, MF · ₹0 delivery brokerage · Good for FD-linked demat accounts</div>
+      </div>
       </div><!-- /vt-equity -->
 
       <!-- ── CRYPTO TAB ── -->
@@ -1680,6 +1815,309 @@ pre{white-space:pre-wrap;word-break:break-word}
   </div>
 </div>
 
+
+<!-- ══════════════════ REAL ESTATE & UNLISTED SHARES ══════════════════ -->
+<div class="page" id="pg-realestate">
+  <div class="ph">
+    <h2>🏠 Real Estate &amp; Unlisted Shares</h2>
+    <div style="display:flex;gap:7px">
+      <button class="btn bs bsm" onclick="openAI()">✦ AI Valuation</button>
+      <button class="btn bp bsm" onclick="addRealEstateAsset()">+ Add Asset</button>
+    </div>
+  </div>
+  <div class="ps">
+
+    <!-- NET WORTH CONTRIBUTION HERO -->
+    <div class="hero" style="margin-bottom:14px">
+      <div style="font-size:11px;opacity:.65;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Non-Market Assets — Total Value</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
+        <div id="re-total-val" style="font-family:'Playfair Display',serif;font-size:34px;font-weight:700">₹1,42,50,000</div>
+        <div style="font-size:13px;opacity:.7" id="re-total-pct">21.4% of net worth</div>
+      </div>
+      <div class="hkpis">
+        <div class="hk"><div class="hkv" id="re-count-re">3</div><div class="hkl">Properties</div></div>
+        <div class="hk"><div class="hkv" id="re-count-ul">4</div><div class="hkl">Unlisted Shares</div></div>
+        <div class="hk"><div class="hkv" id="re-yield">3.2%</div><div class="hkl">Avg Rental Yield</div></div>
+        <div class="hk"><div class="hkv" id="re-cagr">12.8%</div><div class="hkl">Appreciation CAGR</div></div>
+      </div>
+    </div>
+
+    <!-- TABS: Real Estate / Unlisted -->
+    <div class="tbar" style="margin-bottom:14px">
+      <div class="tab on" data-tc="re-prop" onclick="swTab(this)">🏠 Real Estate (3)</div>
+      <div class="tab" data-tc="re-unlisted" onclick="swTab(this)">📋 Unlisted Shares (4)</div>
+      <div class="tab" data-tc="re-add" onclick="swTab(this)">＋ Add New</div>
+    </div>
+
+    <!-- ── REAL ESTATE TAB ── -->
+    <div class="tc on" id="re-prop">
+
+      <!-- Property 1 -->
+      <div class="card sh" style="margin-bottom:11px;border-left:4px solid var(--tl)">
+        <div class="fsb" style="margin-bottom:9px">
+          <div>
+            <div style="font-weight:700;font-size:15px">🏠 3BHK — Prestige Lakeside Habitat, Whitefield</div>
+            <div style="font-size:11px;color:var(--mu);margin-top:2px">Bengaluru · Residential · BBMP approved · Self-occupied</div>
+          </div>
+          <span class="tag ttl">SELF-USE</span>
+        </div>
+        <div class="g4" style="margin-bottom:9px">
+          <div><div class="kl">Purchase Value</div><div class="kv M" style="font-size:16px">₹68.0L</div><div class="kc" style="color:var(--mu)">Mar 2018</div></div>
+          <div><div class="kl">Current Value</div><div class="kv M" style="font-size:16px;color:var(--ok)">₹1,12,00,000</div><div class="kc" style="color:var(--ok)">+₹44L (+64.7%)</div></div>
+          <div><div class="kl">CAGR</div><div class="kv M" style="font-size:16px;color:var(--tl)">8.4% p.a.</div><div class="kc" style="color:var(--mu)">7 yrs</div></div>
+          <div><div class="kl">Loan Outstanding</div><div class="kv M" style="font-size:16px;color:var(--wn)">₹18,40,000</div><div class="kc" style="color:var(--mu)">EMI ₹28,400/m</div></div>
+        </div>
+        <div class="g3" style="font-size:12px;margin-bottom:9px">
+          <div><span class="kl">Built-up Area</span><div class="M" style="font-weight:700">1,480 sq ft</div></div>
+          <div><span class="kl">Rate / sq ft</span><div class="M" style="font-weight:700">₹7,567</div></div>
+          <div><span class="kl">Registration</span><div class="M" style="font-weight:700">KA-27-2018-44821</div></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bg bsm" onclick="toast('Property valuation: Prestige Whitefield avg ₹7,200–8,100/sqft. AI estimate: ₹1.08–1.18 Cr. Last sale in society Apr 2026: ₹1.14 Cr (1,510 sqft).')">✦ AI Value</button>
+          <button class="btn bo bsm" onclick="editProperty(0)">✏ Edit</button>
+          <button class="btn bg bsm" onclick="toast('Tax: LTCG ₹44L. Exemption: Sec 54 if reinvested. Indexation benefit: 3.22×. Net LTCG after index: ₹26.8L @ 20% = ₹5.36L tax')">🧾 Tax Impact</button>
+        </div>
+      </div>
+
+      <!-- Property 2 -->
+      <div class="card sh" style="margin-bottom:11px;border-left:4px solid var(--ok)">
+        <div class="fsb" style="margin-bottom:9px">
+          <div>
+            <div style="font-weight:700;font-size:15px">🏢 Commercial Office — DLF Cybercity, Gurugram</div>
+            <div style="font-size:11px;color:var(--mu);margin-top:2px">Haryana · Commercial · Leased · ₹45,000/month</div>
+          </div>
+          <span class="tag tok">RENTED</span>
+        </div>
+        <div class="g4" style="margin-bottom:9px">
+          <div><div class="kl">Purchase Value</div><div class="kv M" style="font-size:16px">₹85.0L</div><div class="kc" style="color:var(--mu)">Jan 2021</div></div>
+          <div><div class="kl">Current Value</div><div class="kv M" style="font-size:16px;color:var(--ok)">₹1,08,00,000</div><div class="kc" style="color:var(--ok)">+₹23L (+27%)</div></div>
+          <div><div class="kl">Annual Rent</div><div class="kv M" style="font-size:16px;color:var(--tl)">₹5,40,000</div><div class="kc" style="color:var(--mu)">Yield 5.0%</div></div>
+          <div><div class="kl">Loan</div><div class="kv M" style="font-size:16px;color:var(--ok)">NIL</div><div class="kc" style="color:var(--mu)">Fully paid</div></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bg bsm" onclick="toast('Lease agreement: DLF Cybercity Office, 3-yr lock-in till Dec 2026. Tenant: Infosys Ltd. Security deposit: ₹1.35L.')">📄 Lease</button>
+          <button class="btn bo bsm" onclick="editProperty(1)">✏ Edit</button>
+          <button class="btn bg bsm" onclick="toast('Rental income: ₹5.4L/yr taxable as Income from House Property. 30% standard deduction. Net taxable: ₹3.78L @ 30% slab = ₹1.13L tax.')">🧾 Tax</button>
+        </div>
+      </div>
+
+      <!-- Property 3 -->
+      <div class="card sh" style="margin-bottom:11px;border-left:4px solid var(--sf)">
+        <div class="fsb" style="margin-bottom:9px">
+          <div>
+            <div style="font-weight:700;font-size:15px">🏗️ Plot — Sarjapur Road, East Bengaluru</div>
+            <div style="font-size:11px;color:var(--mu);margin-top:2px">Bengaluru · Vacant Land · BDA approved layout · No loan</div>
+          </div>
+          <span class="tag tsf">APPRECIATING</span>
+        </div>
+        <div class="g4" style="margin-bottom:9px">
+          <div><div class="kl">Purchase Value</div><div class="kv M" style="font-size:16px">₹14.0L</div><div class="kc" style="color:var(--mu)">Jun 2016</div></div>
+          <div><div class="kl">Current Value</div><div class="kv M" style="font-size:16px;color:var(--ok)">₹22,50,000</div><div class="kc" style="color:var(--ok)">+₹8.5L (+60%)</div></div>
+          <div><div class="kl">Area</div><div class="kv M" style="font-size:16px">1,200 sq ft</div><div class="kc" style="color:var(--mu)">Rate: ₹1,875/sqft</div></div>
+          <div><div class="kl">Rental Yield</div><div class="kv M" style="font-size:16px;color:var(--mu)">NIL</div><div class="kc" style="color:var(--mu)">Vacant land</div></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bg bsm" onclick="toast('Sarjapur Road plot avg rate: ₹1,600–2,200/sqft. Metro Phase 3 (Yellow Line) will pass within 1.2km by 2028 — AI projects +30–40% appreciation by 2028.')">✦ AI Outlook</button>
+          <button class="btn bo bsm" onclick="editProperty(2)">✏ Edit</button>
+        </div>
+      </div>
+
+      <button class="btn bp" onclick="swTabById('re-add')" style="width:100%;justify-content:center;margin-bottom:8px">+ Add Another Property</button>
+    </div>
+
+    <!-- ── UNLISTED SHARES TAB ── -->
+    <div class="tc" id="re-unlisted">
+      <div class="al ali" style="margin-bottom:12px">📋 Unlisted shares are valued at <strong>last known transaction price</strong> or face value. Update regularly for accurate net worth. SEBI circular: must be held 24 months for LTCG at 20%.</div>
+
+      <table class="dt" style="margin-bottom:12px">
+        <thead><tr><th>Company</th><th>Qty</th><th>Avg Cost</th><th>LTP / Est.</th><th>Current Value</th><th>P&amp;L</th><th>Type</th><th>Action</th></tr></thead>
+        <tbody id="unlisted-tbody">
+          <tr>
+            <td><strong>National Stock Exchange (NSE)</strong><br><span style="font-size:10px;color:var(--mu)">Pre-IPO · Lot: 25</span></td>
+            <td class="M">100</td>
+            <td class="M">₹1,800</td>
+            <td class="M" style="color:var(--ok)">₹2,950 <span style="font-size:9px;color:var(--mu)">(Est.)</span></td>
+            <td class="M" style="color:var(--ok)">₹2,95,000</td>
+            <td class="M" style="color:var(--ok)">+₹1,15,000</td>
+            <td><span class="tag ttl">Pre-IPO</span></td>
+            <td><button class="btn bg bxs" onclick="toast('NSE pre-IPO: SEBI filing pending. est. IPO timeline 2026–27. Unlock conditions: no lock-in post-IPO for institutional. Check your broker for exit window.')">Details</button></td>
+          </tr>
+          <tr>
+            <td><strong>HDB Financial Services</strong><br><span style="font-size:10px;color:var(--mu)">HDFC Group NBFC · IPO 2025</span></td>
+            <td class="M">200</td>
+            <td class="M">₹850</td>
+            <td class="M" style="color:var(--ok)">₹1,050 <span style="font-size:9px;color:var(--mu)">(LTP)</span></td>
+            <td class="M" style="color:var(--ok)">₹2,10,000</td>
+            <td class="M" style="color:var(--ok)">+₹40,000</td>
+            <td><span class="tag tok">Listed</span></td>
+            <td><button class="btn bg bxs" onclick="toast('HDB Financial IPO: Oct 2025. Listed NSE/BSE. Lock-in expired for your shares. Can sell via broker terminal.')">Trade</button></td>
+          </tr>
+          <tr>
+            <td><strong>PhysicsWallah (PW)</strong><br><span style="font-size:10px;color:var(--mu)">EdTech Unicorn · Series C</span></td>
+            <td class="M">50</td>
+            <td class="M">₹4,200</td>
+            <td class="M" style="color:var(--tl)">₹5,800 <span style="font-size:9px;color:var(--mu)">(Last round)</span></td>
+            <td class="M" style="color:var(--tl)">₹2,90,000</td>
+            <td class="M" style="color:var(--ok)">+₹80,000</td>
+            <td><span class="tag tmu">Startup</span></td>
+            <td><button class="btn bg bxs" onclick="toast('PW Series C valuation: $2.8B. Last secondary trade: ₹5,800/share via Unlistedkart. No IPO date announced. Consider: Smallcase unlisted pre-IPO route for exit.')">Details</button></td>
+          </tr>
+          <tr>
+            <td><strong>Orbis Financial</strong><br><span style="font-size:10px;color:var(--mu)">ESOPs · SEBI licensed</span></td>
+            <td class="M">500</td>
+            <td class="M">₹120</td>
+            <td class="M" style="color:var(--ok)">₹340 <span style="font-size:9px;color:var(--mu)">(Est.)</span></td>
+            <td class="M" style="color:var(--ok)">₹1,70,000</td>
+            <td class="M" style="color:var(--ok)">+₹1,10,000</td>
+            <td><span class="tag tsf">ESOPs</span></td>
+            <td><button class="btn bg bxs" onclick="toast('ESOP vesting: 4-yr cliff. 250 shares vested. 250 unvested (1.5yrs remaining). Exercise price ₹120. Company SEBI-reg IA. Tax: perquisite tax on exercise, LTCG on sale.')">ESOP Details</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card sh" style="margin-bottom:11px">
+        <div class="ct">Unlisted Portfolio Summary</div>
+        <div class="g4">
+          <div><div class="kl">Total Invested</div><div class="kv M" style="font-size:16px">₹6,45,000</div></div>
+          <div><div class="kl">Current Value</div><div class="kv M" style="font-size:16px;color:var(--ok)">₹9,65,000</div></div>
+          <div><div class="kl">Unrealised Gain</div><div class="kv M" style="font-size:16px;color:var(--ok)">+₹3,20,000 (+49.6%)</div></div>
+          <div><div class="kl">LTCG Tax (if sold)</div><div class="kv M" style="font-size:16px;color:var(--wn)">₹64,000 (20%)</div></div>
+        </div>
+      </div>
+
+      <button class="btn bp" onclick="swTabById('re-add')" style="width:100%;justify-content:center">+ Add Unlisted Holding</button>
+    </div>
+
+    <!-- ── ADD NEW ASSET TAB ── -->
+    <div class="tc" id="re-add">
+      <div class="g2" style="margin-bottom:14px">
+
+        <!-- Real Estate Entry Form -->
+        <div class="card sh">
+          <div class="ct">Add Real Estate Property</div>
+          <form onsubmit="saveRealEstate(event)" autocomplete="off">
+            <div style="margin-bottom:10px">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Property Type</label>
+              <select class="fi" id="re-type" style="padding:7px 10px">
+                <option value="residential">🏠 Residential (Self-use)</option>
+                <option value="rental">🏢 Commercial / Rental</option>
+                <option value="plot">🏗️ Plot / Land</option>
+                <option value="farm">🌾 Farm / Agricultural</option>
+                <option value="reit">📊 REIT Units</option>
+              </select>
+            </div>
+            <div style="margin-bottom:10px">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Property Name / Description</label>
+              <input class="fi" id="re-name" placeholder="e.g. 3BHK Prestige Whitefield, Bengaluru" required>
+            </div>
+            <div class="g2" style="margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Purchase Value (₹)</label>
+                <input class="fi M" id="re-cost" type="number" placeholder="6800000" required>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Purchase Date</label>
+                <input class="fi" id="re-date" type="date" required>
+              </div>
+            </div>
+            <div class="g2" style="margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Current Estimated Value (₹)</label>
+                <input class="fi M" id="re-curval" type="number" placeholder="11200000" required>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Monthly Rent Income (₹)</label>
+                <input class="fi M" id="re-rent" type="number" placeholder="0 if self-use">
+              </div>
+            </div>
+            <div class="g2" style="margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Area (sq ft)</label>
+                <input class="fi M" id="re-area" type="number" placeholder="1480">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Loan Outstanding (₹)</label>
+                <input class="fi M" id="re-loan" type="number" placeholder="0">
+              </div>
+            </div>
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Registration / Document No.</label>
+              <input class="fi M" id="re-regn" placeholder="e.g. KA-27-2018-44821" style="letter-spacing:1px">
+            </div>
+            <button type="submit" class="btn bp" style="width:100%;justify-content:center">Save Property →</button>
+          </form>
+        </div>
+
+        <!-- Unlisted Shares Entry Form -->
+        <div class="card sh">
+          <div class="ct">Add Unlisted / Pre-IPO Shares</div>
+          <form onsubmit="saveUnlisted(event)" autocomplete="off">
+            <div style="margin-bottom:10px">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Holding Type</label>
+              <select class="fi" id="ul-type" style="padding:7px 10px">
+                <option value="preipo">📋 Pre-IPO (Unlisted)</option>
+                <option value="esop">💼 ESOP / RSU</option>
+                <option value="startup">🚀 Startup Equity</option>
+                <option value="pe">🏦 PE / AIF Co-invest</option>
+                <option value="other">📁 Other Unlisted</option>
+              </select>
+            </div>
+            <div style="margin-bottom:10px">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Company Name</label>
+              <input class="fi" id="ul-company" placeholder="e.g. National Stock Exchange, PhysicsWallah" required>
+            </div>
+            <div class="g2" style="margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Qty / Shares</label>
+                <input class="fi M" id="ul-qty" type="number" placeholder="100" required>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Avg Cost per Share (₹)</label>
+                <input class="fi M" id="ul-cost" type="number" placeholder="1800" required>
+              </div>
+            </div>
+            <div class="g2" style="margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Current LTP / Estimate (₹)</label>
+                <input class="fi M" id="ul-ltp" type="number" placeholder="2950" required>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Purchase Date</label>
+                <input class="fi" id="ul-date" type="date" required>
+              </div>
+            </div>
+            <div style="margin-bottom:10px">
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Notes (lock-in, IPO date, vesting)</label>
+              <input class="fi" id="ul-notes" placeholder="e.g. IPO expected Q3 2026 · 24-month lock-in">
+            </div>
+            <div style="background:var(--cr);border-radius:7px;padding:9px 11px;font-size:11px;color:var(--mu);margin-bottom:12px;line-height:1.6">
+              <strong style="color:var(--sl)">Tax reminder:</strong> Unlisted shares held &lt;24 months = STCG @ slab rate. ≥24 months = LTCG @ 20% with indexation. ESOPs: perquisite tax on exercise date.
+            </div>
+            <button type="submit" class="btn bp" style="width:100%;justify-content:center">Save Unlisted Holding →</button>
+          </form>
+        </div>
+
+      </div><!-- /g2 -->
+
+      <!-- AI Valuation Helper -->
+      <div class="card sh" style="margin-top:4px">
+        <div class="fsb" style="margin-bottom:9px">
+          <div class="ct" style="margin-bottom:0">✦ AI Property Valuation Assistant</div>
+          <span class="tag ttl">Powered by Claude</span>
+        </div>
+        <div style="font-size:13px;color:var(--mu);margin-bottom:10px">Describe your property or unlisted holding and get an AI estimate of current market value, rental yield, and tax implications.</div>
+        <div style="display:flex;gap:7px;margin-bottom:8px">
+          <input class="fi" id="re-ai-q" placeholder="e.g. 2BHK in Powai Mumbai, 1,000 sqft, bought 2019 for ₹1.2Cr, near Hiranandani Gardens" style="flex:1" onkeydown="if(event.key==='Enter')reAIVal()">
+          <button class="btn bp bsm" onclick="reAIVal()">✦ Estimate →</button>
+        </div>
+        <div id="re-ai-result" style="display:none;background:var(--cr);border-radius:8px;padding:10px 13px;font-size:13px;line-height:1.6"></div>
+      </div>
+    </div><!-- /re-add -->
+
+  </div>
+</div>
+<!-- /pg-realestate -->
+
 <!-- ══════════════════ HOLDINGS MAP ══════════════════ -->
 <div class="page" id="pg-hmap">
   <div class="ph"><h2>🗂️ Holdings Map</h2><button class="btn bs bsm" onclick="openAI()">✦ Consolidate Advice</button></div>
@@ -1952,8 +2390,69 @@ class HormuzAuth:
 
 <!-- ══════════════════ TAX ══════════════════ -->
 <div class="page" id="pg-tax">
-  <div class="ph"><h2>Tax & Reports</h2><button class="btn bs bsm" onclick="toast('Downloading FY26 Tax Report PDF...')">Download Report</button></div>
+  <div class="ph"><h2>Tax & Reports</h2>
+    <div style="display:flex;gap:7px;align-items:center">
+      <button class="btn bp bsm" onclick="generateWealthPDF()">📄 Wealth Statement PDF</button>
+      <button class="btn bs bsm" onclick="generateTaxPDF()">🧾 Tax Report PDF</button>
+    </div>
+  </div>
   <div class="ps">
+    <!-- PDF GENERATOR CARD -->
+    <div class="card sh" style="margin-bottom:14px;border-top:3px solid var(--tl)">
+      <div class="fsb" style="margin-bottom:12px">
+        <div>
+          <div style="font-weight:700;font-size:15px">📄 Monthly Wealth Statement Generator</div>
+          <div style="font-size:11px;color:var(--mu);margin-top:2px">Auto-generated consolidated report — ready for CA, family office, or advisor</div>
+        </div>
+        <span class="tag ttl">Print-Ready</span>
+      </div>
+      <div class="g3" style="margin-bottom:14px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase">Statement Month</label>
+          <select class="fi" id="pdf-month" style="padding:7px 10px">
+            <option value="apr-2026">April 2026</option>
+            <option value="mar-2026">March 2026</option>
+            <option value="feb-2026">February 2026</option>
+            <option value="jan-2026">January 2026</option>
+            <option value="dec-2025">December 2025</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase">Statement Type</label>
+          <select class="fi" id="pdf-type" style="padding:7px 10px">
+            <option value="full">Full Wealth Statement</option>
+            <option value="equity">Equity + MF Only</option>
+            <option value="tax">Tax P&amp;L Report</option>
+            <option value="family">Family Office Summary</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase">Recipient</label>
+          <select class="fi" id="pdf-recipient" style="padding:7px 10px">
+            <option value="self">Self (Full Detail)</option>
+            <option value="ca">CA / Advisor (Tax Focus)</option>
+            <option value="family">Family Member (Totals)</option>
+            <option value="rm">Relationship Manager</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--cr);border-radius:8px;padding:11px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Statement includes:</div>
+        <div class="g3" style="font-size:12px;gap:5px">
+          <div>✓ Net Worth Summary (all assets)</div><div>✓ Equity Holdings P&amp;L</div>
+          <div>✓ Mutual Fund XIRR table</div><div>✓ Crypto / Gold live values</div>
+          <div>✓ STCG / LTCG tax summary</div><div>✓ AI Portfolio Score + insights</div>
+          <div>✓ Asset allocation chart</div><div>✓ Family member summary</div>
+          <div>✓ Month-on-month change</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn bp" onclick="generateWealthPDF()" style="justify-content:center">📄 Generate &amp; Download PDF</button>
+        <button class="btn bg bsm" onclick="previewWealthStatement()">👁 Preview</button>
+        <button class="btn bo bsm" onclick="toast('Email feature: configure in Settings → Notifications → CA email address')">📧 Email to CA</button>
+        <div id="pdf-status" style="font-size:12px;color:var(--mu)"></div>
+      </div>
+    </div>
     <div class="g3" style="margin-bottom:12px"><div class="card sh"><div class="kl">STCG (15% tax)</div><div class="kv">₹24,800</div><div class="kc" style="color:var(--mu)">Tax: ₹3,720</div></div><div class="card sh"><div class="kl">LTCG (10% above ₹1L)</div><div class="kv">₹1,18,200</div><div class="kc" style="color:var(--mu)">Tax: ₹1,820</div></div><div class="card sh" style="border-color:var(--sf)"><div class="kl">Harvestable Loss</div><div class="kv" style="color:var(--sf)">₹18,200</div><div class="kc" style="color:var(--ok)">Saves ₹2,730</div></div></div>
     <div class="al alo" style="margin-bottom:12px">✅ <strong>Tax Harvest:</strong> WIPRO at −₹18,200 unrealised loss. Book before Mar 31 to save ₹2,730 in STCG tax. Rebuy after 31 days.<div style="margin-top:7px"><button class="btn bs bsm" onclick="nav('trade');selBroker(1);toast('Pre-loaded: SELL WIPRO 200 @ market in Groww to harvest loss')">Execute Harvest via Groww →</button></div></div>
     <div class="card sh"><div class="ct">Cross-Broker P&L — FY 2025-26</div><table class="dt"><thead><tr><th>Asset</th><th>Broker</th><th>Cost</th><th>Current</th><th>P&L</th><th>Type</th><th>Tax</th></tr></thead><tbody><tr><td>RELIANCE (50+30)</td><td><span class="bpz bz">Z</span>+<span class="bpz bgr">G</span></td><td class="M">₹1,90,350</td><td class="M">₹2,27,760</td><td class="M" style="color:var(--ok)">+₹37,410</td><td>Mixed</td><td class="M">Calculating</td></tr><tr><td>INFY (100)</td><td><span class="bpz bz">Z</span></td><td class="M">₹1,21,000</td><td class="M">₹1,45,600</td><td class="M" style="color:var(--ok)">+₹24,600</td><td>LTCG</td><td class="M">₹0*</td></tr><tr><td>WIPRO (200)</td><td><span class="bpz bgr">G</span></td><td class="M">₹1,13,800</td><td class="M">₹95,600</td><td class="M" style="color:var(--er)">−₹18,200</td><td>Unrealised</td><td class="M">Harvest →</td></tr><tr><td>HDFC Flexicap MF</td><td><span class="bpz bgr">G</span></td><td class="M">₹1,70,024</td><td class="M">₹2,18,224</td><td class="M" style="color:var(--ok)">+₹48,200</td><td>LTCG</td><td class="M">₹1,820*</td></tr></tbody></table><div style="padding:8px 11px;font-size:11px;color:var(--mu)">*LTCG exempt up to ₹1 lakh/year. Remaining ₹18,200 taxed at 10%.</div></div>
@@ -3798,7 +4297,7 @@ function buildUserTable(events) {
     if (e.event === 'page_view' && e.page) u.pages[e.page] = (u.pages[e.page] || 0) + 1;
   });
 
-  const PAGE_LABELS = {dashboard:'Dashboard',portfolio:'Holdings',trade:'Terminal',mf:'MF',bonds:'Bonds',tax:'Tax',vault:'Vault',hmap:'Holdings Map',api:'API',orders:'Orders',insurance:'Insurance',premium:'AIFs'};
+  const PAGE_LABELS = {dashboard:'Dashboard',portfolio:'Holdings',trade:'Terminal',mf:'MF',bonds:'Bonds',tax:'Tax',vault:'Vault',hmap:'Holdings Map',realestate:'Real Estate & Unlisted',api:'API',orders:'Orders',insurance:'Insurance',premium:'AIFs'};
 
   const rows = Object.entries(userMap)
     .sort((a,b) => b[1].sessions.size - a[1].sessions.size)
@@ -5683,6 +6182,434 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+
+// ══════════════════════════════════════════════════════
+// REAL ESTATE & UNLISTED SHARES
+// ══════════════════════════════════════════════════════
+let RE_PROPERTIES = [];
+let RE_UNLISTED   = [];
+
+function saveRealEstate(e){
+  e.preventDefault();
+  const prop = {
+    id:    Date.now(),
+    type:  document.getElementById('re-type').value,
+    name:  document.getElementById('re-name').value,
+    cost:  parseFloat(document.getElementById('re-cost').value)||0,
+    date:  document.getElementById('re-date').value,
+    curval:parseFloat(document.getElementById('re-curval').value)||0,
+    rent:  parseFloat(document.getElementById('re-rent').value)||0,
+    area:  parseFloat(document.getElementById('re-area').value)||0,
+    loan:  parseFloat(document.getElementById('re-loan').value)||0,
+    regn:  document.getElementById('re-regn').value,
+  };
+  RE_PROPERTIES.push(prop);
+  // Persist to Supabase user_holdings if available
+  if(typeof saveHoldingToSupabase === 'function'){
+    saveHoldingToSupabase({
+      asset_class:'real_estate',
+      asset_name: prop.name,
+      value:      prop.curval,
+      notes:      JSON.stringify(prop)
+    });
+  }
+  toast('✓ Property saved: ' + prop.name + ' · ₹' + (prop.curval/100000).toFixed(1) + 'L');
+  // Clear form
+  e.target.reset();
+  // Switch to properties tab
+  swTabById('re-prop');
+  updateRETotals();
+}
+
+function saveUnlisted(e){
+  e.preventDefault();
+  const h = {
+    id:      Date.now(),
+    type:    document.getElementById('ul-type').value,
+    company: document.getElementById('ul-company').value,
+    qty:     parseFloat(document.getElementById('ul-qty').value)||0,
+    cost:    parseFloat(document.getElementById('ul-cost').value)||0,
+    ltp:     parseFloat(document.getElementById('ul-ltp').value)||0,
+    date:    document.getElementById('ul-date').value,
+    notes:   document.getElementById('ul-notes').value,
+  };
+  h.value = h.qty * h.ltp;
+  h.pnl   = h.value - h.qty * h.cost;
+  RE_UNLISTED.push(h);
+  if(typeof saveHoldingToSupabase === 'function'){
+    saveHoldingToSupabase({
+      asset_class:'unlisted',
+      asset_name: h.company,
+      value:      h.value,
+      notes:      JSON.stringify(h)
+    });
+  }
+  const pnlStr = h.pnl >= 0 ? '+₹' + (h.pnl/1000).toFixed(1) + 'K' : '-₹' + (Math.abs(h.pnl)/1000).toFixed(1) + 'K';
+  toast('✓ Holding saved: ' + h.company + ' · ' + h.qty + ' shares · ' + pnlStr);
+  e.target.reset();
+  swTabById('re-unlisted');
+  updateRETotals();
+}
+
+function editProperty(idx){
+  toast('Edit mode: tap into any field to update. Re-save to confirm changes.');
+}
+
+function swTabById(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const bar = el.closest('.page') || document.body;
+  bar.querySelectorAll('.tbar .tab').forEach(t => {
+    const on = t.dataset.tc === id;
+    t.classList.toggle('on', on);
+  });
+  bar.querySelectorAll('.tc').forEach(tc => tc.classList.toggle('on', tc.id === id));
+}
+
+function updateRETotals(){
+  const reVal = RE_PROPERTIES.reduce((s,p)=>s+p.curval,0);
+  const ulVal = RE_UNLISTED.reduce((s,h)=>s+h.value,0);
+  const total = reVal + ulVal;
+  const el = document.getElementById('re-total-val');
+  if(el) el.textContent = '₹' + total.toLocaleString('en-IN');
+}
+
+async function reAIVal(){
+  const q = document.getElementById('re-ai-q')?.value?.trim();
+  if(!q){ toast('Describe your property first'); return; }
+  const result = document.getElementById('re-ai-result');
+  if(!result) return;
+  result.style.display='block';
+  result.innerHTML='<span style="color:var(--mu)">✦ Analysing property...</span>';
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        messages:[{role:'user',content:'Indian real estate advisor. Give: 1) estimated current market value range, 2) rental yield %, 3) LTCG tax if sold now, 4) 2-year outlook. Be specific with ₹ numbers. Property: '+q}]
+      })
+    });
+    const d = await resp.json();
+    const txt = d.content?.[0]?.text || 'Could not get valuation.';
+    result.innerHTML = txt.replace(/\n/g,'<br>');
+  }catch(e){
+    result.innerHTML = 'AI valuation temporarily unavailable. Manual estimate: use recent society transactions ±10%.';
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// BROKER CONNECT FUNCTIONS — IIFL / Kotak / HDFC Sky
+// ══════════════════════════════════════════════════════
+function connectIIFL(){
+  const id  = document.getElementById('iifl-clientid')?.value?.trim();
+  const pwd = document.getElementById('iifl-pass')?.value?.trim();
+  const key = document.getElementById('iifl-apikey')?.value?.trim();
+  if(!id || !key){ toast('Enter IIFL Client Code + API Key to connect'); return; }
+  toast('Connecting IIFL Securities... Authenticating via REST API. Session token valid 6hrs. Holdings will appear in Dashboard.');
+  // Mark as connected in UI
+  const card = document.getElementById('iifl-clientid')?.closest('.vcard');
+  if(card){
+    card.style.borderColor='var(--ok)';
+    card.style.background='#F0FDF8';
+    const dot = card.querySelector('.cdot');
+    if(dot){ dot.className='cdot ok'; }
+    const statusTag = card.querySelector('.tag');
+    if(statusTag){ statusTag.className='tag tok'; statusTag.textContent='● Connected'; }
+  }
+  document.getElementById('vault-count').textContent = '12 accounts across 7 asset classes';
+}
+
+function connectKotak(){
+  const id  = document.getElementById('kotak-userid')?.value?.trim();
+  const ck  = document.getElementById('kotak-ck')?.value?.trim();
+  if(!id || !ck){ toast('Enter Kotak User ID + Consumer Key to connect'); return; }
+  toast('Connecting Kotak Neo API... OAuth2 token requested. Supports zero-brokerage delivery orders. Holdings syncing...');
+  const card = document.getElementById('kotak-userid')?.closest('.vcard');
+  if(card){
+    card.style.borderColor='var(--ok)';
+    card.style.background='#F0FDF8';
+    const dot = card.querySelector('.cdot');
+    if(dot){ dot.className='cdot ok'; }
+    const statusTag = card.querySelector('.tag');
+    if(statusTag){ statusTag.className='tag tok'; statusTag.textContent='● Connected'; }
+  }
+}
+
+function connectHDFCSky(){
+  const id  = document.getElementById('hdfc-clientid')?.value?.trim();
+  const key = document.getElementById('hdfc-appkey')?.value?.trim();
+  if(!id || !key){ toast('Enter HDFC Sky Client ID + App Key to connect'); return; }
+  toast('Connecting HDFC Sky API... Verifying credentials. FD-linked holdings and equity will sync. TOTP re-auth required every 24hrs.');
+  const card = document.getElementById('hdfc-clientid')?.closest('.vcard');
+  if(card){
+    card.style.borderColor='#005DAA';
+    card.style.background='#EFF5FF';
+    const dot = card.querySelector('.cdot');
+    if(dot){ dot.className='cdot ok'; dot.style.background='#005DAA'; }
+    const statusTag = card.querySelector('.tag');
+    if(statusTag){ statusTag.style.background='#DBEAFE'; statusTag.style.color='#005DAA'; statusTag.textContent='● Connected'; }
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// MONTHLY WEALTH STATEMENT PDF GENERATOR
+// Pure client-side: builds HTML → print dialog → PDF
+// No server needed. Works in any browser.
+// ══════════════════════════════════════════════════════
+function previewWealthStatement(){
+  const month = document.getElementById('pdf-month')?.value || 'apr-2026';
+  const monthLabel = document.getElementById('pdf-month')?.options[document.getElementById('pdf-month').selectedIndex]?.text || 'April 2026';
+  const type = document.getElementById('pdf-type')?.value || 'full';
+  toast('Opening statement preview for ' + monthLabel + '...');
+  const html = buildStatementHTML(monthLabel, type, false);
+  const w = window.open('','_blank','width=900,height=700,scrollbars=yes');
+  if(w){ w.document.write(html); w.document.close(); }
+}
+
+function generateWealthPDF(){
+  const month  = document.getElementById('pdf-month')?.value || 'apr-2026';
+  const monthLabel = document.getElementById('pdf-month')?.options[document.getElementById('pdf-month').selectedIndex]?.text || 'April 2026';
+  const type    = document.getElementById('pdf-type')?.value    || 'full';
+  const recipient = document.getElementById('pdf-recipient')?.value || 'self';
+  const statusEl = document.getElementById('pdf-status');
+  if(statusEl) statusEl.textContent = '⏳ Generating...';
+  toast('📄 Building ' + monthLabel + ' wealth statement...');
+  setTimeout(()=>{
+    const html = buildStatementHTML(monthLabel, type, true);
+    const w = window.open('','_blank');
+    if(!w){ toast('⚠ Pop-up blocked — allow pop-ups for PDF download'); if(statusEl) statusEl.textContent='⚠ Pop-up blocked'; return; }
+    w.document.write(html);
+    w.document.close();
+    w.onload = () => { w.print(); };
+    if(statusEl) statusEl.textContent='✓ Opened in new tab — use Ctrl+P / Save as PDF';
+    toast('✓ Statement ready in new tab. Use Ctrl+P → Save as PDF to download.');
+  }, 300);
+}
+
+function generateTaxPDF(){
+  const monthLabel = 'FY 2025-26';
+  toast('📄 Building FY26 Tax Report...');
+  setTimeout(()=>{
+    const html = buildTaxReportHTML(monthLabel);
+    const w = window.open('','_blank');
+    if(!w){ toast('⚠ Pop-up blocked'); return; }
+    w.document.write(html); w.document.close();
+    w.onload = () => w.print();
+  }, 300);
+}
+
+function buildStatementHTML(monthLabel, type, forPrint){
+  const u = document.getElementById('user-name')?.textContent || 'Rahul Kumar';
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const printCSS = forPrint ? '@media print{.noprint{display:none}.page-break{page-break-before:always}}' : '';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Hormuz Wealth Statement — ${monthLabel}</title>
+<style>
+  ${printCSS}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#2C3E47;background:#fff;padding:24px}
+  .hdr{background:linear-gradient(135deg,#08404D,#0D5C6B 60%,#1A7D90);color:#fff;padding:24px 28px;border-radius:10px;margin-bottom:20px}
+  .hdr h1{font-size:26px;font-weight:700;margin-bottom:4px}
+  .hdr .sub{font-size:13px;opacity:.8}
+  .logo{font-size:18px;font-weight:700;opacity:.9;margin-bottom:8px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:16px 0;border-top:1px solid rgba(255,255,255,.2);padding-top:14px}
+  .kpi .val{font-size:20px;font-weight:700;font-family:'Courier New',monospace;margin-bottom:2px}
+  .kpi .lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.5px}
+  h2{font-size:14px;font-weight:700;color:#08404D;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 9px;border-bottom:2px solid #E88A2E;padding-bottom:5px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+  th{background:#F7F3EE;text-align:left;padding:7px 10px;font-size:10px;font-weight:700;color:#6B7E85;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #E2E8EA}
+  td{padding:7px 10px;border-bottom:1px solid #F0F4F5}
+  tr:last-child td{border-bottom:none}
+  .ok{color:#1A9E6B;font-weight:600} .er{color:#C0392B;font-weight:600} .wn{color:#D4860C}
+  .mono{font-family:'Courier New',monospace}
+  .section{background:#FAFAF8;border:1px solid #E2E8EA;border-radius:8px;padding:16px;margin-bottom:14px}
+  .ai-box{background:#EBF5F7;border:1px solid #1A7D90;border-radius:8px;padding:14px;margin-bottom:14px}
+  .ai-box .ai-title{color:#08404D;font-weight:700;margin-bottom:6px}
+  .footer{margin-top:24px;padding-top:12px;border-top:1px solid #E2E8EA;font-size:10px;color:#9BA8B0;text-align:center;line-height:1.6}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .asset-bar{height:8px;border-radius:4px;background:#E2E8EA;overflow:hidden;margin-top:4px}
+  .asset-bar-fill{height:100%;border-radius:4px}
+</style></head><body>
+
+<div class="hdr">
+  <div class="logo">⬡ Hormuz</div>
+  <h1>${u} — Consolidated Wealth Statement</h1>
+  <div class="sub">${monthLabel} · Generated ${today} · All values in INR</div>
+  <div class="kpis">
+    <div class="kpi"><div class="val">₹18.43L</div><div class="lbl">Total Net Worth</div></div>
+    <div class="kpi"><div class="val">+₹58,240</div><div class="lbl">Month Change</div></div>
+    <div class="kpi"><div class="val">82/100</div><div class="lbl">AI Health Score</div></div>
+    <div class="kpi"><div class="val">7</div><div class="lbl">Asset Classes</div></div>
+  </div>
+</div>
+
+<h2>Asset Allocation Overview</h2>
+<div class="section">
+  <div class="two-col">
+    <div>
+      ${[
+        ['Equity (Listed)',    '₹13,40,850', '72.8%', '#0D5C6B'],
+        ['Mutual Funds',       '₹12,35,239', '67.0%', '#E88A2E'],
+        ['Crypto',             '₹5,20,184',  '28.2%', '#F7931A'],
+        ['Gold / Bullion',     '₹2,10,720',  '11.4%', '#C9932A'],
+        ['Bonds / FD',         '₹90,000',    '4.9%',  '#6366f1'],
+        ['Real Estate',        '₹2,42,50,000','—',    '#1A9E6B'],
+        ['Unlisted Shares',    '₹9,65,000',  '—',     '#7C3AED'],
+      ].map(([n,v,p,c])=>`
+        <div style="margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-weight:600">${n}</span>
+            <span class="mono">${v} <span style="color:#9BA8B0;font-size:10px">${p}</span></span>
+          </div>
+          ${p!=='—'?`<div class="asset-bar"><div class="asset-bar-fill" style="width:${p};background:${c}"></div></div>`:''}
+        </div>
+      `).join('')}
+    </div>
+    <div>
+      <div style="background:#F7F3EE;border-radius:8px;padding:14px">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:#08404D">Key Insights — ${monthLabel}</div>
+        <div style="line-height:1.8;font-size:12px">
+          ✦ Net worth grew <strong>+₹58,240 (+0.32%)</strong> this month<br>
+          ⚠ RELIANCE: 16.2% of equity portfolio (above 10% limit)<br>
+          ✓ Gold allocation 8.5% — approaching target 10%<br>
+          🧾 WIPRO unrealised loss ₹18,200 — harvest before Mar 31<br>
+          💎 Eligible for Cat III AIF (portfolio &gt; ₹1 Crore)<br>
+          📈 Best performer: Axis Small Cap MF +28.4% XIRR
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Equity Holdings — Cross-Broker</h2>
+<table>
+  <thead><tr><th>Stock</th><th>Broker</th><th>Qty</th><th>Avg Cost</th><th>LTP</th><th>Value</th><th>P&L</th><th>Return</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RELIANCE</strong></td><td>Zerodha + Groww</td><td class="mono">80</td><td class="mono">₹2,374</td><td class="mono">₹2,847</td><td class="mono">₹2,27,760</td><td class="ok">+₹37,840</td><td class="ok">+19.9%</td></tr>
+    <tr><td><strong>INFY</strong></td><td>Zerodha</td><td class="mono">100</td><td class="mono">₹1,210</td><td class="mono">₹1,456</td><td class="mono">₹1,45,600</td><td class="ok">+₹24,600</td><td class="ok">+20.3%</td></tr>
+    <tr><td><strong>HDFCBANK</strong></td><td>Zerodha</td><td class="mono">60</td><td class="mono">₹1,420</td><td class="mono">₹1,614</td><td class="mono">₹96,840</td><td class="ok">+₹11,640</td><td class="ok">+13.7%</td></tr>
+    <tr><td><strong>TCS</strong></td><td>Angel One</td><td class="mono">25</td><td class="mono">₹3,650</td><td class="mono">₹3,912</td><td class="mono">₹97,800</td><td class="ok">+₹6,550</td><td class="ok">+7.2%</td></tr>
+    <tr><td><strong>WIPRO</strong></td><td>Groww</td><td class="mono">200</td><td class="mono">₹569</td><td class="mono">₹478</td><td class="mono">₹95,600</td><td class="er">−₹18,200</td><td class="er">−16.0%</td></tr>
+  </tbody>
+</table>
+
+<h2>Mutual Funds — CAMS + KFintech</h2>
+<table>
+  <thead><tr><th>Scheme</th><th>Folio</th><th>Units</th><th>NAV</th><th>Value</th><th>Gain</th><th>XIRR</th></tr></thead>
+  <tbody>
+    <tr><td><strong>SBI Nifty 50 Index</strong></td><td class="mono">SBI-1234</td><td class="mono">4,821</td><td class="mono">₹154.93</td><td class="mono">₹7,47,128</td><td class="ok">+₹1,47,128</td><td class="ok">+24.5%</td></tr>
+    <tr><td><strong>Axis Small Cap</strong></td><td class="mono">AX-5678</td><td class="mono">1,124</td><td class="mono">₹182.74</td><td class="mono">₹2,05,403</td><td class="ok">+₹45,403</td><td class="ok">+28.4%</td></tr>
+    <tr><td><strong>Mirae ELSS Tax Saver</strong></td><td class="mono">MI-9012</td><td class="mono">892</td><td class="mono">₹173.60</td><td class="mono">₹1,54,854</td><td class="ok">+₹34,854</td><td class="ok">+29.0%</td></tr>
+    <tr><td><strong>Parag Parikh Flexicap</strong></td><td class="mono">PP-3456</td><td class="mono">478</td><td class="mono">₹140.05</td><td class="mono">₹66,942</td><td class="ok">+₹11,942</td><td class="ok">+27.7%</td></tr>
+    <tr><td><strong>HDFC Flexicap Fund</strong></td><td class="mono">HD-7890</td><td class="mono">423</td><td class="mono">₹118.60</td><td class="mono">₹50,190</td><td class="ok">+₹12,190</td><td class="ok">+32.1%</td></tr>
+  </tbody>
+</table>
+
+<h2>Tax Summary — FY 2025-26</h2>
+<div class="two-col">
+  <table>
+    <thead><tr><th>Category</th><th>Amount</th><th>Tax Rate</th><th>Tax Due</th></tr></thead>
+    <tbody>
+      <tr><td>Equity STCG</td><td class="mono">₹24,800</td><td>15%</td><td class="wn">₹3,720</td></tr>
+      <tr><td>Equity LTCG</td><td class="mono">₹1,18,200</td><td>10% above ₹1L</td><td class="wn">₹1,820</td></tr>
+      <tr><td>MF LTCG</td><td class="mono">₹2,41,517</td><td>10% above ₹1L</td><td class="wn">₹14,152</td></tr>
+      <tr><td>Crypto</td><td class="mono">₹38,400</td><td>30% flat</td><td class="wn">₹11,520</td></tr>
+      <tr><td><strong>Total Tax Liability</strong></td><td class="mono"><strong>—</strong></td><td>—</td><td class="er"><strong>₹31,212</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="ai-box">
+    <div class="ai-title">✦ AI Tax Optimisation — ${monthLabel}</div>
+    <div style="font-size:12px;line-height:1.7">
+      🧾 <strong>Harvest WIPRO:</strong> Book −₹18,200 loss. Offset STCG. Save ₹2,730.<br>
+      📅 <strong>Deadline:</strong> March 31, 2026<br>
+      💡 Reinvest in Nifty 50 after 31 days to maintain sector exposure.<br>
+      📊 Net tax after harvest: <strong>₹28,482 (saving ₹2,730)</strong>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Generated by Hormuz AI Wealth Aggregator · hormuz.co.in · ${today}<br>
+  This statement is for informational purposes only. Not a SEBI-registered investment advisor. Consult your CA for tax filing.<br>
+  Hormuz is not responsible for omissions or errors in broker API data. Verify figures with your broker statements.
+</div>
+</body></html>`;
+}
+
+function buildTaxReportHTML(period){
+  const u = document.getElementById('user-name')?.textContent || 'Rahul Kumar';
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Hormuz Tax Report ${period}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#2C3E47;background:#fff;padding:24px}
+  .hdr{background:#08404D;color:#fff;padding:20px 24px;border-radius:8px;margin-bottom:18px}
+  h1{font-size:22px;font-weight:700;margin-bottom:3px}
+  h2{font-size:13px;font-weight:700;color:#08404D;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;border-bottom:2px solid #E88A2E;padding-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+  th{background:#F7F3EE;text-align:left;padding:7px 10px;font-size:10px;font-weight:700;color:#6B7E85;text-transform:uppercase;border-bottom:1px solid #E2E8EA}
+  td{padding:7px 10px;border-bottom:1px solid #F0F4F5}
+  .ok{color:#1A9E6B;font-weight:600} .er{color:#C0392B;font-weight:600} .wn{color:#D4860C;font-weight:600}
+  .mono{font-family:'Courier New',monospace}
+  .total-row td{font-weight:700;background:#F7F3EE}
+  .footer{margin-top:20px;padding-top:10px;border-top:1px solid #E2E8EA;font-size:10px;color:#9BA8B0;text-align:center}
+</style></head><body>
+<div class="hdr">
+  <div style="font-size:13px;opacity:.75;margin-bottom:6px">⬡ Hormuz Tax Report</div>
+  <h1>${u} — Capital Gains Statement — ${period}</h1>
+  <div style="font-size:12px;opacity:.75;margin-top:4px">PAN: ABCDE1234F · Generated: ${today} · For CA / ITR Filing</div>
+</div>
+<h2>Short-Term Capital Gains (STCG) — 15%</h2>
+<table>
+  <thead><tr><th>Asset</th><th>Broker</th><th>Buy Date</th><th>Sell Date</th><th>Buy Price</th><th>Sell Price</th><th>Qty</th><th>STCG</th></tr></thead>
+  <tbody>
+    <tr><td>RELIANCE (30 sold)</td><td>Groww</td><td class="mono">12-Mar-2025</td><td class="mono">14-Sep-2025</td><td class="mono">₹2,480</td><td class="mono">₹2,690</td><td class="mono">30</td><td class="ok">+₹6,300</td></tr>
+    <tr><td>BTC (0.01 sold)</td><td>CoinDCX</td><td class="mono">05-Jan-2025</td><td class="mono">22-Aug-2025</td><td class="mono">₹52,00,000</td><td class="mono">₹71,40,000</td><td class="mono">0.01</td><td class="wn">+₹19,400 (Crypto 30%)</td></tr>
+    <tr class="total-row"><td colspan="7">Total STCG (Equity)</td><td class="ok">₹6,300</td></tr>
+    <tr class="total-row"><td colspan="7">Crypto flat 30% gains</td><td class="wn">₹19,400</td></tr>
+  </tbody>
+</table>
+<h2>Long-Term Capital Gains (LTCG) — 10% above ₹1L</h2>
+<table>
+  <thead><tr><th>Asset</th><th>Buy Date</th><th>Cost Basis</th><th>Sale Value</th><th>Gain</th><th>LTCG Taxable</th></tr></thead>
+  <tbody>
+    <tr><td>INFY (100)</td><td class="mono">05-Feb-2024</td><td class="mono">₹1,21,000</td><td class="mono">₹1,45,600</td><td class="ok">+₹24,600</td><td class="wn">₹0 (within ₹1L exempt)</td></tr>
+    <tr><td>Mirae ELSS MF</td><td class="mono">15-Apr-2023</td><td class="mono">₹1,20,000</td><td class="mono">₹1,54,854</td><td class="ok">+₹34,854</td><td class="wn">₹1,820 tax (10% on ₹18.2K)</td></tr>
+    <tr><td>SBI Nifty 50</td><td class="mono">01-Jul-2022</td><td class="mono">₹6,00,000</td><td class="mono">₹7,47,128</td><td class="ok">+₹1,47,128</td><td class="wn">₹4,713 tax (10% on ₹47.1K)</td></tr>
+    <tr class="total-row"><td colspan="4">Total LTCG</td><td class="ok">₹2,06,582</td><td class="wn">₹6,533 tax</td></tr>
+  </tbody>
+</table>
+<h2>Tax Harvest Recommendation</h2>
+<table>
+  <thead><tr><th>Action</th><th>Stock</th><th>Unrealised Loss</th><th>Tax Saved</th><th>Deadline</th></tr></thead>
+  <tbody>
+    <tr><td>SELL (harvest)</td><td>WIPRO 200 qty</td><td class="er">−₹18,200</td><td class="ok">₹2,730 saved</td><td class="wn">31-Mar-2026</td></tr>
+  </tbody>
+</table>
+<h2>Total Tax Liability Summary</h2>
+<table>
+  <thead><tr><th>Category</th><th>Gains</th><th>Rate</th><th>Tax</th></tr></thead>
+  <tbody>
+    <tr><td>STCG (Equity)</td><td class="ok">₹6,300</td><td>15%</td><td class="wn">₹945</td></tr>
+    <tr><td>LTCG (Equity + MF)</td><td class="ok">₹2,06,582</td><td>10%</td><td class="wn">₹6,533</td></tr>
+    <tr><td>Crypto (30% flat)</td><td class="ok">₹38,400</td><td>30%</td><td class="wn">₹11,520</td></tr>
+    <tr class="total-row"><td>GROSS TAX BEFORE HARVEST</td><td>—</td><td>—</td><td class="er">₹18,998</td></tr>
+    <tr><td>WIPRO Harvest Benefit</td><td class="er">−₹18,200</td><td>15%</td><td class="ok">−₹2,730</td></tr>
+    <tr class="total-row"><td>NET TAX DUE</td><td>—</td><td>—</td><td class="er">₹16,268</td></tr>
+  </tbody>
+</table>
+<div class="footer">
+  Hormuz AI Tax Report · hormuz.co.in · Generated ${today}<br>
+  For CA reference only. Not a substitute for professional tax advice. Verify with Form 26AS + broker contract notes.
+</div>
+</body></html>`;
+}
 
 </script>
 </body>
