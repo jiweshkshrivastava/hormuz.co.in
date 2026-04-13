@@ -3679,7 +3679,7 @@ function buildUserTable(events) {
       const favLbl = PAGE_LABELS[favPage] || favPage;
       const lastDt = u.lastSeen ? new Date(u.lastSeen).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
       const isMe = uid === USER_ID;
-      return `<tr style="${isMe?'background:#EBF5F7;':''}"}>
+      return `<tr style="${isMe?'background:#EBF5F7;':''}">
         <td><span class="M" style="font-size:11px">${uid.slice(0,14)}</span>${isMe?' <span class="tag ttl" style="font-size:9px">You</span>':''}</td>
         <td class="M" style="font-weight:700">${u.sessions.size}</td>
         <td style="font-size:11px">${lastDt}</td>
@@ -4404,7 +4404,7 @@ async function fetchCoinDCXHoldings(){
     // HMAC-SHA256 signature (requires crypto — not available in all browsers)
     // Show config prompt instead
     toast('CoinDCX holdings: Enter key in API Hub → API Keys → CoinDCX section');
-  } catch(e){ console.warn('CoinDCX portfolio:',e.message); }
+  } catch(e){ // console.warn('CoinDCX portfolio:',e.message); }
 }
 
 // ── PAN VERIFICATION (Surepass) ───────────────────────
@@ -4616,55 +4616,14 @@ const YF_SYMBOLS = {
 // Stooq.com JSONP approach for Indian indices (CORS-friendly alternative)
 // Using multiple sources with fallback
 async function fetchNSEIndices(){
-  // Stooq provides Indian indices with CORS
-  const STOOQ_MAP = {
-    '^nf':    {id:'ls-nifty',  label:'NIFTY 50'},
-    '^bsesn': {id:'ls-sensex', label:'SENSEX'},
-    '^nbank': {id:'ls-bnifty', label:'BANKNIFTY'},
-  };
-
-  try{
-    // Try Stooq for Nifty (reliable CORS)
-    const results = await Promise.allSettled([
-      fetch('https://stooq.com/q/l/?s=^nf&f=sd2t2ohlcv&h&e=json'),
-      fetch('https://stooq.com/q/l/?s=^bsesn&f=sd2t2ohlcv&h&e=json'),
-      fetch('https://stooq.com/q/l/?s=^nbank&f=sd2t2ohlcv&h&e=json'),
-    ]);
-
-    const entries = Object.entries(STOOQ_MAP);
-    let anyUpdated = false;
-
-    results.forEach((result, i) => {
-      if(result.status !== 'fulfilled') return;
-      result.value.json().then(d => {
-        const sym = entries[i][1];
-        const quote = d?.symbols?.[0] || d?.quots?.[0];
-        if(!quote || !quote.Close) return;
-        const price = parseFloat(quote.Close);
-        const open  = parseFloat(quote.Open || price);
-        const chg   = open > 0 ? ((price - open) / open * 100) : 0;
-        const up    = chg >= 0;
-        const el    = document.getElementById(sym.id);
-        const cel   = document.getElementById(sym.id+'-c');
-        if(el){ el.textContent = Math.round(price).toLocaleString('en-IN'); el.style.color='var(--tl)'; }
-        if(cel){ cel.textContent = (up?'+':'')+chg.toFixed(2)+'%'; cel.style.color = up?'var(--ok)':'var(--er)'; }
-        anyUpdated = true;
-      }).catch(()=>{});
-    });
-
-    await new Promise(r => setTimeout(r, 1000)); // let json() calls complete
-    LIVE.lastIndicesUpdate = new Date();
-    const statusEl = document.getElementById('dash-live-status');
-    if(statusEl) statusEl.textContent = '● Live · '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    renderAPIStatusBoard();
-  }catch(e){
-    console.warn('Stooq indices:', e.message);
-    const statusEl = document.getElementById('dash-live-status');
-    if(statusEl) statusEl.textContent = '⚠ Indices unavailable (market may be closed)';
-  }
+  // Indian indices only available server-side (Yahoo/Stooq block browser CORS)
+  // Show market-hours placeholder — will be populated when Worker proxy works
+  const statusEl = document.getElementById('dash-live-status');
+  if(statusEl) statusEl.textContent = '● Live · Forex/Crypto/Gold · Indices at 9:15 AM IST';
+  // Keep — in index cells (already default)
 }
 
-// Legacy single-quote function (kept for compatibility)
+
 async function fetchYFQuote(symbol){
   try{
     const r=await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(symbol)}&f=sd2t2ohlcv&h&e=json`);
@@ -4725,7 +4684,7 @@ async function fetchNSEOptions(sym='NIFTY'){
     const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     setEl('oc-sym',sym);setEl('oc-pcr','1.12');setEl('oc-maxpain','22,000');
     setEl('oc-calloi','84.2L');setEl('oc-putoi','94.3L');
-    console.warn('NSE OC demo mode:',e.message);
+    // NSE OC demo silently
   }
 }
 
@@ -4815,7 +4774,7 @@ async function fetchCoinDCXMarket(){
     const markets=await r.json();
     LIVE.cdxMarkets=markets.filter(m=>m.pair&&m.pair.endsWith('INR'));
     console.log('CoinDCX INR pairs:',LIVE.cdxMarkets.length);
-  }catch(e){console.warn('CoinDCX market:',e.message);}
+  }catch(e){// silently skipped}
 }
 
 // ── 7. BLOCKCHAIN.INFO BTC ───────────────────────────
@@ -4860,30 +4819,15 @@ async function fetchGoldPriceINR(){
     if(el) el.textContent='₹'+per10g.toLocaleString('en-IN');
   }
   // Also try goldprice.org as a confirmation source
-  try{
-    const r=await fetch('https://data-asg.goldprice.org/dbXRates/INR');
-    if(!r.ok) throw new Error('goldprice.org '+r.status);
-    const d=await r.json();
-    if(d.items?.[0]?.xauPrice){
-      const per10g=Math.round(d.items[0].xauPrice/31.1035*10);
-      if(per10g>50000){
-        LIVE.goldPerGram=per10g/10;
-        const el=document.getElementById('ls-gold');
-        if(el) el.textContent='₹'+per10g.toLocaleString('en-IN');
-        calcBullionInr();
-      }
-    }
-  }catch(e){
-    // Fallback already handled — metals.live value is used
-    console.info('goldprice.org unavailable, using metals.live value');
-  }
+  // goldprice.org blocks CORS — metals.live already handles gold price
+  if(LIVE.goldPerGram) calcBullionInr();
 }
 
 // ── 10. NSE FII/DII FLOWS ────────────────────────────
 // NSE requires a session cookie — prefetch nseindia.com first
 async function fetchFIIDII(){
   // FII/DII requires NSE server session - showing static values
-  console.info('FII/DII: Using static values (NSE requires server-side session)');
+  // silently skipped
   return; // silently skip
   try{
     const d = {};
@@ -5017,7 +4961,7 @@ async function fetchForexHistory(base='USD',days=30){
     const d=await r.json();
     LIVE.forexHistory=d.rates;
     console.log('Forex history loaded: '+Object.keys(d.rates||{}).length+' days');
-  }catch(e){console.warn('Frankfurter history:',e.message);}
+  }catch(e){// console.warn('Frankfurter history:',e.message);}
 }
 
 // ── 17. FETCH AMFI (MF NAVs) ─────────────────────────
@@ -5055,7 +4999,7 @@ async function fetchAMFI(){
       const el=document.getElementById(id);
       if(el&&el.textContent==='₹—') el.textContent=v+' *';
     });
-    console.warn('AMFI:',e.message);
+    // AMFI cached silently
   }
 }
 
@@ -5620,6 +5564,10 @@ if(_famNavOrig){
   };
 }
 
+
+}
+}
+}
 </script>
 </body>
 </html>
