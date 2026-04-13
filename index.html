@@ -4317,85 +4317,9 @@ const AMFI_FUNDS = [
   {name:'Mirae Asset Tax Saver',  id:'nav-mirae'},
 ];
 
-async function fetchAMFI(){
-  // AMFI doesn't support browser CORS — use reliable cached NAVs (April 2026)
-  const CACHED_NAVS = {
-    'nav-hdfc':    125.84,
-    'nav-ppfas':   88.12,
-    'nav-mirae':   132.60,
-  };
-  Object.entries(CACHED_NAVS).forEach(([id,nav])=>{
-    const el=document.getElementById(id);
-    if(el) el.textContent='₹'+nav.toFixed(2);
-    LIVE[id]=nav;
-  });
-  LIVE.lastAMFIUpdate=new Date();
-  renderAPIStatusBoard();
-}
-
-
 // ── NSE OPTION CHAIN ──────────────────────────────────
-async function fetchNSEOptions(sym='NIFTY'){
-  try {
-    // NSE requires browser-like headers; works in real browser, blocked in sandbox
-    const r = await fetch('https://www.nseindia.com/api/option-chain-indices?symbol='+sym, {
-      headers:{'Accept':'application/json','User-Agent':'Mozilla/5.0'}
-    });
-    if(!r.ok) throw new Error('NSE OC '+r.status);
-    const d = await r.json();
-    const records = d.records||{};
-    const data    = records.data||[];
-    const expiry  = (records.expiryDates||[])[0]||'';
-
-    // Calculate PCR and max pain
-    let totalCallOI=0, totalPutOI=0;
-    data.filter(x=>x.expiryDate===expiry).forEach(x=>{
-      if(x.CE) totalCallOI += x.CE.openInterest||0;
-      if(x.PE) totalPutOI  += x.PE.openInterest||0;
-    });
-    const pcr = totalCallOI>0 ? (totalPutOI/totalCallOI).toFixed(2) : '—';
-
-    LIVE.nseOC = {sym, expiry, pcr, callOI:totalCallOI, putOI:totalPutOI};
-    toast(`✓ ${sym} option chain: PCR ${pcr} · Expiry ${expiry} · ${data.length} strikes`);
-    renderAPIStatusBoard();
-  } catch(e){
-    // Demo response for sandbox
-    LIVE.nseOC = {sym, expiry:'2026-04-24', pcr:'1.12', callOI:8420000, putOI:9430000};
-    toast(`✓ ${sym} option chain (demo): PCR 1.12 — Bullish bias · Real data available in browser`);
-  }
-}
-
 // ── RBI REFERENCE RATE ────────────────────────────────
-async function fetchRBIRate(){
-  const el=document.getElementById('rbi-status');
-  if(el){el.className='tag twn';el.textContent='Fetching...';}
-  try {
-    // Try ExchangeRate-API for RBI-equivalent rate (RBI site blocks CORS)
-    // RBI publishes daily at 1:30 PM; closest public equivalent is ER-API
-    const r = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-    const d = await r.json();
-    const rbi = d.rates?.INR || 83.42;
-    LIVE.rbiRate = rbi;
-    LIVE.lastRBIUpdate = new Date();
-    if(el){el.className='tag tok';el.textContent='₹'+rbi.toFixed(4)+'/USD';}
-    // Update forex page
-    const lsUsd=document.getElementById('ls-usd');
-    if(lsUsd) lsUsd.textContent='₹'+rbi.toFixed(2);
-    toast('✓ RBI ref rate: USD/INR = ₹'+rbi.toFixed(4)+' (via ExchangeRate-API · RBI site CORS-blocked)');
-    renderAPIStatusBoard();
-  } catch(e){
-    if(el){el.className='tag ter';el.textContent='Offline';}
-    toast('RBI rate unavailable — using cached ₹'+LIVE.usdInr.toFixed(2));
-  }
-}
-
 // ── COINDCX PUBLIC MARKET DATA (no auth) ─────────────
-async function fetchCoinDCXMarket(){
-  // CoinDCX market data not critical — skip silently
-  console.info('CoinDCX market: using CoinGecko data instead');
-}
-
-
 async function fetchCoinDCXHoldings(){
   if(!KEYS.cdxk || !KEYS.cdxs){ return; }
   try {
@@ -4404,7 +4328,7 @@ async function fetchCoinDCXHoldings(){
     // HMAC-SHA256 signature (requires crypto — not available in all browsers)
     // Show config prompt instead
     toast('CoinDCX holdings: Enter key in API Hub → API Keys → CoinDCX section');
-  } catch(e){ // console.warn('CoinDCX portfolio:',e.message); }
+  } catch(e){ /* silently skipped */ }
 }
 
 // ── PAN VERIFICATION (Surepass) ───────────────────────
@@ -4774,7 +4698,7 @@ async function fetchCoinDCXMarket(){
     const markets=await r.json();
     LIVE.cdxMarkets=markets.filter(m=>m.pair&&m.pair.endsWith('INR'));
     console.log('CoinDCX INR pairs:',LIVE.cdxMarkets.length);
-  }catch(e){// silently skipped}
+  }catch(e){ /* silently skipped */ }
 }
 
 // ── 7. BLOCKCHAIN.INFO BTC ───────────────────────────
@@ -4961,7 +4885,7 @@ async function fetchForexHistory(base='USD',days=30){
     const d=await r.json();
     LIVE.forexHistory=d.rates;
     console.log('Forex history loaded: '+Object.keys(d.rates||{}).length+' days');
-  }catch(e){// console.warn('Frankfurter history:',e.message);}
+  }catch(e){ /* silently skipped */ }
 }
 
 // ── 17. FETCH AMFI (MF NAVs) ─────────────────────────
@@ -5565,9 +5489,6 @@ if(_famNavOrig){
 }
 
 
-}
-}
-}
 </script>
 </body>
 </html>
