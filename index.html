@@ -300,6 +300,116 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .acard.off{background:var(--wh)}
 .ep{background:rgba(0,0,0,.07);padding:2px 7px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;display:inline-block;margin:2px}
 pre{white-space:pre-wrap;word-break:break-word}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — HNI on the go
+   Breakpoints: 900px tablet / 640px phone
+═══════════════════════════════════════════ */
+
+/* Hamburger button — hidden on desktop */
+#mob-menu-btn{display:none;background:none;border:none;color:#fff;font-size:21px;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0}
+
+@media(max-width:900px){
+  :root{--sw:0px}
+  body{overflow:auto;height:auto;min-height:100vh}
+  .body{flex-direction:column;overflow:visible}
+
+  /* Show hamburger */
+  #mob-menu-btn{display:flex;align-items:center;justify-content:center}
+
+  /* Sidebar becomes overlay drawer */
+  aside{
+    position:fixed;left:0;top:var(--hh);bottom:0;width:220px;
+    transform:translateX(-100%);transition:transform .25s ease;
+    z-index:500;box-shadow:4px 0 20px rgba(0,0,0,.18);
+    overflow-y:auto
+  }
+  aside.mob-open{transform:translateX(0)}
+
+  /* Dim overlay when sidebar open */
+  #mob-overlay{display:none;position:fixed;inset:0;top:var(--hh);background:rgba(8,64,77,.45);z-index:499}
+  #mob-overlay.on{display:block}
+
+  main{width:100%;min-height:calc(100vh - var(--hh))}
+  .page{overflow:visible}
+  .ps{overflow:visible;padding:12px 14px}
+
+  /* Ticker shrinks on tablet */
+  .ticker-w{max-width:calc(100vw - 260px)}
+
+  /* Grids collapse */
+  .g4{grid-template-columns:1fr 1fr}
+  .hkpis{grid-template-columns:1fr 1fr}
+  .hk{border-right:none;padding-right:0;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:8px;margin-bottom:4px}
+  .hk:last-child{border-bottom:none}
+
+  /* Trade terminal collapses */
+  .terminal{grid-template-columns:1fr;height:auto;overflow:visible;display:flex;flex-direction:column}
+  .tl{max-height:240px;border-right:none;border-bottom:1px solid var(--bd)}
+  .tr{border-left:none;border-top:1px solid var(--bd);max-height:320px}
+  .tc2{min-height:400px}
+  .ca{min-height:220px}
+}
+
+@media(max-width:640px){
+  /* Header */
+  .ticker-w{display:none}
+  header{gap:6px;padding:0 10px}
+  .logo{font-size:16px}
+
+  /* Full-width single column */
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .hkpis{grid-template-columns:1fr 1fr}
+
+  /* Auth modal */
+  .mbox{padding:18px 14px!important}
+  .mbox .g2{grid-template-columns:1fr 1fr}
+
+  /* Page header wraps */
+  .ph{flex-wrap:wrap;gap:6px;padding:10px 14px}
+  .ph h2{font-size:16px}
+
+  /* Hero */
+  .hero{padding:15px}
+  .hkpis{gap:10px}
+  .hkv{font-size:14px}
+
+  /* MPIN digits */
+  .mpd{width:36px;height:44px;font-size:17px}
+
+  /* Vault grid collapses */
+  .vcard [style*="grid-template-columns:repeat(4"]{display:grid!important;grid-template-columns:1fr 1fr!important}
+
+  /* Holdings map chips wrap nicely */
+  .hmc{gap:5px}
+
+  /* AI panel full-width on mobile */
+  #aip{width:calc(100vw - 20px);right:10px;left:10px;bottom:80px;max-height:72vh}
+  #aifab{bottom:14px;right:14px}
+
+  /* Tables scroll horizontally */
+  .dt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .dt{min-width:520px}
+
+  /* Score ring size */
+  .ring svg{width:80px!important;height:80px!important}
+  .rv{font-size:16px!important}
+
+  /* Terminal on mobile — full stack */
+  .terminal{min-height:auto}
+  .tl{max-height:200px}
+  .tr{max-height:280px}
+  .ofields{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:400px){
+  .mbox{padding:14px 10px!important}
+  .mpd{width:32px;height:40px;font-size:15px}
+  .mpins{gap:5px}
+  .hkpis{grid-template-columns:1fr 1fr;font-size:11px}
+  .hkv{font-size:13px}
+  .ofields{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -324,7 +434,7 @@ pre{white-space:pre-wrap;word-break:break-word}
     </div>
 
     <!-- SIGN IN FORM -->
-    <div id="auth-in">
+    <form id="auth-in" onsubmit="doSignIn();return false;" autocomplete="on">
       <div style="margin-bottom:12px">
         <label style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--sl)">Email Address</label>
         <input class="fi" id="si-email" type="email" placeholder="you@example.com" autocomplete="email">
@@ -340,7 +450,7 @@ pre{white-space:pre-wrap;word-break:break-word}
         <span onclick="authTab('reset')" style="font-size:12px;color:var(--tl);cursor:pointer;font-weight:600">Forgot password?</span>
       </div>
       <div id="si-err" style="color:var(--er);font-size:12px;min-height:16px;margin-bottom:8px;text-align:center"></div>
-      <button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="doSignIn()">Sign In →</button>
+      <button class="btn bp" type="submit" style="width:100%;justify-content:center;padding:10px">Sign In →</button>
       <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:0.5px;background:var(--bd)"></div>
         <span style="font-size:11px;color:var(--mu)">or continue with</span>
@@ -351,10 +461,10 @@ pre{white-space:pre-wrap;word-break:break-word}
         <button class="btn bg" style="width:100%;justify-content:center;gap:7px" onclick="socialAuth('apple')"><span style="font-size:15px">🍎</span>Apple</button>
       </div>
       <div style="font-size:11px;color:var(--mu);text-align:center;margin-top:16px;line-height:1.6">By signing in you agree to Hormuz's <span style="color:var(--tl);cursor:pointer">Terms of Service</span> and <span style="color:var(--tl);cursor:pointer">Privacy Policy</span>.<br>Hormuz is not a SEBI-registered investment advisor.</div>
-    </div>
+    </form>
 
     <!-- SIGN UP FORM -->
-    <div id="auth-up" style="display:none">
+    <form id="auth-up" style="display:none" onsubmit="doSignUp();return false;" autocomplete="on">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div>
           <label style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--sl)">First Name</label>
@@ -381,20 +491,20 @@ pre{white-space:pre-wrap;word-break:break-word}
         <input class="fi" id="su-pass2" type="password" placeholder="Repeat your password" autocomplete="new-password">
       </div>
       <div id="su-err" style="color:var(--er);font-size:12px;min-height:16px;margin-bottom:8px;text-align:center"></div>
-      <button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="doSignUp()">Create Account →</button>
+      <button class="btn bp" type="submit" style="width:100%;justify-content:center;padding:10px">Create Account →</button>
       <div style="font-size:11px;color:var(--mu);text-align:center;margin-top:14px;line-height:1.6">By creating an account you agree to Hormuz's <span style="color:var(--tl);cursor:pointer">Terms of Service</span> and <span style="color:var(--tl);cursor:pointer">Privacy Policy</span>.<br>Hormuz is not a SEBI-registered investment advisor.</div>
-    </div>
+    </form>
 
     <!-- FORGOT PASSWORD -->
-    <div id="auth-reset" style="display:none">
+    <form id="auth-reset" style="display:none" onsubmit="doReset();return false;" autocomplete="on">
       <div style="text-align:center;font-size:28px;margin-bottom:10px">🔑</div>
       <h3 style="font-family:'Playfair Display',serif;font-size:17px;color:var(--tld);text-align:center;margin-bottom:6px">Reset Password</h3>
       <p style="font-size:13px;color:var(--mu);text-align:center;margin-bottom:16px">Enter your email and we'll send a reset link</p>
       <input class="fi" id="reset-email" type="email" placeholder="you@example.com" style="margin-bottom:12px">
       <div id="reset-msg" style="font-size:12px;min-height:16px;margin-bottom:8px;text-align:center"></div>
-      <button class="btn bp" style="width:100%;justify-content:center" onclick="doReset()">Send Reset Link →</button>
+      <button class="btn bp" type="submit" style="width:100%;justify-content:center">Send Reset Link →</button>
       <div style="text-align:center;margin-top:12px"><span onclick="authTab('in')" style="font-size:12px;color:var(--tl);cursor:pointer;font-weight:600">← Back to Sign In</span></div>
-    </div>
+    </form>
 
   </div>
 </div>
@@ -446,7 +556,7 @@ pre{white-space:pre-wrap;word-break:break-word}
 
 <!-- HEADER -->
 <header>
-  <div class="logo">Hormuz</div>
+  <button id="mob-menu-btn" onclick="toggleMobMenu()" aria-label="Menu">☰</button><div class="logo">Hormuz</div>
   <div class="ticker-w"><div class="ticker-i" id="ticker"></div></div>
   <div class="f" style="gap:8px;flex-shrink:0">
     <button class="hb" onclick="toast('📬 4 alerts: RELIANCE duplication, KYC renewal, tax harvest ₹2,730, Energy overweight')">🔔 <span style="width:6px;height:6px;background:#f87171;border-radius:50%;display:inline-block"></span></button>
@@ -2686,13 +2796,31 @@ function showDemoBanner(){
   if(existing) return;
   const banner = document.createElement('div');
   banner.id = 'demo-banner';
-  banner.className = 'al ali';
-  banner.style.cssText = 'margin:8px 12px;position:sticky;top:62px;z-index:50;cursor:pointer';
-  banner.innerHTML = '📊 <strong>Demo mode</strong> — Showing sample data. <span style="color:var(--tl);font-weight:700">Add your broker API keys →</span> to see your real portfolio.';
-  banner.onclick = ()=>nav('vault');
-  // Insert at top of dashboard
-  const dash = document.getElementById('pg-dashboard');
-  if(dash) dash.insertBefore(banner, dash.firstChild);
+  banner.style.cssText = [
+    'background:linear-gradient(90deg,var(--tld),var(--tl) 60%,var(--tll))',
+    'color:#fff','padding:10px 16px','display:flex','align-items:center',
+    'justify-content:space-between','gap:10px','font-size:13px','font-weight:600',
+    'border-bottom:2px solid var(--sf)','flex-shrink:0','flex-wrap:wrap'
+  ].join(';');
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">
+      <span style="font-size:16px;flex-shrink:0">✦</span>
+      <span>Demo: <strong>Sharma Family Office</strong> · ₹4.82 Cr AUM · AI Score 82/100
+        <span style="opacity:.75;font-size:11px"> — Connect real brokers in Vault to see your own data.</span>
+      </span>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center;flex-shrink:0">
+      <button onclick="activatePitchMode()" style="background:var(--sf);border:none;color:#fff;padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;white-space:nowrap">🎯 Pitch Mode</button>
+      <button onclick="showPage('vault');document.getElementById('demo-banner').remove()" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);color:#fff;padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;white-space:nowrap">🔑 Connect Brokers</button>
+      <button onclick="document.getElementById('demo-banner').remove()" style="background:none;border:none;color:rgba(255,255,255,.55);font-size:18px;cursor:pointer;padding:0 2px;line-height:1">✕</button>
+    </div>
+  `;
+  const pgDash = document.getElementById('pg-dashboard');
+  if(pgDash){
+    const ps = pgDash.querySelector('.ps');
+    if(ps) pgDash.insertBefore(banner, ps);
+    else pgDash.insertBefore(banner, pgDash.firstChild);
+  }
 }
 
 function hideDemoBanner(){
@@ -4983,7 +5111,7 @@ async function importCAMSFolios(){
 }
 
 function generateDemoFolios(pan){
-  // Realistic demo data based on common HNI MF portfolio
+  // Demo: Sharma Family Office — ₹12.35L MF portfolio across 6 schemes (XIRR ~25.8%)
   return [
     {fund_name:'HDFC Flexi Cap Fund', rta:'CAMS', folio:'1234567/89', units:423.156, nav:118.60, current_value:50190, invested:38000, scheme_code:'HDFCFC', plan:'Growth', option:'Direct'},
     {fund_name:'Parag Parikh Flexi Cap Fund', rta:'CAMS', folio:'9876543/01', units:812.440, nav:82.40, current_value:66942, invested:55000, scheme_code:'PPFCF', plan:'Growth', option:'Direct'},
@@ -5488,6 +5616,73 @@ if(_famNavOrig){
   };
 }
 
+
+
+// ══════════════════════════════════════════
+// PITCH MODE — Clean demo for client presentations
+// Hides construction notices, maximises data showcase
+// ══════════════════════════════════════════
+let PITCH_MODE_ACTIVE = false;
+
+function activatePitchMode(){
+  PITCH_MODE_ACTIVE = !PITCH_MODE_ACTIVE;
+  document.getElementById('demo-banner')?.remove();
+
+  if(PITCH_MODE_ACTIVE){
+    // Inject pitch mode bar
+    const bar = document.createElement('div');
+    bar.id = 'pitch-bar';
+    bar.style.cssText = 'background:linear-gradient(90deg,var(--sf),var(--go));color:#fff;padding:6px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;flex-shrink:0;z-index:100;letter-spacing:.5px';
+    bar.innerHTML = `
+      <span>🎯 PITCH MODE — Showing sample Sharma Family Office · ₹4.82 Cr AUM · AI Score 82/100</span>
+      <button onclick="activatePitchMode()" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">Exit Pitch Mode</button>
+    `;
+
+    // Insert pitch bar before main content
+    const mainEl = document.querySelector('main') || document.querySelector('.body');
+    if(mainEl) mainEl.parentNode.insertBefore(bar, mainEl);
+
+    // Navigate to Dashboard for best first impression
+    showPage('dashboard');
+
+    // Hide any "pending" notices from view
+    document.querySelectorAll('.al').forEach(el => {
+      if(el.textContent.includes('pending') || el.textContent.includes('TODO') || el.textContent.includes('In progress')){
+        el.style.display = 'none';
+      }
+    });
+
+    toast('🎯 Pitch Mode ON — showing Sharma Family Office demo');
+  } else {
+    document.getElementById('pitch-bar')?.remove();
+    // Restore hidden alerts
+    document.querySelectorAll('.al').forEach(el => el.style.display = '');
+    showDemoBanner();
+    toast('Pitch Mode OFF');
+  }
+}
+
+// Mobile sidebar toggle
+function toggleMobMenu(){
+  const aside = document.querySelector('aside');
+  const overlay = document.getElementById('mob-overlay');
+  if(!aside || !overlay) return;
+  const open = aside.classList.toggle('mob-open');
+  overlay.classList.toggle('on', open);
+}
+function closeMobMenu(){
+  document.querySelector('aside')?.classList.remove('mob-open');
+  document.getElementById('mob-overlay')?.classList.remove('on');
+}
+
+// Close sidebar when a nav item is clicked on mobile
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.ni').forEach(ni => {
+    ni.addEventListener('click', () => {
+      if(window.innerWidth <= 900) closeMobMenu();
+    });
+  });
+});
 
 </script>
 </body>
